@@ -5,12 +5,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Rol } from 'src/user/entities/roles.entity';
 import { Horario } from './entities/horario.entity';
 import { Entrenadores } from 'src/user/entities/entrenadores.entity';
-import { User } from 'src/user/entities/user.entity';
-import { Horario2 } from './entities/horario2.entity';
+import { HorarioEmpleado } from './entities/horario_empleado.entity';
 @Module({
-    imports: [TypeOrmModule.forFeature([Horario, Horario2])],
-  
+  imports: [TypeOrmModule.forFeature([Horario, HorarioEmpleado]), Entrenadores, Rol],
+
   controllers: [HorarioController],
   providers: [HorarioService],
+  exports: [TypeOrmModule],
 })
 export class HorarioModule {}

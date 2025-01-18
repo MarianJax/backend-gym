@@ -9,20 +9,22 @@ import {
   ManyToOne,
   OneToMany,
 } from 'typeorm';
-@Entity({ name: 'pago' })
+@Entity({ schema: 'esq_gimnasio', name: 'pago' })
 export class Pago {
   @PrimaryGeneratedColumn({ name: 'id_pago' })
   id: number;
 
   @Column()
-  date: Date;
+  monto: string;
 
   @Column()
   email: string;
   @Column()
-  tipo_pago: 'diario' | 'mensual';
+  fecha_pago: string;
 
+  @Column()
+  metodo_pago: 'Diario' | 'Mensual';
 
-
-  
+  @ManyToOne(() => Agendamiento, (agendamiento) => agendamiento.pagos)
+  agendamiento: Agendamiento;
 }

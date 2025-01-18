@@ -7,8 +7,9 @@ import { Agendamiento } from 'src/agendamiento/entities/agendamiento.entity';
 import { Mantenimiento } from 'src/maquina/entities/mantenimiento.entity';
 import { Membresia } from './entities/membresia.entity';
 @Module({
-  imports: [TypeOrmModule.forFeature([Pago, Mantenimiento])],
+  imports: [TypeOrmModule.forFeature([Pago, Membresia]), Agendamiento],
   controllers: [PagoController],
   providers: [PagoService],
+  exports: [TypeOrmModule],
 })
 export class PagoModule {}

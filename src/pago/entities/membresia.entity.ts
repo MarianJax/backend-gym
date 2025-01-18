@@ -10,20 +10,22 @@ import {
   OneToOne,
   OneToMany,
 } from 'typeorm';
-@Entity({ name: 'membresia' })
+@Entity({ schema: 'esq_gimnasio', name: 'membresia' })
 export class Membresia {
   @PrimaryGeneratedColumn({ name: 'id_membresia' })
   id: number;
 
   @Column()
-  date: Date;
+  fecha_inicio: string;
 
   @Column()
-  email: string;
+  fecha_fin: string;
   @Column()
-  tipo_pago: 'diario' | 'mensual';
-  @ManyToOne (() => User, (user) => user.membresia)
-  user: User;
-  @OneToMany (() => Agendamiento, (agendamiento) => agendamiento.membresia)
-  agendamiento: Agendamiento;
+  tipo_pago: string;
+
+  @ManyToOne(() => User, (user) => user.membresias)
+  users: User;
+
+  @OneToMany(() => Agendamiento, (agendamiento) => agendamiento.membresias)
+  agendamientos: Agendamiento[];
 }

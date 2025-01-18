@@ -8,20 +8,17 @@ import {
 } from 'typeorm';
 import { Mantenimiento } from 'src/maquina/entities/mantenimiento.entity';
 
-@Entity({ name: 'maquina' })
+@Entity({ schema: 'esq_gimnasio', name: 'maquina' })
 export class Maquina {
   @PrimaryGeneratedColumn({ name: 'id_maquina' })
   id: string;
   @Column()
   name: string;
   @Column()
-  date_compra: Date;
+  date_compra: string;
 
   @Column()
   descripcion: string;
-
-  @UpdateDateColumn()
-  updated_at: Date;
 
   @OneToMany(() => Mantenimiento, (mantenimiento) => mantenimiento.maquina)
   mantenimiento: Mantenimiento[];

@@ -6,6 +6,13 @@ import { UserModule } from './user/user.module';
 import { AgendamientoModule } from './agendamiento/agendamiento.module';
 import { PagoModule } from './pago/pago.module';
 import { HorarioModule } from './horario/horario.module';
+import { DataSource, EntitySchema } from 'typeorm';
+import { User } from './user/entities/user.entity';
+import { Rol } from './user/entities/roles.entity';
+import { Horario } from './horario/entities/horario.entity';
+import { HorarioEmpleado } from './horario/entities/horario_empleado.entity';
+import { Maquina } from './maquina/entities/maquina.entity';
+import { Mantenimiento } from './maquina/entities/mantenimiento.entity';
 
 @Module({
   imports: [UserModule,AgendamientoModule, TypeOrmModule.forRoot({
@@ -14,14 +21,15 @@ import { HorarioModule } from './horario/horario.module';
   port: 5432,
   username: "postgres",
   password: "root12",
-  database: "db",
+  database: "gymutm",
    autoLoadEntities: true,
    synchronize: true,
    logging: true,
-   uuidExtension: "uuid-ossp",
-   schema: "esq_gimnasio",
-   }),UserModule, AgendamientoModule, PagoModule, HorarioModule,],
+   schema: 'esq_gimnasio'
+   }), PagoModule, HorarioModule,],
    controllers: [AppController,],
   providers: [AppService, UserModule, AgendamientoModule, PagoModule, HorarioModule,],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(private dataSource: DataSource) {}
+}

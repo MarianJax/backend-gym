@@ -1,3 +1,4 @@
+import { User } from 'src/user/entities/user.entity';
 import { Membresia } from 'src/pago/entities/membresia.entity';
 import { Pago } from 'src/pago/entities/pago.entity';
 import {
@@ -7,10 +8,10 @@ import {
   UpdateDateColumn,
   ManyToMany,
   OneToMany,
+  ManyToOne,
 } from 'typeorm';
 
-
-@Entity({ name: 'agendamiento' })
+@Entity({ schema: 'esq_gimnasio', name: 'agendamiento' })
 export class Agendamiento {
   @PrimaryGeneratedColumn({ name: 'id_agendamiento' })
   id: number;
@@ -19,17 +20,23 @@ export class Agendamiento {
   @Column()
   name: string;
   @Column()
-  date: Date;
+  fecha: string;
 
   @Column()
-  email: string;
+  hora_inicio: string;
+
   @Column()
-  tipo_pago: 'diario' | 'mensual';
+  hora_fin: string;
 
-  @UpdateDateColumn()
-  updated_at: Date;
+  @Column()
+  asistido: number;
 
-  @OneToMany(() => Membresia, (menbresia) => menbresia.agendamiento)
- membresia: Membresia[];
+  @ManyToOne(() => Membresia, (membresia) => membresia.agendamientos)
+  membresias: Membresia;
 
+  @OneToMany(() => Pago, (pago) => pago.agendamiento)
+  pagos: Pago[];
+
+  @ManyToOne(() => User, (user) => user.agendamientos)
+  user: User;
 }

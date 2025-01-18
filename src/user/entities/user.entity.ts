@@ -1,27 +1,36 @@
-import { Entity, PrimaryGeneratedColumn, Column, DeleteDateColumn, UpdateDateColumn, OneToOne, } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  DeleteDateColumn,
+  UpdateDateColumn,
+  OneToOne,
+  OneToMany,
+  ManyToOne,
+} from 'typeorm';
 import { Rol } from './roles.entity';
 import { Membresia } from 'src/pago/entities/membresia.entity';
+import { Agendamiento } from 'src/agendamiento/entities/agendamiento.entity';
 
-@Entity({ name: 'usuario' })
+@Entity({ schema: 'esq_gimnasio', name: 'usuario' })
 export class User {
-    @PrimaryGeneratedColumn({  name: 'id_usuario' })
-    id: number;
-      @Column()
-    name: string;
-  
-    @Column()
-    rol: string;
-  
-    @Column()
-    email: string;
-    @Column()
-    contrasena: string;
-  
+  @PrimaryGeneratedColumn({ name: 'id_usuario' })
+  id: number;
+  @Column()
+  name: string;
 
-@OneToOne (() => Membresia, (membresia) =>  membresia.user)
-  membresia: Membresia;
+  @Column()
+  email: string;
 
-    @UpdateDateColumn()
-    updated_at: Date;
+  @Column()
+  contrasena: string;
 
-  }
+  @OneToMany(() => Membresia, (membresia) => membresia.users)
+  membresias: Membresia;
+
+  @OneToMany(() => Agendamiento, (agendamiento) => agendamiento.user)
+  agendamientos: Agendamiento[];
+
+  @ManyToOne(() => Rol, (rol) => rol.users)
+  roles: Rol;
+}

@@ -1,28 +1,34 @@
+import { Entrenadores } from 'src/user/entities/entrenadores.entity';
 import { Rol } from 'src/user/entities/roles.entity';
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
-
-@Entity({ name: 'horario' })
-export class Horario{
+@Entity({ schema: 'esq_gimnasio', name: 'horario' })
+export class Horario {
   @PrimaryGeneratedColumn({ name: 'id_horario' })
   id: number;
-  @Column()
-  rol: 'estudiante' | 'entrenador' | 'docente' | 'personal_administrativo';
+
   @Column()
   jornada: string;
-  @Column()
-  date_semana: Date;
 
   @Column()
-  hora_inicio: Date;
+  date_semana: string;
+
   @Column()
-  hora_fin: Date;
+  hora_inicio: string;
 
- 
+  @Column()
+  hora_fin: string;
 
-  @ManyToOne(() => Rol, (rol) => rol.horario)
-  horario: Horario[];
+  @ManyToOne(() => Rol, (rol) => rol.horarios)
+  rol: Rol;
 
-  @UpdateDateColumn()
-  updated_at: Date;
+  @OneToMany(() => Entrenadores, (entrenador) => entrenador.horario)
+  entrenador: Entrenadores[];
 }
