@@ -1,26 +1,34 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Maquina } from './entities/maquina.entity';
 import { CreateMaquinaDto } from './dto/create-maquina.dto';
 import { UpdateMaquinaDto } from './dto/update-maquina.dto';
 
 @Injectable()
 export class MaquinaService {
-  create(createMaquinaDto: CreateMaquinaDto) {
-    return 'This action adds a new maquina';
+  constructor(
+    @InjectRepository(Maquina)
+    private readonly maquinaRepository: Repository<Maquina>,
+  ) {}
+  
+  async create(createMaquinaDto: CreateMaquinaDto): Promise<Maquina> {
+    return await this.maquinaRepository.save(createMaquinaDto);
   }
 
-  findAll() {
-    return `This action returns all maquina`;
+  async findAll(): Promise<Maquina[]> {
+    return await this.maquinaRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} maquina`;
+  async findOne(id: string): Promise<Maquina> {
+    return await this.maquinaRepository.findOneBy({id});
   }
 
-  update(id: number, updateMaquinaDto: UpdateMaquinaDto) {
-    return `This action updates a #${id} maquina`;
+  async update(id: number, updateMaquinaDto: UpdateMaquinaDto): Promise<void> {
+    await this.maquinaRepository.update(id, UpdateMaquinaDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} maquina`;
+  async remove(id: number): Promise<void> {
+    await this.maquinaRepository.delete(id);
   }
 }

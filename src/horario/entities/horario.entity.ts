@@ -1,5 +1,5 @@
-import { Entrenadores } from 'src/user/entities/entrenadores.entity';
-import { Rol } from 'src/user/entities/roles.entity';
+import { Entrenadores } from 'src/entrenador/entities/entrenador.entity';
+import { Rol } from 'src/rol/entities/rol.entity';
 import {
   Column,
   Entity,
@@ -15,8 +15,9 @@ export class Horario {
   id: number;
 
   @Column()
-  jornada: string;
-
+  jornada1: string;
+  @Column()
+  jornada2: string;
   @Column()
   date_semana: string;
 
@@ -29,6 +30,6 @@ export class Horario {
   @ManyToOne(() => Rol, (rol) => rol.horarios)
   rol: Rol;
 
-  @OneToMany(() => Entrenadores, (entrenador) => entrenador.horario)
+  @OneToMany(() => Entrenadores, (entrenador) => entrenador.horario_entrenador)
   entrenador: Entrenadores[];
 }

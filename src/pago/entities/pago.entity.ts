@@ -1,5 +1,5 @@
 import { Agendamiento } from 'src/agendamiento/entities/agendamiento.entity';
-import { Membresia } from 'src/pago/entities/membresia.entity';
+import { Membresia } from 'src/membresia/entities/membresia.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,

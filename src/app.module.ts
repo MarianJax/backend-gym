@@ -1,21 +1,21 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { AgendamientoModule } from './agendamiento/agendamiento.module';
 import { PagoModule } from './pago/pago.module';
 import { HorarioModule } from './horario/horario.module';
 import { DataSource, EntitySchema } from 'typeorm';
-import { User } from './user/entities/user.entity';
-import { Rol } from './user/entities/roles.entity';
-import { Horario } from './horario/entities/horario.entity';
-import { HorarioEmpleado } from './horario/entities/horario_empleado.entity';
-import { Maquina } from './maquina/entities/maquina.entity';
-import { Mantenimiento } from './maquina/entities/mantenimiento.entity';
+import { MaquinaModule } from './maquina/maquina.module';
+import { MantenimientoModule } from './mantenimiento/mantenimiento.module';
+import { MembresiaModule } from './membresia/membresia.module';
+import { RolModule } from './rol/rol.module';
+import { HorarioEntrenadorModule } from './horario_entrenador/horario_entrenador.module';
+import { EntrenadorModule } from './entrenador/entrenador.module';
 
 @Module({
-  imports: [UserModule,AgendamientoModule, TypeOrmModule.forRoot({
+  imports: 
+  [
+    TypeOrmModule.forRoot({
   type: "postgres",
   host: "localhost",
   port: 5432,
@@ -26,9 +26,15 @@ import { Mantenimiento } from './maquina/entities/mantenimiento.entity';
    synchronize: true,
    logging: true,
    schema: 'esq_gimnasio'
-   }), PagoModule, HorarioModule,],
-   controllers: [AppController,],
-  providers: [AppService, UserModule, AgendamientoModule, PagoModule, HorarioModule,],
+   }),
+   UserModule,
+   AgendamientoModule,
+   MaquinaModule,
+   PagoModule, 
+   HorarioModule, MantenimientoModule, MembresiaModule, RolModule, HorarioEntrenadorModule, EntrenadorModule,
+  ],
+   controllers: [],
+  providers: [],
 })
 export class AppModule {
   constructor(private dataSource: DataSource) {}

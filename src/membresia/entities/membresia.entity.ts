@@ -1,4 +1,4 @@
-import { Agendamiento } from 'src/agendamiento/entities/agendamiento.entity';
+import { Agendamiento } from 'src/agendamiento/entities/agendamiento.entity'
 import { User } from 'src/user/entities/user.entity';
 import {
   Entity,
@@ -9,14 +9,15 @@ import {
   ManyToOne,
   OneToOne,
   OneToMany,
+  CreateDateColumn,
 } from 'typeorm';
 @Entity({ schema: 'esq_gimnasio', name: 'membresia' })
 export class Membresia {
   @PrimaryGeneratedColumn({ name: 'id_membresia' })
   id: number;
 
-  @Column()
-  fecha_inicio: string;
+  @CreateDateColumn()
+  fecha_inicio: Date;
 
   @Column()
   fecha_fin: string;
@@ -28,4 +29,6 @@ export class Membresia {
 
   @OneToMany(() => Agendamiento, (agendamiento) => agendamiento.membresias)
   agendamientos: Agendamiento[];
+
+  
 }

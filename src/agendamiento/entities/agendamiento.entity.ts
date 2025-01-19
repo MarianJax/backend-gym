@@ -1,6 +1,6 @@
 import { User } from 'src/user/entities/user.entity';
-import { Membresia } from 'src/pago/entities/membresia.entity';
-import { Pago } from 'src/pago/entities/pago.entity';
+import { Membresia } from 'src/membresia/entities/membresia.entity';
+  import { Pago } from 'src/pago/entities/pago.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,

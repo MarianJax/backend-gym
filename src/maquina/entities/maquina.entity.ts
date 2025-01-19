@@ -6,8 +6,7 @@ import {
   ManyToMany,
   OneToMany,
 } from 'typeorm';
-import { Mantenimiento } from 'src/maquina/entities/mantenimiento.entity';
-
+import { Mantenimiento } from 'src/mantenimiento/entities/mantenimiento.entity';
 @Entity({ schema: 'esq_gimnasio', name: 'maquina' })
 export class Maquina {
   @PrimaryGeneratedColumn({ name: 'id_maquina' })

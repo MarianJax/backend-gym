@@ -8,9 +8,9 @@ import {
   OneToMany,
   ManyToOne,
 } from 'typeorm';
-import { Rol } from './roles.entity';
-import { Membresia } from 'src/pago/entities/membresia.entity';
 import { Agendamiento } from 'src/agendamiento/entities/agendamiento.entity';
+import { Membresia } from 'src/membresia/entities/membresia.entity';
+import { Rol } from 'src/rol/entities/rol.entity';
 
 @Entity({ schema: 'esq_gimnasio', name: 'usuario' })
 export class User {
