@@ -1,26 +1,44 @@
 import { Injectable } from '@nestjs/common';
 import { CreatePagoDto } from './dto/create-pago.dto';
 import { UpdatePagoDto } from './dto/update-pago.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Pago } from './entities/pago.entity';
 
 @Injectable()
 export class PagoService {
-  create(createPagoDto: CreatePagoDto) {
-    return 'This action adds a new pago';
+  constructor(
+    @InjectRepository(Pago)
+    private readonly PagoRepository: Repository<Pago>,
+  ) {}
+
+  async create(
+    createPagoDto: CreatePagoDto,
+  ): Promise<Pago> {
+    return await this.PagoRepository.save(
+      createPagoDto,
+    );
   }
 
-  findAll() {
-    return `This action returns all pago`;
+  async findAll(): Promise<Pago[]> {
+    return await this.PagoRepository.find({ order: {  fecha_pago: 'ASC' } });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} pago`;
+  async findOne(id: number): Promise<Pago> {
+    return await this.PagoRepository.findOneBy({ id });
   }
 
-  update(id: number, updatePagoDto: UpdatePagoDto) {
-    return `This action updates a #${id} pago`;
+  async update(
+    id: number,
+    updatePagoDto: UpdatePagoDto,
+  ): Promise<void> {
+    await this.PagoRepository.update(
+      id,
+      updatePagoDto,
+    );
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} pago`;
+  async remove(id: number): Promise<void> {
+    await this.PagoRepository.delete(id);
   }
 }

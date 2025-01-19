@@ -11,7 +11,7 @@ export class MaquinaService {
     @InjectRepository(Maquina)
     private readonly maquinaRepository: Repository<Maquina>,
   ) {}
-  
+
   async create(createMaquinaDto: CreateMaquinaDto): Promise<Maquina> {
     return await this.maquinaRepository.save(createMaquinaDto);
   }
@@ -21,7 +21,7 @@ export class MaquinaService {
   }
 
   async findOne(id: string): Promise<Maquina> {
-    return await this.maquinaRepository.findOneBy({id});
+    return await this.maquinaRepository.findOneBy({ id });
   }
 
   async update(id: number, updateMaquinaDto: UpdateMaquinaDto): Promise<void> {

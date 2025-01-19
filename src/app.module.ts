@@ -11,6 +11,7 @@ import { MembresiaModule } from './membresia/membresia.module';
 import { RolModule } from './rol/rol.module';
 import { HorarioEntrenadorModule } from './horario_entrenador/horario_entrenador.module';
 import { EntrenadorModule } from './entrenador/entrenador.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: 
@@ -31,7 +32,7 @@ import { EntrenadorModule } from './entrenador/entrenador.module';
    AgendamientoModule,
    MaquinaModule,
    PagoModule, 
-   HorarioModule, MantenimientoModule, MembresiaModule, RolModule, HorarioEntrenadorModule, EntrenadorModule,
+   HorarioModule, MantenimientoModule, MembresiaModule, RolModule, HorarioEntrenadorModule, EntrenadorModule, AuthModule,
   ],
    controllers: [],
   providers: [],

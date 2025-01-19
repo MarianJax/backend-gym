@@ -1,26 +1,46 @@
 import { Injectable } from '@nestjs/common';
 import { CreateAgendamientoDto } from './dto/create-agendamiento.dto';
 import { UpdateAgendamientoDto } from './dto/update-agendamiento.dto';
+import { Agendamiento } from './entities/agendamiento.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AgendamientoService {
-  create(createAgendamientoDto: CreateAgendamientoDto) {
-    return 'This action adds a new agendamiento';
+  private readonly MAX_RESERVAS = 40;
+
+  constructor(
+    @InjectRepository(Agendamiento)
+    private readonly agendamientoRepository: Repository<Agendamiento>,
+  ) {}
+
+  async verificarMaximoReservas(): Promise<boolean> {
+    const count = await this.agendamientoRepository.count();
+    return count >= this.MAX_RESERVAS;
   }
 
-  findAll() {
-    return `This action returns all agendamiento`;
+  async create(
+    createAgendamientoDto: CreateAgendamientoDto,
+  ): Promise<Agendamiento> {
+    return await this.agendamientoRepository.save(createAgendamientoDto);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} agendamiento`;
+  async findAll(): Promise<Agendamiento[]> {
+    return await this.agendamientoRepository.find();
   }
 
-  update(id: number, updateAgendamientoDto: UpdateAgendamientoDto) {
-    return `This action updates a #${id} agendamiento`;
+  async findOne(id: number): Promise<Agendamiento> {
+    return await this.agendamientoRepository.findOneBy({ id });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} agendamiento`;
+  async update(
+    id: number,
+    updateAgendamientoDto: UpdateAgendamientoDto,
+  ): Promise<void> {
+    await this.agendamientoRepository.update(id, UpdateAgendamientoDto);
+  }
+
+  async remove(id: number): Promise<void> {
+    await this.agendamientoRepository.delete(id);
   }
 }

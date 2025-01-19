@@ -17,6 +17,12 @@ export class Maquina {
   date_compra: string;
 
   @Column()
+  cantidad: string;
+
+  @Column()
+  estado: string;
+
+  @Column()
   descripcion: string;
 
   @OneToMany(() => Mantenimiento, (mantenimiento) => mantenimiento.maquina)

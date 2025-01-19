@@ -1,1 +1,2 @@
-export class CreateRolDto {}
+export class CreateRolDto {
+}

@@ -1,26 +1,35 @@
 import { Injectable } from '@nestjs/common';
 import { CreateMantenimientoDto } from './dto/create-mantenimiento.dto';
 import { UpdateMantenimientoDto } from './dto/update-mantenimiento.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Mantenimiento } from './entities/mantenimiento.entity';
 
 @Injectable()
 export class MantenimientoService {
-  create(createMantenimientoDto: CreateMantenimientoDto) {
-    return 'This action adds a new mantenimiento';
+  constructor(
+      @InjectRepository(Mantenimiento)
+      private readonly MantenimientoRepository: Repository<Mantenimiento>,
+    ) {}
+  
+    async create(createMantenimientoDto: CreateMantenimientoDto): Promise<Mantenimiento> {
+      return await this.MantenimientoRepository.save(createMantenimientoDto);
+    }
+  
+    async findAll(): Promise<Mantenimiento[]> {
+      return await this.MantenimientoRepository.find();
+    }
+  
+    async findOne(id: string): Promise<Mantenimiento> {
+      return await this.MantenimientoRepository.findOneBy({ id });
+    }
+  
+    async update(id: number, updateMantenimientoDto: UpdateMantenimientoDto): Promise<void> {
+      await this.MantenimientoRepository.update(id, updateMantenimientoDto);
+    }
+  
+    async remove(id: number): Promise<void> {
+      await this.MantenimientoRepository.delete(id);
+    }
   }
-
-  findAll() {
-    return `This action returns all mantenimiento`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} mantenimiento`;
-  }
-
-  update(id: number, updateMantenimientoDto: UpdateMantenimientoDto) {
-    return `This action updates a #${id} mantenimiento`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} mantenimiento`;
-  }
-}
+  

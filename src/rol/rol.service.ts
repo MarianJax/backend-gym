@@ -1,26 +1,36 @@
 import { Injectable } from '@nestjs/common';
 import { CreateRolDto } from './dto/create-rol.dto';
 import { UpdateRolDto } from './dto/update-rol.dto';
+import { Rol } from './entities/rol.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class RolService {
-  create(createRolDto: CreateRolDto) {
-    return 'This action adds a new rol';
+
+  constructor(
+    @InjectRepository(Rol)
+    private readonly rolRepository: Repository<Rol>
+  ) {}
+
+  async create(createRolDto: CreateRolDto) {
+    return await this.rolRepository.save(createRolDto);
   }
 
-  findAll() {
-    return `This action returns all rol`;
+  async findAll(): Promise<Rol[]> {
+    return await this.rolRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} rol`;
+  async findOne(id: number): Promise<Rol> {
+    return await this.rolRepository.findOneBy({ id });
   }
 
-  update(id: number, updateRolDto: UpdateRolDto) {
-    return `This action updates a #${id} rol`;
+  async update(id: number, updateRolDto: UpdateRolDto): Promise<void>
+   {
+    await this.rolRepository.update(id, updateRolDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} rol`;
+  async remove(id: number): Promise<void> {
+     await this.rolRepository.delete(id);
   }
 }

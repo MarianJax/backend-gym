@@ -7,7 +7,10 @@ import {
   OneToOne,
   OneToMany,
   ManyToOne,
+  BeforeInsert,
+  BeforeUpdate,
 } from 'typeorm';
+import * as bcrypt from 'bcryptjs';
 import { Agendamiento } from 'src/agendamiento/entities/agendamiento.entity';
 import { Membresia } from 'src/membresia/entities/membresia.entity';
 import { Rol } from 'src/rol/entities/rol.entity';
@@ -33,4 +36,7 @@ export class User {
 
   @ManyToOne(() => Rol, (rol) => rol.users)
   roles: Rol;
+  @BeforeInsert() @BeforeUpdate() async hashPassword() {
+    this.contrasena = await bcrypt.hash(this.contrasena, 10);
+  }
 }

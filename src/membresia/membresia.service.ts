@@ -1,26 +1,48 @@
 import { Injectable } from '@nestjs/common';
 import { CreateMembresiaDto } from './dto/create-membresia.dto';
 import { UpdateMembresiaDto } from './dto/update-membresia.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Membresia } from './entities/membresia.entity';
 
 @Injectable()
 export class MembresiaService {
-  create(createMembresiaDto: CreateMembresiaDto) {
-    return 'This action adds a new membresia';
+  constructor(
+    @InjectRepository(Membresia)
+    private readonly MembresiaRepository: Repository<Membresia>,
+  ) {}
+
+  async create(
+    createMembresiaDto: CreateMembresiaDto,
+  ): Promise<Membresia> {
+    return await this.MembresiaRepository.save(
+      createMembresiaDto,
+    );
   }
 
-  findAll() {
-    return `This action returns all membresia`;
+  async findAll(): Promise<Membresia[]> {
+    return await this.MembresiaRepository.find({
+      order: {
+        fecha_inicio: 'ASC'
+      }
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} membresia`;
+  async findOne(id: number): Promise<Membresia> {
+    return await this.MembresiaRepository.findOneBy({ id });
   }
 
-  update(id: number, updateMembresiaDto: UpdateMembresiaDto) {
-    return `This action updates a #${id} membresia`;
+  async update(
+    id: number,
+    updateMembresiaDto: UpdateMembresiaDto,
+  ): Promise<void> {
+    await this.MembresiaRepository.update(
+      id,
+      updateMembresiaDto,
+    );
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} membresia`;
+  async remove(id: number): Promise<void> {
+    await this.MembresiaRepository.delete(id);
   }
 }

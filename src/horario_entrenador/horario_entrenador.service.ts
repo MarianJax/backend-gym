@@ -1,26 +1,44 @@
 import { Injectable } from '@nestjs/common';
 import { CreateHorarioEntrenadorDto } from './dto/create-horario_entrenador.dto';
 import { UpdateHorarioEntrenadorDto } from './dto/update-horario_entrenador.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { HorarioEntrenador } from './entities/horario_entrenador.entity';
 
 @Injectable()
 export class HorarioEntrenadorService {
-  create(createHorarioEntrenadorDto: CreateHorarioEntrenadorDto) {
-    return 'This action adds a new horarioEntrenador';
+  constructor(
+    @InjectRepository(HorarioEntrenador)
+    private readonly HorarioEntrenadorRepository: Repository<HorarioEntrenador>,
+  ) {}
+
+  async create(
+    createHorarioEntrenadorDto: CreateHorarioEntrenadorDto,
+  ): Promise<HorarioEntrenador> {
+    return await this.HorarioEntrenadorRepository.save(
+      createHorarioEntrenadorDto,
+    );
   }
 
-  findAll() {
-    return `This action returns all horarioEntrenador`;
+  async findAll(): Promise<HorarioEntrenador[]> {
+    return await this.HorarioEntrenadorRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} horarioEntrenador`;
+  async findOne(id: number): Promise<HorarioEntrenador> {
+    return await this.HorarioEntrenadorRepository.findOneBy({ id });
   }
 
-  update(id: number, updateHorarioEntrenadorDto: UpdateHorarioEntrenadorDto) {
-    return `This action updates a #${id} horarioEntrenador`;
+  async update(
+    id: number,
+    updateHorarioEntrenadorDto: UpdateHorarioEntrenadorDto,
+  ): Promise<void> {
+    await this.HorarioEntrenadorRepository.update(
+      id,
+      updateHorarioEntrenadorDto,
+    );
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} horarioEntrenador`;
+  async remove(id: number): Promise<void> {
+    await this.HorarioEntrenadorRepository.delete(id);
   }
 }

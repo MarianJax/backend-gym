@@ -1,26 +1,34 @@
 import { Injectable } from '@nestjs/common';
 import { CreateEntrenadorDto } from './dto/create-entrenador.dto';
 import { UpdateEntrenadorDto } from './dto/update-entrenador.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Entrenadores } from './entities/entrenador.entity';
 
 @Injectable()
 export class EntrenadorService {
-  create(createEntrenadorDto: CreateEntrenadorDto) {
-    return 'This action adds a new entrenador';
+  constructor(
+    @InjectRepository(Entrenadores)
+    private readonly EntrenadoresRepository: Repository<Entrenadores>,
+  ) {}
+
+  async create(createEntrenadoresDto: CreateEntrenadorDto): Promise<Entrenadores> {
+    return await this.EntrenadoresRepository.save(createEntrenadoresDto);
   }
 
-  findAll() {
-    return `This action returns all entrenador`;
+  async findAll(): Promise<Entrenadores[]> {
+    return await this.EntrenadoresRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} entrenador`;
+  async findOne(id: number): Promise<Entrenadores> {
+    return await this.EntrenadoresRepository.findOneBy({ id });
   }
 
-  update(id: number, updateEntrenadorDto: UpdateEntrenadorDto) {
-    return `This action updates a #${id} entrenador`;
+  async update(id: number, updateEntrenadoresDto: UpdateEntrenadorDto): Promise<void> {
+    await this.EntrenadoresRepository.update(id, updateEntrenadoresDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} entrenador`;
+  async remove(id: number): Promise<void> {
+    await this.EntrenadoresRepository.delete(id);
   }
 }

@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  BadRequestException,
+} from '@nestjs/common';
 import { AgendamientoService } from './agendamiento.service';
 import { CreateAgendamientoDto } from './dto/create-agendamiento.dto';
 import { UpdateAgendamientoDto } from './dto/update-agendamiento.dto';
@@ -9,6 +18,10 @@ export class AgendamientoController {
 
   @Post()
   create(@Body() createAgendamientoDto: CreateAgendamientoDto) {
+    const maximoAlcanzado = this.agendamientoService.verificarMaximoReservas();
+    if (maximoAlcanzado) {
+      throw new BadRequestException('Número máximo de reservas alcanzado.');
+    }
     return this.agendamientoService.create(createAgendamientoDto);
   }
 
@@ -23,7 +36,10 @@ export class AgendamientoController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAgendamientoDto: UpdateAgendamientoDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateAgendamientoDto: UpdateAgendamientoDto,
+  ) {
     return this.agendamientoService.update(+id, updateAgendamientoDto);
   }
 

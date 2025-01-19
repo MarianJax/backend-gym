@@ -1,8 +1,7 @@
 export class CreateMaquinaDto {
-        name: string;
-        type: string;
-        descripcion: string;
-        date_compra: string;
-      }
-      
-
+  name: string;
+  cantidad: string;
+  estado: string;
+  descripcion: string;
+  date_compra: string;
+}

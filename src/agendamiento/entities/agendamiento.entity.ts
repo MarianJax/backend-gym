@@ -15,8 +15,7 @@ import {
 export class Agendamiento {
   @PrimaryGeneratedColumn({ name: 'id_agendamiento' })
   id: number;
-  @Column()
-  rol: 'estudiante' | 'entrenador' | 'docente' | 'personal_administrativo';
+  
   @Column()
   name: string;
   @Column()
@@ -29,7 +28,7 @@ export class Agendamiento {
   hora_fin: string;
 
   @Column()
-  asistido: number;
+  asistido: string;
 
   @ManyToOne(() => Membresia, (membresia) => membresia.agendamientos)
   membresias: Membresia;
@@ -39,4 +38,5 @@ export class Agendamiento {
 
   @ManyToOne(() => User, (user) => user.agendamientos)
   user: User;
+  
 }
