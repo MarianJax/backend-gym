@@ -2,13 +2,12 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  DeleteDateColumn,
-  UpdateDateColumn,
-  OneToOne,
   OneToMany,
   ManyToOne,
   BeforeInsert,
   BeforeUpdate,
+  JoinColumn,
+  Index,
 } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { Agendamiento } from 'src/agendamiento/entities/agendamiento.entity';
@@ -17,15 +16,16 @@ import { Rol } from 'src/rol/entities/rol.entity';
 
 @Entity({ schema: 'esq_gimnasio', name: 'usuario' })
 export class User {
-  @PrimaryGeneratedColumn({ name: 'id_usuario' })
-  id: number;
-  @Column()
+  @PrimaryGeneratedColumn('uuid', { name: 'id_usuario' })
+  id: string;
+  @Column({ name: 'nombre', type: 'varchar', length: 100 })
   name: string;
 
-  @Column()
+  @Column({ name: 'correo', unique: true, type: 'varchar', length: 100 })
+  @Index('email_index_User')
   email: string;
 
-  @Column()
+  @Column({ name: 'contrasena', type: 'varchar', length: 100 })
   contrasena: string;
 
   @OneToMany(() => Membresia, (membresia) => membresia.users)
@@ -34,9 +34,12 @@ export class User {
   @OneToMany(() => Agendamiento, (agendamiento) => agendamiento.user)
   agendamientos: Agendamiento[];
 
-  @ManyToOne(() => Rol, (rol) => rol.users)
+  @ManyToOne(() => Rol)
+  @JoinColumn({ name: 'id_rol', referencedColumnName: '' })
   roles: Rol;
-  @BeforeInsert() @BeforeUpdate() async hashPassword() {
+
+  @BeforeInsert()
+  async hashPassword() {
     this.contrasena = await bcrypt.hash(this.contrasena, 10);
   }
 }

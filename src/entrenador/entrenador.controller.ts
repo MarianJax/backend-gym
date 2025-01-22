@@ -19,16 +19,16 @@ export class EntrenadorController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.entrenadorService.findOne(+id);
+    return this.entrenadorService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateEntrenadorDto: UpdateEntrenadorDto) {
-    return this.entrenadorService.update(+id, updateEntrenadorDto);
+    return this.entrenadorService.update(id, updateEntrenadorDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.entrenadorService.remove(+id);
+    return this.entrenadorService.remove(id);
   }
 }

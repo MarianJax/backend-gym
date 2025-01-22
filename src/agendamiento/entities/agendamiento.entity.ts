@@ -1,42 +1,42 @@
-import { User } from 'src/user/entities/user.entity';
 import { Membresia } from 'src/membresia/entities/membresia.entity';
-  import { Pago } from 'src/pago/entities/pago.entity';
+import { Pago } from 'src/pago/entities/pago.entity';
+import { User } from 'src/user/entities/user.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  UpdateDateColumn,
-  ManyToMany,
   OneToMany,
   ManyToOne,
+  JoinTable,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity({ schema: 'esq_gimnasio', name: 'agendamiento' })
 export class Agendamiento {
-  @PrimaryGeneratedColumn({ name: 'id_agendamiento' })
-  id: number;
-  
-  @Column()
-  name: string;
-  @Column()
-  fecha: string;
+  // Generar una clave unica de cada agendamiento que se registra
+  @PrimaryGeneratedColumn('uuid', { name: 'id_agendamiento' })
+  id: string;
 
-  @Column()
-  hora_inicio: string;
+  @Column({ name: 'fecha', type: 'timestamp' })
+  fecha: Date;
 
-  @Column()
-  hora_fin: string;
+  @Column({ name: 'hora_inicio', type: 'time' })
+  hora_inicio: Date;
 
-  @Column()
-  asistido: string;
+  @Column({ name: 'hora_fin', type: 'time' })
+  hora_fin: Date;
 
-  @ManyToOne(() => Membresia, (membresia) => membresia.agendamientos)
+  @Column({ name: 'asistido', type: 'boolean' })
+  asistido: boolean;
+
+  @ManyToOne(() => Membresia)
+  @JoinColumn({ name: 'membresia_id' })
   membresias: Membresia;
 
   @OneToMany(() => Pago, (pago) => pago.agendamiento)
   pagos: Pago[];
 
-  @ManyToOne(() => User, (user) => user.agendamientos)
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'usuario_id' })
   user: User;
-  
 }

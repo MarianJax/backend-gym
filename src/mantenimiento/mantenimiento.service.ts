@@ -24,11 +24,11 @@ export class MantenimientoService {
       return await this.MantenimientoRepository.findOneBy({ id });
     }
   
-    async update(id: number, updateMantenimientoDto: UpdateMantenimientoDto): Promise<void> {
+    async update(id: string, updateMantenimientoDto: UpdateMantenimientoDto): Promise<void> {
       await this.MantenimientoRepository.update(id, updateMantenimientoDto);
     }
   
-    async remove(id: number): Promise<void> {
+    async remove(id: string): Promise<void> {
       await this.MantenimientoRepository.delete(id);
     }
   }

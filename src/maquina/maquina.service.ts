@@ -24,11 +24,11 @@ export class MaquinaService {
     return await this.maquinaRepository.findOneBy({ id });
   }
 
-  async update(id: number, updateMaquinaDto: UpdateMaquinaDto): Promise<void> {
+  async update(id: string, updateMaquinaDto: UpdateMaquinaDto): Promise<void> {
     await this.maquinaRepository.update(id, UpdateMaquinaDto);
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: string): Promise<void> {
     await this.maquinaRepository.delete(id);
   }
 }

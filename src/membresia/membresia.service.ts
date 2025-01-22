@@ -28,12 +28,12 @@ export class MembresiaService {
     });
   }
 
-  async findOne(id: number): Promise<Membresia> {
+  async findOne(id: string): Promise<Membresia> {
     return await this.MembresiaRepository.findOneBy({ id });
   }
 
   async update(
-    id: number,
+    id: string,
     updateMembresiaDto: UpdateMembresiaDto,
   ): Promise<void> {
     await this.MembresiaRepository.update(
@@ -42,7 +42,7 @@ export class MembresiaService {
     );
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: string): Promise<void> {
     await this.MembresiaRepository.delete(id);
   }
 }

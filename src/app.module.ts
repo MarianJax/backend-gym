@@ -9,32 +9,37 @@ import { MaquinaModule } from './maquina/maquina.module';
 import { MantenimientoModule } from './mantenimiento/mantenimiento.module';
 import { MembresiaModule } from './membresia/membresia.module';
 import { RolModule } from './rol/rol.module';
-import { HorarioEntrenadorModule } from './horario_entrenador/horario_entrenador.module';
 import { EntrenadorModule } from './entrenador/entrenador.module';
 import { AuthModule } from './auth/auth.module';
+import { HorarioEmpleadoModule } from './horario_empleado/horario_empleado.module';
 
 @Module({
-  imports: 
-  [
+  imports: [
     TypeOrmModule.forRoot({
-  type: "postgres",
-  host: "localhost",
-  port: 5432,
-  username: "postgres",
-  password: "root12",
-  database: "gymutm",
-   autoLoadEntities: true,
-   synchronize: true,
-   logging: true,
-   schema: 'esq_gimnasio'
-   }),
-   UserModule,
-   AgendamientoModule,
-   MaquinaModule,
-   PagoModule, 
-   HorarioModule, MantenimientoModule, MembresiaModule, RolModule, HorarioEntrenadorModule, EntrenadorModule, AuthModule,
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: 'postgres',
+      password: 'root12',
+      database: 'gymutm',
+      autoLoadEntities: true,
+      synchronize: true,
+      logging: true,
+      schema: 'esq_gimnasio',
+    }),
+    UserModule,
+    AgendamientoModule,
+    MaquinaModule,
+    PagoModule,
+    HorarioModule,
+    MantenimientoModule,
+    MembresiaModule,
+    RolModule,
+    HorarioEmpleadoModule,
+    EntrenadorModule,
+    AuthModule,
   ],
-   controllers: [],
+  controllers: [],
   providers: [],
 })
 export class AppModule {

@@ -24,12 +24,12 @@ export class PagoService {
     return await this.PagoRepository.find({ order: {  fecha_pago: 'ASC' } });
   }
 
-  async findOne(id: number): Promise<Pago> {
+  async findOne(id: string): Promise<Pago> {
     return await this.PagoRepository.findOneBy({ id });
   }
 
   async update(
-    id: number,
+    id: string,
     updatePagoDto: UpdatePagoDto,
   ): Promise<void> {
     await this.PagoRepository.update(
@@ -38,7 +38,7 @@ export class PagoService {
     );
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: string): Promise<void> {
     await this.PagoRepository.delete(id);
   }
 }

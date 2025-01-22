@@ -18,6 +18,9 @@ export class AgendamientoController {
 
   @Post()
   create(@Body() createAgendamientoDto: CreateAgendamientoDto) {
+    const user = this.agendamientoService.findUserRolId(createAgendamientoDto.usuario_id);
+
+
     const maximoAlcanzado = this.agendamientoService.verificarMaximoReservas();
     if (maximoAlcanzado) {
       throw new BadRequestException('Número máximo de reservas alcanzado.');
@@ -32,7 +35,7 @@ export class AgendamientoController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.agendamientoService.findOne(+id);
+    return this.agendamientoService.findOne(id);
   }
 
   @Patch(':id')
@@ -45,6 +48,6 @@ export class AgendamientoController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.agendamientoService.remove(+id);
+    return this.agendamientoService.remove(id);
   }
 }

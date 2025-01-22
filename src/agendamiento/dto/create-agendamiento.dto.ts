@@ -1,8 +1,18 @@
+import { IsBoolean, IsDate, IsString, IsTimeZone } from "class-validator";
+
 export class CreateAgendamientoDto {
-    id: number;
-    name: string;
-    fecha: string;
-    hora_inicio: string;
-    hora_fin: string;
-    asisitio: string
+    @IsDate()
+    fecha: Date;
+
+    @IsString()
+    usuario_id: string;
+
+    @IsDate()
+    hora_inicio: Date;
+
+    @IsDate()
+    hora_fin: Date;
+
+    @IsBoolean()
+    asisitio: boolean;
 }

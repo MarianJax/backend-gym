@@ -19,16 +19,16 @@ export class MembresiaController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.membresiaService.findOne(+id);
+    return this.membresiaService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateMembresiaDto: UpdateMembresiaDto) {
-    return this.membresiaService.update(+id, updateMembresiaDto);
+    return this.membresiaService.update(id, updateMembresiaDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.membresiaService.remove(+id);
+    return this.membresiaService.remove(id);
   }
 }

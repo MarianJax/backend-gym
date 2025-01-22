@@ -5,9 +5,10 @@ import { Agendamiento } from './entities/agendamiento.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Membresia } from 'src/membresia/entities/membresia.entity';
 import { User } from 'src/user/entities/user.entity';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Agendamiento]), Membresia, User],
+  imports: [TypeOrmModule.forFeature([Agendamiento]), UserModule],
   controllers: [AgendamientoController],
   providers: [AgendamientoService],
   exports: [TypeOrmModule],

@@ -20,15 +20,15 @@ export class EntrenadorService {
     return await this.EntrenadoresRepository.find();
   }
 
-  async findOne(id: number): Promise<Entrenadores> {
+  async findOne(id: string): Promise<Entrenadores> {
     return await this.EntrenadoresRepository.findOneBy({ id });
   }
 
-  async update(id: number, updateEntrenadoresDto: UpdateEntrenadorDto): Promise<void> {
+  async update(id: string, updateEntrenadoresDto: UpdateEntrenadorDto): Promise<void> {
     await this.EntrenadoresRepository.update(id, updateEntrenadoresDto);
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: string): Promise<void> {
     await this.EntrenadoresRepository.delete(id);
   }
 }

@@ -3,33 +3,58 @@ import { Rol } from 'src/rol/entities/rol.entity';
 import {
   Column,
   Entity,
+  JoinColumn,
+  JoinTable,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
+
+enum Jornada {
+  VESPERTINA = 'Vespertina',
+  MATUTINA = 'Matutina',
+  NOCTURNA = 'Nocturna',
+}
+
+enum DiaSemana {
+  LUNES = 'Lunes',
+  MARTES = 'Martes',
+  MIERCOLES = 'Miercoles',
+  JUEVES = 'Jueves',
+  VIERNES = 'Viernes',
+  SABADO = 'Sabado',
+  DOMINGO = 'Domingo',
+}
 
 @Entity({ schema: 'esq_gimnasio', name: 'horario' })
 export class Horario {
-  @PrimaryGeneratedColumn({ name: 'id_horario' })
-  id: number;
+  @PrimaryGeneratedColumn('uuid', { name: 'id_horario' })
+  id: string;
 
-  @Column()
-  jornada1: string;
-  @Column()
-  jornada2: string;
-  @Column()
-  date_semana: string;
+  @Column({
+    type: 'enum',
+    enum: Jornada,
+    name: 'jornada',
+  })
+  jornada: Jornada;
 
-  @Column()
-  hora_inicio: string;
+  @Column({
+    type: 'enum',
+    enum: DiaSemana,
+    name: 'dia_semana',
+  })
+  dia_semana: DiaSemana;
 
-  @Column()
-  hora_fin: string;
+  @Column({ name: 'hora_inicio', type: 'time' })
+  hora_inicio: Date;
 
-  @ManyToOne(() => Rol, (rol) => rol.horarios)
+  @Column({ name: 'hora_fin', type: 'time' })
+  hora_fin: Date;
+
+  @ManyToOne(() => Rol)
+  @JoinColumn({ name: 'rol_id' })
   rol: Rol;
 
-  @OneToMany(() => Entrenadores, (entrenador) => entrenador.horario_entrenador)
+  @OneToMany(() => Entrenadores, (entrenador) => entrenador.horario_empleado)
   entrenador: Entrenadores[];
 }

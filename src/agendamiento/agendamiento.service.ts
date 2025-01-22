@@ -4,6 +4,7 @@ import { UpdateAgendamientoDto } from './dto/update-agendamiento.dto';
 import { Agendamiento } from './entities/agendamiento.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class AgendamientoService {
@@ -12,6 +13,10 @@ export class AgendamientoService {
   constructor(
     @InjectRepository(Agendamiento)
     private readonly agendamientoRepository: Repository<Agendamiento>,
+
+    // Se importa el repositorio para realizar consulta a la entidad/tabla Usuario
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
   async verificarMaximoReservas(): Promise<boolean> {
@@ -29,7 +34,7 @@ export class AgendamientoService {
     return await this.agendamientoRepository.find();
   }
 
-  async findOne(id: number): Promise<Agendamiento> {
+  async findOne(id: string): Promise<Agendamiento> {
     return await this.agendamientoRepository.findOneBy({ id });
   }
 
@@ -37,10 +42,18 @@ export class AgendamientoService {
     id: number,
     updateAgendamientoDto: UpdateAgendamientoDto,
   ): Promise<void> {
-    await this.agendamientoRepository.update(id, UpdateAgendamientoDto);
+    await this.agendamientoRepository.update(id, updateAgendamientoDto);
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: string): Promise<void> {
     await this.agendamientoRepository.delete(id);
+  }
+
+  // Metodo para buscar un usuario, horarios y rol por su id
+  async findUserRolId(id: string): Promise<User> {
+    return await this.userRepository.findOne({
+      where: { id },
+      relations: ['roles', 'horario'],
+    });
   }
 }

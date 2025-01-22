@@ -1,34 +1,70 @@
-import { Agendamiento } from 'src/agendamiento/entities/agendamiento.entity'
+import { Agendamiento } from 'src/agendamiento/entities/agendamiento.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  UpdateDateColumn,
-  ManyToMany,
   ManyToOne,
-  OneToOne,
   OneToMany,
   CreateDateColumn,
+  JoinTable,
+  BeforeInsert,
+  JoinColumn,
 } from 'typeorm';
+
+enum Tipo {
+  MENSUAL = 'Mensual',
+  DIARIO = 'Diario',
+}
+
 @Entity({ schema: 'esq_gimnasio', name: 'membresia' })
 export class Membresia {
-  @PrimaryGeneratedColumn({ name: 'id_membresia' })
-  id: number;
+  @PrimaryGeneratedColumn('uuid', { name: 'id_membresia' })
+  id: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'fecha_creacion', type: 'timestamp' })
   fecha_inicio: Date;
 
-  @Column()
-  fecha_fin: string;
-  @Column()
-  tipo_pago: string;
+  @Column({ name: 'fecha_fin', type: 'time without time zone' })
+  fecha_fin: Date;
 
-  @ManyToOne(() => User, (user) => user.membresias)
+  @Column({
+    type: 'enum',
+    enum: Tipo,
+    default: Tipo.DIARIO,
+    name: 'tipo_pago'
+  })
+  tipo_pago: Tipo;
+
+  @Column({ name: 'costo', type: 'decimal', precision: 10, scale: 2 })
+  costo: number
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'usuario_id' })
   users: User;
 
   @OneToMany(() => Agendamiento, (agendamiento) => agendamiento.membresias)
   agendamientos: Agendamiento[];
 
-  
+  @BeforeInsert()
+  async setFechaFin() {
+    // Obtener la fecha de inicio
+    const fecha = this.fecha_inicio;
+
+    // Se valida el tipo de pago
+    if (this.tipo_pago === Tipo.DIARIO) {
+
+      // Se suma un día a la fecha de inicio
+      fecha.setDate(fecha.getDate() + 1);
+
+      // Se asigna la fecha de fin en el caso mensual
+    } else if (this.tipo_pago === Tipo.MENSUAL) {
+
+      // Se suma un mes a la fecha de inicio
+      fecha.setMonth(fecha.getMonth() + 1);
+    }
+
+    // Se asigna la fecha de fin
+    this.fecha_fin = fecha;
+  }
 }

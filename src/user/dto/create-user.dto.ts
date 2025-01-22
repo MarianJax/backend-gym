@@ -1,7 +1,13 @@
-export class CreateUserDto {id: number; 
+import { IsOptional } from "class-validator";
+
+
+export class CreateUserDto {
     name: string; 
+
     email: string; 
+
     password?: string; 
-    role: string; 
+
+    id_rol: string; 
 
 }

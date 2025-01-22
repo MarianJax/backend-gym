@@ -24,11 +24,11 @@ export class MantenimientoController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateMantenimientoDto: UpdateMantenimientoDto) {
-    return this.mantenimientoService.update(+id, updateMantenimientoDto);
+    return this.mantenimientoService.update(id, updateMantenimientoDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.mantenimientoService.remove(+id);
+    return this.mantenimientoService.remove(id);
   }
 }

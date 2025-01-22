@@ -6,14 +6,14 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
-constructor(
-   @InjectRepository( User) 
-       private readonly userRepository: Repository<User>,
-     ) {}
-     async findByEmail(AuthDto: CreateAuthDto){
-      return await this.userRepository.findOneBy({
-        email:AuthDto.email
-        
-      })
-     }
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
+
+  async findByEmail(AuthDto: CreateAuthDto) {
+    return await this.userRepository.findOneBy({
+      email: AuthDto.email,
+    });
+  }
 }

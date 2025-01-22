@@ -20,15 +20,15 @@ export class HorarioService {
       return await this.HorarioRepository.find();
     }
   
-    async findOne(id: number): Promise<Horario> {
+    async findOne(id: string): Promise<Horario> {
       return await this.HorarioRepository.findOneBy({ id });
     }
   
-    async update(id: number, updateHorarioDto: UpdateHorarioDto): Promise<void> {
+    async update(id: string, updateHorarioDto: UpdateHorarioDto): Promise<void> {
       await this.HorarioRepository.update(id, updateHorarioDto);
     }
   
-    async remove(id: number): Promise<void> {
+    async remove(id: string): Promise<void> {
       await this.HorarioRepository.delete(id);
     }
   }
