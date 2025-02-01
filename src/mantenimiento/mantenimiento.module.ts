@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
-import { MantenimientoService } from './mantenimiento.service';
-import { MantenimientoController } from './mantenimiento.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Maquina } from 'src/maquina/entities/maquina.entity';
+import { MaquinaModule } from 'src/maquina/maquina.module';
+import { MaquinaService } from 'src/maquina/maquina.service';
 import { Mantenimiento } from './entities/mantenimiento.entity';
-import { Pago } from 'src/pago/entities/pago.entity';
+import { MantenimientoController } from './mantenimiento.controller';
+import { MantenimientoService } from './mantenimiento.service';
 @Module({
-  imports: [TypeOrmModule.forFeature([Mantenimiento]), Pago],
+  imports: [TypeOrmModule.forFeature([Mantenimiento]), MaquinaModule],
   controllers: [MantenimientoController],
-  providers: [MantenimientoService],
+  providers: [MantenimientoService, MaquinaService],
   exports: [TypeOrmModule],
 
 })
-export class MantenimientoModule {}
+export class MantenimientoModule { }

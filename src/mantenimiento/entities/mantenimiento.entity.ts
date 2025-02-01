@@ -1,17 +1,16 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinTable,
-  JoinColumn,
-} from 'typeorm';
 import { Maquina } from 'src/maquina/entities/maquina.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn
+} from 'typeorm';
 
-enum Estado {
-  PENDIENTE = 'pendiente',
-  FINALIZADO = 'finalizado',
-  ENPROCESO = 'en proceso',
+export enum Estado {
+  PENDIENTE = 'Pendiente',
+  FINALIZADO = 'Finalizado',
+  ENPROCESO = 'En proceso',
 }
 
 @Entity({ schema: 'esq_gimnasio', name: 'mantenimiento' })
@@ -38,7 +37,7 @@ export class Mantenimiento {
   })
   observaciones: string;
 
-  @ManyToOne(() => Maquina)
+  @ManyToOne(() => Maquina, (maquina) => maquina.mantenimiento)
   @JoinColumn({ name: 'maquina_id' })
   maquina: Maquina;
 }
