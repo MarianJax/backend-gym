@@ -13,7 +13,15 @@ export class MaquinaService {
   ) {}
 
   async create(createMaquinaDto: CreateMaquinaDto): Promise<Maquina> {
-    return await this.maquinaRepository.save(createMaquinaDto);
+    console.log(createMaquinaDto);
+    
+    const maquina = this.maquinaRepository.create({
+      ...createMaquinaDto,
+    });
+
+    await this.maquinaRepository.save(maquina);
+
+    return maquina;
   }
 
   async findAll(): Promise<Maquina[]> {
@@ -25,7 +33,7 @@ export class MaquinaService {
   }
 
   async update(id: string, updateMaquinaDto: UpdateMaquinaDto): Promise<void> {
-    await this.maquinaRepository.update(id, UpdateMaquinaDto);
+    await this.maquinaRepository.update(id, updateMaquinaDto);
   }
 
   async remove(id: string): Promise<void> {
