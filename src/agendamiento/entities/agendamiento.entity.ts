@@ -2,13 +2,12 @@ import { Membresia } from 'src/membresia/entities/membresia.entity';
 import { Pago } from 'src/pago/entities/pago.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  OneToMany,
-  ManyToOne,
-  JoinTable,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn
 } from 'typeorm';
 
 @Entity({ schema: 'esq_gimnasio', name: 'agendamiento' })
@@ -17,7 +16,7 @@ export class Agendamiento {
   @PrimaryGeneratedColumn('uuid', { name: 'id_agendamiento' })
   id: string;
 
-  @Column({ name: 'fecha', type: 'timestamp' })
+  @Column({ name: 'fecha', type: 'timestamptz' })
   fecha: Date;
 
   @Column({ name: 'hora_inicio', type: 'time' })
@@ -26,7 +25,7 @@ export class Agendamiento {
   @Column({ name: 'hora_fin', type: 'time' })
   hora_fin: Date;
 
-  @Column({ name: 'asistido', type: 'boolean' })
+  @Column({ name: 'asistido', type: 'boolean', default: false })
   asistido: boolean;
 
   @ManyToOne(() => Membresia)

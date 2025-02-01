@@ -1,16 +1,17 @@
 import { Module } from '@nestjs/common';
-import { AgendamientoService } from './agendamiento.service';
-import { AgendamientoController } from './agendamiento.controller';
-import { Agendamiento } from './entities/agendamiento.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Membresia } from 'src/membresia/entities/membresia.entity';
-import { User } from 'src/user/entities/user.entity';
 import { UserModule } from 'src/user/user.module';
+import { AgendamientoController } from './agendamiento.controller';
+import { AgendamientoService } from './agendamiento.service';
+import { Agendamiento } from './entities/agendamiento.entity';
+import { MembresiaModule } from 'src/membresia/membresia.module';
+import { MembresiaService } from 'src/membresia/membresia.service';
+import { UserService } from 'src/user/user.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Agendamiento]), UserModule],
+  imports: [TypeOrmModule.forFeature([Agendamiento]), UserModule, MembresiaModule],
   controllers: [AgendamientoController],
-  providers: [AgendamientoService],
+  providers: [AgendamientoService, MembresiaService, UserService],
   exports: [TypeOrmModule],
 })
-export class AgendamientoModule {}
+export class AgendamientoModule { }
