@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
-import { MembresiaService } from './membresia.service';
-import { MembresiaController } from './membresia.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserModule } from 'src/user/user.module';
 import { Membresia } from './entities/membresia.entity';
-import { Pago } from 'src/pago/entities/pago.entity';
+import { MembresiaController } from './membresia.controller';
+import { MembresiaService } from './membresia.service';
+import { UserService } from 'src/user/user.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Membresia]), Membresia, Pago,],
-
+  imports: [TypeOrmModule.forFeature([Membresia]), UserModule],
   controllers: [MembresiaController],
-  providers: [MembresiaService],
+  providers: [MembresiaService, UserService],
   exports: [TypeOrmModule],
 
 })
-export class MembresiaModule {}
+export class MembresiaModule { }
