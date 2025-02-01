@@ -1,30 +1,15 @@
 import { Entrenadores } from 'src/entrenador/entities/entrenador.entity';
+import { DiaSemana, Jornada } from 'src/enum/entities.enum';
 import { Rol } from 'src/rol/entities/rol.entity';
 import {
   Column,
   Entity,
   JoinColumn,
-  JoinTable,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-enum Jornada {
-  VESPERTINA = 'Vespertina',
-  MATUTINA = 'Matutina',
-  NOCTURNA = 'Nocturna',
-}
-
-enum DiaSemana {
-  LUNES = 'Lunes',
-  MARTES = 'Martes',
-  MIERCOLES = 'Miercoles',
-  JUEVES = 'Jueves',
-  VIERNES = 'Viernes',
-  SABADO = 'Sabado',
-  DOMINGO = 'Domingo',
-}
 
 @Entity({ schema: 'esq_gimnasio', name: 'horario' })
 export class Horario {
@@ -51,10 +36,11 @@ export class Horario {
   @Column({ name: 'hora_fin', type: 'time' })
   hora_fin: Date;
 
-  @ManyToOne(() => Rol)
-  @JoinColumn({ name: 'rol_id' })
+  @ManyToOne(() => Rol, (rol) => rol.horarios)
+  @JoinColumn({ name: 'id_rol' })
   rol: Rol;
 
-  @OneToMany(() => Entrenadores, (entrenador) => entrenador.horario_empleado)
-  entrenador: Entrenadores[];
+  @OneToMany(() => Entrenadores, (entrenador) => entrenador.horario)
+  @JoinColumn({ name: 'id_entrenador' })
+  entrenadores: Entrenadores[];
 }
