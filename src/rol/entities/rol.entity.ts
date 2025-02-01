@@ -2,13 +2,12 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  DeleteDateColumn,
-  UpdateDateColumn,
   OneToMany,
-  OneToOne,
+  JoinColumn,
 } from 'typeorm';
 import { Horario } from 'src/horario/entities/horario.entity';
 import { User } from 'src/user/entities/user.entity';
+
 @Entity({ schema: 'esq_gimnasio', name: 'roles' })
 export class Rol {
   @PrimaryGeneratedColumn('uuid', { name: 'id_rol' })
@@ -27,8 +26,10 @@ export class Rol {
   cupo: number;
 
   @OneToMany(() => Horario, (horario) => horario.rol)
+  @JoinColumn({ name: 'id_horario' })
   horarios: Horario[];
 
   @OneToMany(() => User, (user) => user.roles)
+  @JoinColumn({ name: 'id_usuario' })
   users: User[];
 }

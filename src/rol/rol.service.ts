@@ -4,7 +4,6 @@ import { UpdateRolDto } from './dto/update-rol.dto';
 import { Rol } from './entities/rol.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Horario } from 'src/horario/entities/horario.entity';
 
 @Injectable()
 export class RolService {
@@ -14,7 +13,9 @@ export class RolService {
   ) {}
 
   async create(createRolDto: CreateRolDto) {
-    return await this.rolRepository.save(createRolDto);
+    const rol = this.rolRepository.create(createRolDto);
+    console.log(rol);
+    return await this.rolRepository.save(rol);
   }
 
   async findAll(): Promise<Rol[]> {
