@@ -5,25 +5,33 @@ import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Rol } from 'src/rol/entities/rol.entity';
-import { NotFoundError } from 'rxjs';
+
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private userRepository: Repository<User>,
 
     @InjectRepository(Rol)
-    private readonly rolRepository: Repository<Rol>,
-  ) {}
+    private rolRepository: Repository<Rol>,
+  ) { }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const role = await this.validateRole(createUserDto.id_rol);
 
-    // Esto deberia crear un usuario con el rol que se le asignó
-    return await this.userRepository.save({
+    const existEmail = await this.userRepository.findOne({ where: { email: createUserDto.email } });
+
+    if (existEmail) {
+      throw new BadRequestException(`El correo ${existEmail.email} ya está registrado`);
+    }
+
+    const user = this.userRepository.create({
       ...createUserDto,
-      id_rol: role,
+      roles: role,
     });
+
+    // Esto deberia crear un usuario con el rol que se le asignó
+    return await this.userRepository.save(user);
   }
 
   async findAll(): Promise<User[]> {
@@ -35,7 +43,7 @@ export class UserService {
   }
 
   async update(id: string, updateMaquinaDto: UpdateUserDto): Promise<void> {
-    await this.userRepository.update(id, UpdateUserDto);
+    await this.userRepository.update(id, updateMaquinaDto);
   }
 
   async remove(id: string): Promise<void> {
