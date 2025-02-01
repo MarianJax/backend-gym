@@ -4,7 +4,7 @@ import { UserModule } from './user/user.module';
 import { AgendamientoModule } from './agendamiento/agendamiento.module';
 import { PagoModule } from './pago/pago.module';
 import { HorarioModule } from './horario/horario.module';
-import { DataSource, EntitySchema } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { MaquinaModule } from './maquina/maquina.module';
 import { MantenimientoModule } from './mantenimiento/mantenimiento.module';
 import { MembresiaModule } from './membresia/membresia.module';
