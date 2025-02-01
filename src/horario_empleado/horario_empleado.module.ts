@@ -1,13 +1,16 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { EntrenadorModule } from 'src/entrenador/entrenador.module';
+import { EntrenadorService } from 'src/entrenador/entrenador.service';
+import { HorarioModule } from 'src/horario/horario.module';
+import { HorarioEmpleado } from './entities/horario_empleado.entity';
 import { HorarioEmpleadoController } from './horario_empleado.controller';
 import { HorarioEmpleadoService } from './horario_empleado.service';
-import { HorarioEmpleado } from './entities/horario_empleado.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([HorarioEmpleado])],
+  imports: [TypeOrmModule.forFeature([HorarioEmpleado]), EntrenadorModule, HorarioModule],
   controllers: [HorarioEmpleadoController],
-  providers: [HorarioEmpleadoService],
+  providers: [HorarioEmpleadoService, EntrenadorService],
   exports: [TypeOrmModule],
 })
-export class HorarioEmpleadoModule {}
+export class HorarioEmpleadoModule { }
