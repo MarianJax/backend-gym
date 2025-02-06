@@ -12,6 +12,7 @@ import { RolModule } from './rol/rol.module';
 import { EntrenadorModule } from './entrenador/entrenador.module';
 import { AuthModule } from './auth/auth.module';
 import { HorarioEmpleadoModule } from './horario_empleado/horario_empleado.module';
+import { ValidacionesPagoModule } from './validaciones_pago/validaciones_pago.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { HorarioEmpleadoModule } from './horario_empleado/horario_empleado.modul
     HorarioEmpleadoModule,
     EntrenadorModule,
     AuthModule,
+    ValidacionesPagoModule,
   ],
   controllers: [],
   providers: [],
