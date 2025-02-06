@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Rol } from 'src/rol/entities/rol.entity';
+import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Rol } from 'src/rol/entities/rol.entity';
 
 @Injectable()
 export class UserService {
@@ -17,21 +17,27 @@ export class UserService {
   ) { }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const role = await this.validateRole(createUserDto.id_rol);
+    try {
+      const roles = await this.validateRole(createUserDto.rol_id);
 
-    const existEmail = await this.userRepository.findOne({ where: { email: createUserDto.email } });
+      const existEmail = await this.userRepository.findOne({ where: { correo: createUserDto.correo } });
 
-    if (existEmail) {
-      throw new BadRequestException(`El correo ${existEmail.email} ya está registrado`);
+      if (existEmail) {
+        throw new BadRequestException(`El correo ${existEmail.correo} ya está registrado`);
+      }
+
+      const user = this.userRepository.create({
+        ...createUserDto,
+        roles,
+      });
+
+      // Esto deberia crear un usuario con el rol que se le asignó
+      return await this.userRepository.save(user);
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
     }
-
-    const user = this.userRepository.create({
-      ...createUserDto,
-      roles: role,
-    });
-
-    // Esto deberia crear un usuario con el rol que se le asignó
-    return await this.userRepository.save(user);
   }
 
   async findAll(): Promise<User[]> {
@@ -59,8 +65,6 @@ export class UserService {
     if (!roleFound) {
       throw new BadRequestException(`Role ${role} not found`);
     }
-
-    console.log(roleFound);
 
     return roleFound;
   }

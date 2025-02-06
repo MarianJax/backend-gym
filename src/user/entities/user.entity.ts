@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as bcrypt from 'bcryptjs';
-import { Exclude, instanceToPlain } from 'class-transformer';
 import { Agendamiento } from 'src/agendamiento/entities/agendamiento.entity';
 import { Membresia } from 'src/membresia/entities/membresia.entity';
 import { Rol } from 'src/rol/entities/rol.entity';
+import { ValidacionesPago } from 'src/validaciones_pago/entities/validaciones_pago.entity';
 import {
   BeforeInsert,
+  BeforeUpdate,
   Column,
   Entity,
   Index,
@@ -16,37 +17,46 @@ import {
   Unique,
 } from 'typeorm';
 
-@Entity({ schema: 'esq_gimnasio', name: 'usuario' })
+@Entity({ schema: 'esq_gimnasio', name: 'usuarios' })
 export class User {
 
   @PrimaryGeneratedColumn('uuid', { name: 'id_usuario' })
   id: string;
 
   @Column({ name: 'nombre', type: 'varchar', length: 100 })
-  name: string;
+  nombre: string;
 
   @Column({ name: 'correo', unique: true, type: 'varchar', length: 100 })
   @Unique('email_unique', ['email'])
   @Index('email_index_User', { unique: true })
-  email: string;
+  correo: string;
 
   @Column({ name: 'contrasena', type: 'varchar', length: 200 })
   contrasena?: string;
 
+  @ManyToOne(() => Rol, (rol) => rol.users, { eager: true })
+  @JoinColumn({ name: 'rol_id' })
+  roles: Rol;
+
+  @Column({ name: 'nivel', type: 'int', default: 1 })
+  nivel: number;
+
   @OneToMany(() => Membresia, (membresia) => membresia.users)
-  @JoinColumn({ name: 'membresias' })
-  membresias: Membresia;
+  membresias: Membresia[];
 
   @OneToMany(() => Agendamiento, (agendamiento) => agendamiento.user)
-  @JoinColumn({ name: 'agendamientos' })
   agendamientos: Agendamiento[];
 
-  @ManyToOne(() => Rol, (rol) => rol.users, { eager: true })
-  @JoinColumn({ name: 'id_rol' })
-  roles: Rol;
+  @OneToMany(() => ValidacionesPago, (validacion_pago) => validacion_pago.users)
+  validacion_pago: ValidacionesPago[];
 
   @BeforeInsert()
   async hashPassword() {
+    this.contrasena = await bcrypt.hash(this.contrasena, 10);
+  }
+
+  @BeforeUpdate()
+  async hashPasswordUpdated() {
     this.contrasena = await bcrypt.hash(this.contrasena, 10);
   }
 
