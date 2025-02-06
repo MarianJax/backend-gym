@@ -16,8 +16,8 @@ export class AuthService {
   async findByEmail(AuthDto: CreateAuthDto) {
 
     const user = await this.userRepository.findOne({
-      where: { email: AuthDto.email },
-      select: ['id', 'email', 'contrasena', 'name'],
+      where: { correo: AuthDto.correo },
+      select: ['id', 'correo', 'contrasena', 'nombre'],
 
     });
 
