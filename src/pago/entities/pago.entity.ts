@@ -1,28 +1,28 @@
 import { Agendamiento } from 'src/agendamiento/entities/agendamiento.entity';
+import { Membresia } from 'src/membresia/entities/membresia.entity';
+import { ValidacionesPago } from 'src/validaciones_pago/entities/validaciones_pago.entity';
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  JoinTable,
-  JoinColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn
 } from 'typeorm';
 
-enum Metodo {
+export enum Metodo {
   DIARIO = 'Diario', // tarjeta?
   MENSUAL = 'Mensual', // tranfrencia?
 }
 
-@Entity({ schema: 'esq_gimnasio', name: 'pago' })
+@Entity({ schema: 'esq_gimnasio', name: 'pagos' })
 export class Pago {
-  @PrimaryGeneratedColumn('uuid',{ name: 'id_transferencia' })
+  @PrimaryGeneratedColumn('uuid', { name: 'id_transferencia' })
   id: string;
 
   @Column({ name: 'monto', type: 'decimal', precision: 10, scale: 2 })
   monto: number;
 
-  @Column({ name: 'fecha_pago', type: 'timestamp with time zone' })
-  fecha_pago: string;
+  @Column({ name: 'fecha_pago', type: 'timestamptz' })
+  fecha_pago: Date;
 
   @Column({
     name: 'metodo_pago',
@@ -32,7 +32,12 @@ export class Pago {
   })
   metodo_pago: Metodo;
 
-  @ManyToOne(() => Agendamiento)
-  @JoinColumn({ name: 'agendamiento_id' })
-  agendamiento: Agendamiento;
+  @OneToMany(() => Agendamiento, (agendamiento) => agendamiento.pagos)
+  agendamiento: Agendamiento[];
+
+  @OneToMany(() => Membresia, (membresia) => membresia.pagos)
+  membresia: Membresia[];
+
+  @OneToMany(() => ValidacionesPago, (agendamiento) => agendamiento.pagos)
+  validacion_pago: ValidacionesPago[];
 }
