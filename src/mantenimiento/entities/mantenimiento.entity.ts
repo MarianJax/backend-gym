@@ -13,7 +13,7 @@ export enum Estado {
   ENPROCESO = 'En proceso',
 }
 
-@Entity({ schema: 'esq_gimnasio', name: 'mantenimiento' })
+@Entity({ schema: 'esq_gimnasio', name: 'control_mantenimiento' })
 export class Mantenimiento {
   @PrimaryGeneratedColumn('uuid', { name: 'id_mantenimiento' })
   id: string;
@@ -27,9 +27,9 @@ export class Mantenimiento {
 
   @Column({
     name: 'fecha_mantenimiento',
-    type: 'timestamp',
+    type: 'timestamptz',
   })
-  date_mantenimiento: Date;
+  fecha_mantenimiento: Date;
 
   @Column({
     name: 'observaciones',

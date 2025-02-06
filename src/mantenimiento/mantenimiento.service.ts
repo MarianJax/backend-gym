@@ -29,7 +29,7 @@ export class MantenimientoService {
     } catch (error) {
       console.error('La maquina no existe', error);
       if (error.code === '22P02' && error.routine === 'string_to_uuid') {
-        throw new BadRequestException('La maquina no existe');
+        throw new BadRequestException('La maquina seleccionada no existe');
       }
     }
   }
