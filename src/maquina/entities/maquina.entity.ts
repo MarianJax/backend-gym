@@ -2,9 +2,8 @@ import { Mantenimiento } from 'src/mantenimiento/entities/mantenimiento.entity';
 import {
   Column,
   Entity,
-  JoinColumn,
   OneToMany,
-  PrimaryGeneratedColumn,
+  PrimaryGeneratedColumn
 } from 'typeorm';
 
 export enum Estado {
@@ -13,16 +12,16 @@ export enum Estado {
   FUERASERVICIO = 'fuera de servicio',
 }
 
-@Entity({ schema: 'esq_gimnasio', name: 'maquina' })
+@Entity({ schema: 'esq_gimnasio', name: 'maquinas' })
 export class Maquina {
   @PrimaryGeneratedColumn('uuid', { name: 'id_maquina' })
   id: string;
 
   @Column({ name: 'nombre', type: 'varchar', length: 100 })
-  name: string;
+  nombre: string;
 
-  @Column({ name: 'fecha_compra', type: 'date' })
-  date_compra: Date;
+  @Column({ name: 'fecha_compra', type: 'timestamptz' })
+  fecha_compra: Date;
 
   @Column({ name: 'cantidad', type: 'integer' })
   cantidad: number;
@@ -34,6 +33,5 @@ export class Maquina {
   descripcion: string;
 
   @OneToMany(() => Mantenimiento, (mantenimiento) => mantenimiento.maquina)
-  @JoinColumn({ name: 'mantenimiento_id' })
   mantenimiento: Mantenimiento[];
 }

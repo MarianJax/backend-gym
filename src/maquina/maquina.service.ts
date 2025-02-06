@@ -13,8 +13,6 @@ export class MaquinaService {
   ) {}
 
   async create(createMaquinaDto: CreateMaquinaDto): Promise<Maquina> {
-    console.log(createMaquinaDto);
-    
     const maquina = this.maquinaRepository.create({
       ...createMaquinaDto,
     });
