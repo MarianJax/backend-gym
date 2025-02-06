@@ -1,12 +1,11 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToMany,
-  JoinColumn,
-} from 'typeorm';
 import { Horario } from 'src/horario/entities/horario.entity';
 import { User } from 'src/user/entities/user.entity';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn
+} from 'typeorm';
 
 @Entity({ schema: 'esq_gimnasio', name: 'roles' })
 export class Rol {
@@ -14,10 +13,10 @@ export class Rol {
   id: string;
 
   @Column({ name: 'nombre', type: 'varchar', length: 50 })
-  name: string;
+  nombre: string;
 
   @Column({ name: 'monto_pago', type: 'decimal', precision: 10, scale: 2 })
-  monto_de_pago: number;
+  monto_pago: number;
 
   @Column({ name: 'tiempo', type: 'text' })
   tiempo: string;
@@ -26,10 +25,8 @@ export class Rol {
   cupo: number;
 
   @OneToMany(() => Horario, (horario) => horario.rol)
-  @JoinColumn({ name: 'id_horario' })
   horarios: Horario[];
 
   @OneToMany(() => User, (user) => user.roles)
-  @JoinColumn({ name: 'id_usuario' })
   users: User[];
 }

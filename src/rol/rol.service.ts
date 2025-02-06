@@ -14,7 +14,6 @@ export class RolService {
 
   async create(createRolDto: CreateRolDto) {
     const rol = this.rolRepository.create(createRolDto);
-    console.log(rol);
     return await this.rolRepository.save(rol);
   }
 
