@@ -20,7 +20,7 @@ export class HorarioEmpleadoService {
     createHorarioEmpleadoDto: CreateHorarioEmpleadoDto,
   ): Promise<HorarioEmpleado> {
     try {
-      const entrenador = await this.EntradorRepository.findOneByOrFail({ id: createHorarioEmpleadoDto.id_entrenador });
+      const entrenador = await this.EntradorRepository.findOneByOrFail({ id: createHorarioEmpleadoDto.entrenador_id });
       const horarioEntrenador = this.HorarioEmpleadoRepository.create({
         ...createHorarioEmpleadoDto,
         entrenador,
@@ -30,7 +30,12 @@ export class HorarioEmpleadoService {
     } catch (error) {
       console.error('El horario no existe', error);
       if (error.code === '22P02' && error.routine === 'string_to_uuid') {
-        throw new BadRequestException('El horario no existe');
+        throw new BadRequestException('El entrenador no existe');
+      }
+      if (error.code === '23505') {
+        throw new BadRequestException('El horario ya existe');
+      } else {
+        throw new BadRequestException('Error al crear el horario');
       }
     }
   }

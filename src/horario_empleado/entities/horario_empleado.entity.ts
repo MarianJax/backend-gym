@@ -1,5 +1,4 @@
 import { Entrenadores } from 'src/entrenador/entities/entrenador.entity';
-import { DiaSemana, Jornada, RolHorario } from 'src/enum/entities.enum';
 import {
   Column,
   Entity,
@@ -13,35 +12,16 @@ export class HorarioEmpleado {
   @PrimaryGeneratedColumn('uuid', { name: 'id_horario_empleado' })
   id: string;
 
-  @Column({
-    type: 'enum',
-    enum: RolHorario,
-    name: 'rol',
-  })
-  rol: RolHorario;
+  @Column({ name: 'fecha', type: 'timestamptz' })
+  fecha: Date;
 
-  @Column({
-    name: 'dia_semana', type: 'enum',
-    enumName: 'dia_semana',
-    enum: DiaSemana,
-  })
-  dia_semana: DiaSemana;
+  @Column({ name: 'franja_hora_inicio', type: 'time' })
+  franja_hora_inicio: Date;
 
-  @Column({
-    type: 'enum',
-    enum: Jornada,
-    enumName: 'jornada',
-    name: 'jornada',
-  })
-  jornada: Jornada;
-
-  @Column({ name: 'hora_inicio', type: 'time' })
-  hora_inicio: Date;
-
-  @Column({ name: 'hora_fin', type: 'time' })
-  hora_fin: Date;
+  @Column({ name: 'franja_hora_fin', type: 'time' })
+  franja_hora_fin: Date;
 
   @ManyToOne(() => Entrenadores, (entrenadores) => entrenadores.horario_empleados)
-  @JoinColumn({ name: 'id_entrenador' })
+  @JoinColumn({ name: 'entrenador_id' })
   entrenador: Entrenadores;
 }
