@@ -14,7 +14,4 @@ export enum DiaSemana {
     SABADO = 'Sabado',
     DOMINGO = 'Domingo',
 }
-export enum RolHorario {
-    ADMINISTRADOR = 'Administrador',
-    ENTRENADOR = 'Entrenador',
-}
+
