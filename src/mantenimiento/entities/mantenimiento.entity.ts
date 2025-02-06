@@ -24,7 +24,10 @@ export class Mantenimiento {
     default: Estado.PENDIENTE,
   })
   estado: Estado;
-
+@Column({
+  name: 'costo_mantenimiento',
+  type: 'numeric',precision: 10,scale: 2,}
+)
   @Column({
     name: 'fecha_mantenimiento',
     type: 'timestamptz',
