@@ -1,4 +1,5 @@
 import { Agendamiento } from 'src/agendamiento/entities/agendamiento.entity';
+import { Pago } from 'src/pago/entities/pago.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
   Column,
@@ -21,19 +22,11 @@ export class Membresia {
   @PrimaryGeneratedColumn('uuid', { name: 'id_membresia' })
   id: string;
 
-  @CreateDateColumn({ name: 'fecha_creacion', type: 'date' })
+  @CreateDateColumn({ name: 'fecha_creacion', type: 'timestamptz' })
   fecha_inicio: Date;
 
-  @Column({ name: 'fecha_fin', type: 'date' })
+  @Column({ name: 'fecha_fin', type: 'timestamptz' })
   fecha_fin: Date;
-
-  @Column({
-    type: 'enum',
-    enum: Tipo,
-    default: Tipo.DIARIO,
-    name: 'tipo_pago'
-  })
-  tipo_pago: Tipo;
 
   @Column({ name: 'costo', type: 'decimal', precision: 10, scale: 2 })
   costo: number
@@ -44,6 +37,10 @@ export class Membresia {
 
   @OneToMany(() => Agendamiento, (agendamiento) => agendamiento.membresias)
   agendamientos: Agendamiento[];
+
+  @ManyToOne(() => Pago)
+  @JoinColumn({ name: 'pago_id' })
+  pagos: Pago;
 
   // @BeforeInsert()
   // async setFechaFin() {
