@@ -6,7 +6,6 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn
 } from 'typeorm';
 
@@ -25,15 +24,16 @@ export class Agendamiento {
   @Column({ name: 'hora_fin', type: 'time' })
   hora_fin: Date;
 
-  @Column({ name: 'asistido', type: 'boolean', default: false })
-  asistido: boolean;
+  @Column({ name: 'asistio', type: 'boolean', default: false })
+  asistio: boolean;
 
   @ManyToOne(() => Membresia)
   @JoinColumn({ name: 'membresia_id' })
   membresias: Membresia;
 
-  @OneToMany(() => Pago, (pago) => pago.agendamiento)
-  pagos: Pago[];
+  @ManyToOne(() => Pago)
+  @JoinColumn({ name: 'pago_id' })
+  pagos: Pago;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'usuario_id' })
