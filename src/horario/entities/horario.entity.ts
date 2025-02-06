@@ -1,4 +1,3 @@
-import { Entrenadores } from 'src/entrenador/entities/entrenador.entity';
 import { DiaSemana, Jornada } from 'src/enum/entities.enum';
 import { Rol } from 'src/rol/entities/rol.entity';
 import {
@@ -6,12 +5,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
+  PrimaryGeneratedColumn
 } from 'typeorm';
 
 
-@Entity({ schema: 'esq_gimnasio', name: 'horario' })
+@Entity({ schema: 'esq_gimnasio', name: 'horarios' })
 export class Horario {
   @PrimaryGeneratedColumn('uuid', { name: 'id_horario' })
   id: string;
@@ -37,10 +35,7 @@ export class Horario {
   hora_fin: Date;
 
   @ManyToOne(() => Rol, (rol) => rol.horarios)
-  @JoinColumn({ name: 'id_rol' })
+  @JoinColumn({ name: 'rol_id' })
   rol: Rol;
 
-  @OneToMany(() => Entrenadores, (entrenador) => entrenador.horario)
-  @JoinColumn({ name: 'id_entrenador' })
-  entrenadores: Entrenadores[];
 }

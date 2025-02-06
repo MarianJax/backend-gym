@@ -16,6 +16,6 @@ export class CreateHorarioDto {
     hora_fin: string;
 
     @IsNotEmpty({ message: 'La rol es requerido' })
-    id_rol: string;
+    rol_id: string;
 
 }

@@ -18,7 +18,7 @@ export class HorarioService {
 
   async create(createHorarioDto: CreateHorarioDto): Promise<Horario> {
     try {
-      const rol = await this.rolRepository.findOneByOrFail({ id: createHorarioDto.id_rol });
+      const rol = await this.rolRepository.findOneByOrFail({ id: createHorarioDto.rol_id });
 
       const horario = this.HorarioRepository.create({
         ...createHorarioDto,
