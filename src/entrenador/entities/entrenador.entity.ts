@@ -1,15 +1,14 @@
 import * as bcrypt from 'bcryptjs';
-import { Horario } from 'src/horario/entities/horario.entity';
 import { HorarioEmpleado } from 'src/horario_empleado/entities/horario_empleado.entity';
 import {
   BeforeInsert,
+  BeforeUpdate,
   Column,
   Entity,
   Index,
   JoinColumn,
-  ManyToOne,
   OneToMany,
-  PrimaryGeneratedColumn,
+  PrimaryGeneratedColumn
 } from 'typeorm';
 
 @Entity({ schema: 'esq_gimnasio', name: 'entrenadores' })
@@ -19,11 +18,11 @@ export class Entrenadores {
   id: string;
 
   @Column({ name: 'nombre', type: 'varchar', length: 100 })
-  name: string;
+  nombre: string;
 
   @Column({ name: 'correo', type: 'varchar', length: 100, unique: true })
   @Index('correo_index')
-  email: string;
+  correo: string;
 
   @Column({ name: 'contrasena', type: 'varchar', length: 100 })
   contrasena: string;
@@ -34,16 +33,17 @@ export class Entrenadores {
   @Column({ name: 'telefono', type: 'varchar', length: 15 })
   telefono: string;
 
-  @ManyToOne(() => Horario, (horario) => horario.entrenadores)
-  @JoinColumn({ name: 'id_horario' })
-  horario: Horario;
-
   @OneToMany(() => HorarioEmpleado, (horario_emp) => horario_emp.entrenador)
   @JoinColumn({ name: 'horario_empleado' })
   horario_empleados: HorarioEmpleado[];
 
   @BeforeInsert()
   async hashPassword() {
+    this.contrasena = await bcrypt.hash(this.contrasena, 10);
+  }
+
+  @BeforeUpdate()
+  async hashPasswordUpdated() {
     this.contrasena = await bcrypt.hash(this.contrasena, 10);
   }
 }
