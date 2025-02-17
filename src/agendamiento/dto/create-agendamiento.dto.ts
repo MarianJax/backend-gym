@@ -1,9 +1,8 @@
-import { Transform } from "class-transformer";
-import { IsDate, IsMilitaryTime, IsNotEmpty } from "class-validator";
+import { IsISO8601, IsMilitaryTime, IsNotEmpty, MinDate } from "class-validator";
 
 export class CreateAgendamientoDto {
-    @IsDate({ message: 'La fecha ingresada no es válida' })
-    @Transform(({ value }) => new Date(value + 'T05:00:00.000Z'))
+    @IsISO8601()
+    @MinDate(new Date(), { message: 'La fecha no puede ser menor a la fecha actual' })
     fecha: Date;
 
     @IsNotEmpty({ message: 'El usuario es requerido' })
