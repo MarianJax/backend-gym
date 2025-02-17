@@ -7,9 +7,9 @@ import {
 } from 'typeorm';
 
 export enum Estado {
-  DISPONIBLE = 'disponible',
-  MANTENIMIENTO = 'mantenimiento',
-  FUERASERVICIO = 'fuera de servicio',
+  DISPONIBLE = 'Disponible',
+  MANTENIMIENTO = 'Mantenimiento',
+  FUERASERVICIO = 'Fuera de servicio',
 }
 
 @Entity({ schema: 'esq_gimnasio', name: 'maquinas' })

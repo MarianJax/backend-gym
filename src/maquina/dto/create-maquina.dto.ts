@@ -1,5 +1,5 @@
 import { Transform } from "class-transformer";
-import { IsDate, IsEnum, IsNotEmpty, IsString, Length, Min } from "class-validator";
+import { IsDate, IsDateString, IsEnum, IsNotEmpty, IsString, Length, Min } from "class-validator";
 import { Estado } from "../entities/maquina.entity";
 
 export class CreateMaquinaDto {
@@ -7,8 +7,7 @@ export class CreateMaquinaDto {
   @Length(3, 150, { message: 'El nombre de la máquina debe tener al menos 3 caracteres' })
   nombre: string;
 
-  @IsDate({ message: 'La fecha de compra ingresada no es válida' })
-  @Transform(({ value }) => new Date(value + 'T05:00:00.000Z'))
+  @IsDateString()
   @IsNotEmpty({ message: 'La fecha de compra no puede estar vacío' })
   fecha_compra: Date;
 
