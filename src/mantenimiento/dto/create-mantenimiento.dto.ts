@@ -1,5 +1,4 @@
-import { Transform } from "class-transformer";
-import { IsDate, IsEnum, IsNotEmpty, MinDate } from "class-validator";
+import { IsEnum, IsISO8601, IsNotEmpty, MinDate } from "class-validator";
 import { Estado } from "../entities/mantenimiento.entity";
 
 export class CreateMantenimientoDto {
@@ -7,8 +6,7 @@ export class CreateMantenimientoDto {
     @IsNotEmpty({ message: 'El estado del mantenimiento es requerido' })
     estado: Estado;
 
-    @IsDate({ message: 'La fecha de mantenimiento ingresada no es válida' })
-    @Transform(({ value }) => new Date(value + 'T05:00:00.000Z'))
+    @IsISO8601()
     @MinDate(new Date(), { message: 'La fecha del mantenimiento no puede ser menor a la fecha actual' })
     fecha_mantenimiento: Date;
 

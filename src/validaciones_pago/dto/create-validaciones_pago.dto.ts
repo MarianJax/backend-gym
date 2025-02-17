@@ -1,9 +1,7 @@
-import { Transform } from "class-transformer";
-import { IsDate, IsNotEmpty, MinDate } from "class-validator";
+import { IsISO8601, IsNotEmpty, MinDate } from "class-validator";
 
 export class CreateValidacionesPagoDto {
-    @IsDate({ message: 'Debe ser una fecha válida' })
-    @Transform(({ value }) => new Date(value + 'T05:00:00.000Z'))
+    @IsISO8601()
     @MinDate(() => new Date(), { message: 'La fecha no puede ser menor a hoy' })
     fecha_validacion: Date;
 

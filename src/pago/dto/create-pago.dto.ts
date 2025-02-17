@@ -1,5 +1,4 @@
-import { Transform } from "class-transformer";
-import { IsDate, IsEnum, IsNotEmpty, Min } from "class-validator";
+import { IsEnum, IsISO8601, IsNotEmpty, Min } from "class-validator";
 import { Metodo } from "../entities/pago.entity";
 
 export class CreatePagoDto {
@@ -7,8 +6,7 @@ export class CreatePagoDto {
     @IsNotEmpty({ message: 'El monto no puede estar vacío' })
     monto: number;
 
-    @IsDate({ message: 'La fecha debe ser una fecha válida' })
-    @Transform(({ value }) => new Date(value + 'T05:00:00.000Z'))
+    @IsISO8601()
     @IsNotEmpty({ message: 'La fecha no puede estar vacía' })
     fecha_pago: Date;
 

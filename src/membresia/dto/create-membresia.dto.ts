@@ -1,16 +1,13 @@
-import { Transform } from "class-transformer";
-import { IsDate, IsNotEmpty, IsOptional, IsString, Min, MinDate } from "class-validator";
+import { IsISO8601, IsNotEmpty, IsOptional, IsString, Min, MinDate } from "class-validator";
 
 export class CreateMembresiaDto {
 
-    @IsDate({ message: 'Debe ser una fecha válida' })
-    @Transform(({ value }) => new Date(value + 'T05:00:00.000Z'))
+    @IsISO8601()
     @MinDate(() => new Date(), { message: 'La fecha no puede ser menor a hoy' })
     fecha_inicio: Date;
 
     @IsOptional()
-    @IsDate({ message: 'Debe ser una fecha de fin válida' })
-    @Transform(({ value }) => new Date(value + 'T05:00:00.000Z'))
+    @IsISO8601()
     fecha_fin?: Date;
 
     @Min(0.25, { message: 'El costo debe ser mayor a 0.25' })
