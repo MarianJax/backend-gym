@@ -24,7 +24,9 @@ export class Rol {
   @Column({ name: 'cupos', type: 'integer' })
   cupo: number;
 
-  @OneToMany(() => Horario, (horario) => horario.rol)
+  @OneToMany(() => Horario, (horario) => horario.rol,{
+    eager: true, // para que traiga las raza al hacer un findOne
+  })
   horarios: Horario[];
 
   @OneToMany(() => User, (user) => user.roles)
