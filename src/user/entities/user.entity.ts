@@ -19,7 +19,6 @@ import {
 
 @Entity({ schema: 'esq_gimnasio', name: 'usuarios' })
 export class User {
-
   @PrimaryGeneratedColumn('uuid', { name: 'id_usuario' })
   id: string;
 
@@ -31,15 +30,12 @@ export class User {
   @Index('email_index_User', { unique: true })
   correo: string;
 
-  @Column({ name: 'contrasena', type: 'varchar', length: 200 })
+  @Column({ name: 'contrasena', type: 'varchar', length: 200, nullable: true })
   contrasena?: string;
 
   @ManyToOne(() => Rol, (rol) => rol.users, { eager: true })
   @JoinColumn({ name: 'rol_id' })
   roles: Rol;
-
-  @Column({ name: 'nivel', type: 'int', default: 1 })
-  nivel: number;
 
   @OneToMany(() => Membresia, (membresia) => membresia.users)
   membresias: Membresia[];

@@ -14,16 +14,20 @@ export class UserService {
 
     @InjectRepository(Rol)
     private rolRepository: Repository<Rol>,
-  ) { }
+  ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     try {
       const roles = await this.validateRole(createUserDto.rol_id);
 
-      const existEmail = await this.userRepository.findOne({ where: { correo: createUserDto.correo } });
+      const existEmail = await this.userRepository.findOne({
+        where: { correo: createUserDto.correo },
+      });
 
       if (existEmail) {
-        throw new BadRequestException(`El correo ${existEmail.correo} ya está registrado`);
+        throw new BadRequestException(
+          `El correo ${existEmail.correo} ya está registrado`,
+        );
       }
 
       const user = this.userRepository.create({
@@ -31,7 +35,7 @@ export class UserService {
         roles,
       });
 
-      // Esto deberia crear un usuario con el rol que se le asignó
+      //  crea un usuario con el rol que se le asignó
       return await this.userRepository.save(user);
     } catch (error) {
       if (error instanceof BadRequestException) {
@@ -56,7 +60,7 @@ export class UserService {
     await this.userRepository.delete(id);
   }
 
-  // Ya mira aqui lo que se hace es buscar el rol pero el id, aqui me confundí
+  //  buscar el rol pero el id, aqui me confundí
   private async validateRole(role: string): Promise<Rol> {
     const roleFound = await this.rolRepository.findOne({ where: { id: role } });
 
@@ -69,5 +73,3 @@ export class UserService {
     return roleFound;
   }
 }
-
-// Esperaba que cancelaras la terminal 

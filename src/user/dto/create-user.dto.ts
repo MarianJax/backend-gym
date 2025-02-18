@@ -15,10 +15,6 @@ export class CreateUserDto {
     @IsOptional()
     contrasena?: string;
 
-    @IsNotEmpty({ message: 'El nivel es requerido' })
-    @IsEnum([1, 2, 3,4,5,6,7,8,9], { message: 'El nivel debe ser 1, 2, ..., 3' })
-    nivel: number;
-
     @IsString({ message: 'El rol debe ser un texto' })
     @Length(3, undefined, { message: 'El rol debe tener al menos 3 caracteres' })
     rol_id: string;
