@@ -1,5 +1,4 @@
-import { Transform } from "class-transformer";
-import { IsDate, IsDateString, IsEnum, IsNotEmpty, IsString, Length, Min } from "class-validator";
+import { IsDateString, IsEnum, IsNotEmpty, IsString, Length, Min } from "class-validator";
 import { Estado } from "../entities/maquina.entity";
 
 export class CreateMaquinaDto {

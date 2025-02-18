@@ -13,9 +13,16 @@ import { EntrenadorModule } from './entrenador/entrenador.module';
 import { AuthModule } from './auth/auth.module';
 import { HorarioEmpleadoModule } from './horario_empleado/horario_empleado.module';
 import { ValidacionesPagoModule } from './validaciones_pago/validaciones_pago.module';
+import { ConfigModule } from '@nestjs/config';
+import configServ from '../config/config-reg';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+      load: [configServ],
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
