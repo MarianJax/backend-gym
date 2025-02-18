@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Rol } from 'src/rol/entities/rol.entity';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { CreateHorarioDto } from './dto/create-horario.dto';
 import { UpdateHorarioDto } from './dto/update-horario.dto';
 import { Horario } from './entities/horario.entity';
@@ -14,11 +14,13 @@ export class HorarioService {
 
     @InjectRepository(Rol)
     private readonly rolRepository: Repository<Rol>,
-  ) { }
+  ) {}
 
   async create(createHorarioDto: CreateHorarioDto): Promise<Horario> {
     try {
-      const rol = await this.rolRepository.findOneByOrFail({ id: createHorarioDto.rol_id });
+      const rol = await this.rolRepository.findOneByOrFail({
+        id: createHorarioDto.rol_id,
+      });
 
       const horario = this.HorarioRepository.create({
         ...createHorarioDto,
@@ -40,6 +42,17 @@ export class HorarioService {
 
   async findOne(id: string): Promise<Horario> {
     return await this.HorarioRepository.findOneBy({ id });
+  }
+
+  async findHorarioRol(rol: string): Promise<Horario[]> {
+    return await this.HorarioRepository.find({
+      where: {
+      rol: {
+        nombre: ILike(rol),
+      },
+      },
+      select: ['id', 'jornada', 'dia_semana', 'hora_inicio', 'hora_fin', 'rol'],
+    });
   }
 
   async update(id: string, updateHorarioDto: UpdateHorarioDto): Promise<void> {

@@ -22,6 +22,12 @@ export class HorarioController {
     return this.horarioService.findOne(id);
   }
 
+  
+  @Get('roles/:rol')
+  findHorarioRol(@Param('rol') rol: string) {
+    return this.horarioService.findHorarioRol(rol);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateHorarioDto: UpdateHorarioDto) {
     return this.horarioService.update(id, updateHorarioDto);
