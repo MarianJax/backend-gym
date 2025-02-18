@@ -28,6 +28,8 @@ export class Mantenimiento {
   name: 'costo_mantenimiento',
   type: 'numeric',precision: 10,scale: 2,}
 )
+costo: number;
+
   @Column({
     name: 'fecha_mantenimiento',
     type: 'timestamptz',
