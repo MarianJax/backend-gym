@@ -13,10 +13,8 @@ export class CreateMantenimientoDto {
   @IsNotEmpty({ message: 'El costo es requerido' })
   costo: number;
 
-  @IsISO8601()
-  @MinDate(new Date(), {
-    message: 'La fecha del mantenimiento no puede ser menor a la fecha actual',
-  })
+  @IsNotEmpty({ message: 'La fecha de mantenimiento no puede estar vacío' })
+  @IsISO8601({ strict: true }, { message: 'La fecha de mantenimiento debe tener el formato YYYY-MM-DD' })
   fecha_mantenimiento: Date;
 
   @IsNotEmpty({ message: 'Las observación no puede estar vacío' })

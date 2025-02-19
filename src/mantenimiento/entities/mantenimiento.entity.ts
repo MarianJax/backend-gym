@@ -42,7 +42,7 @@ costo: number;
   })
   observaciones: string;
 
-  @ManyToOne(() => Maquina, (maquina) => maquina.mantenimiento)
+  @ManyToOne(() => Maquina, (maquina) => maquina.mantenimiento, { eager: true })
   @JoinColumn({ name: 'maquina_id' })
   maquina: Maquina;
 }

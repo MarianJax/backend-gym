@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Maquina } from 'src/maquina/entities/maquina.entity';
+import { Estado, Maquina } from 'src/maquina/entities/maquina.entity';
 import { Repository } from 'typeorm';
 import { CreateMantenimientoDto } from './dto/create-mantenimiento.dto';
 import { UpdateMantenimientoDto } from './dto/update-mantenimiento.dto';
-import { Mantenimiento } from './entities/mantenimiento.entity';
+import { Mantenimiento, Estado as EstMant } from './entities/mantenimiento.entity';
 
 @Injectable()
 export class MantenimientoService {
@@ -19,6 +19,9 @@ export class MantenimientoService {
   async create(createMantenimientoDto: CreateMantenimientoDto): Promise<Mantenimiento | null> {
     try {
       const maquina = await this.maquinaRepository.findOneByOrFail({ id: createMantenimientoDto.maquina_id });
+
+      maquina.estado = createMantenimientoDto.estado === EstMant.FINALIZADO ? Estado.DISPONIBLE : Estado.MANTENIMIENTO;
+      await this.maquinaRepository.save(maquina);
 
       const mantenimiento = this.MantenimientoRepository.create({
         ...createMantenimientoDto,
