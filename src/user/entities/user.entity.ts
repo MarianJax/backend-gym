@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as bcrypt from 'bcryptjs';
 import { Agendamiento } from 'src/agendamiento/entities/agendamiento.entity';
+import { Carrera } from 'src/carrera/entities/carrera.entity';
+import { Facultad } from 'src/facultad/entities/facultad.entity';
 import { Membresia } from 'src/membresia/entities/membresia.entity';
 import { Rol } from 'src/rol/entities/rol.entity';
 import { ValidacionesPago } from 'src/validaciones_pago/entities/validaciones_pago.entity';
@@ -13,6 +15,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
@@ -32,6 +35,14 @@ export class User {
 
   @Column({ name: 'contrasena', type: 'varchar', length: 200, nullable: true })
   contrasena?: string;
+
+  @OneToOne(() => Facultad, (facultad) => facultad.user, { nullable: true })
+  @JoinColumn({ name: 'facultad_id' })
+  facultad: Facultad;
+
+  @OneToOne(() => Carrera, (carrera) => carrera.user, { nullable: true })
+  @JoinColumn({ name: 'carrera_id' })
+  carrera: Carrera;
 
   @ManyToOne(() => Rol, (rol) => rol.users, { eager: true })
   @JoinColumn({ name: 'rol_id' })
@@ -55,5 +66,4 @@ export class User {
   async hashPasswordUpdated() {
     this.contrasena = await bcrypt.hash(this.contrasena, 10);
   }
-
 }
