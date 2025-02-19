@@ -1,13 +1,13 @@
-import { IsDateString, IsEnum, IsNotEmpty, IsString, Length, Min } from "class-validator";
+import { IsEnum, IsISO8601, IsNotEmpty, IsString, Min } from "class-validator";
 import { Estado } from "../entities/maquina.entity";
 
 export class CreateMaquinaDto {
   @IsString({ message: 'El nombre de la máquina debe ser un texto' })
-  @Length(3, 150, { message: 'El nombre de la máquina debe tener al menos 3 caracteres' })
+  @IsNotEmpty({ message: 'El nombre de la máquina debe tener al menos 3 caracteres' })
   nombre: string;
 
-  @IsDateString()
   @IsNotEmpty({ message: 'La fecha de compra no puede estar vacío' })
+  @IsISO8601({ strict: true }, { message: 'La fecha de compra debe tener el formato YYYY-MM-DD' })
   fecha_compra: Date;
 
   @Min(1, { message: 'La cantidad no puede ser menor a 1' })
