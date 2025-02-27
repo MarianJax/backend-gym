@@ -1,4 +1,4 @@
-import { Maquina } from 'src/maquina/entities/maquina.entity';
+import { Maquina } from '../../maquina/entities/maquina.entity';
 import {
   Column,
   Entity,

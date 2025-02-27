@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { CreateHorarioEmpleadoDto } from './dto/create-horario_empleado.dto';
 import { UpdateHorarioEmpleadoDto } from './dto/update-horario_empleado.dto';
 import { HorarioEmpleado } from './entities/horario_empleado.entity';
-import { Entrenadores } from 'src/entrenador/entities/entrenador.entity';
+import { Rol } from 'src/rol/entities/rol.entity';
 
 @Injectable()
 export class HorarioEmpleadoService {
@@ -12,18 +12,18 @@ export class HorarioEmpleadoService {
     @InjectRepository(HorarioEmpleado)
     private readonly HorarioEmpleadoRepository: Repository<HorarioEmpleado>,
 
-    @InjectRepository(Entrenadores)
-    private readonly EntradorRepository: Repository<Entrenadores>,
+    @InjectRepository(Rol)
+        private readonly rolRepository: Repository<Rol>,
   ) { }
 
   async create(
     createHorarioEmpleadoDto: CreateHorarioEmpleadoDto,
   ): Promise<HorarioEmpleado> {
     try {
-      const entrenador = await this.EntradorRepository.findOneByOrFail({ id: createHorarioEmpleadoDto.entrenador_id });
+      const rol = await this.rolRepository.findOneByOrFail({ id: createHorarioEmpleadoDto.rol_id });
       const horarioEntrenador = this.HorarioEmpleadoRepository.create({
         ...createHorarioEmpleadoDto,
-        entrenador,
+        rol,
       });
 
       return await this.HorarioEmpleadoRepository.save(horarioEntrenador);

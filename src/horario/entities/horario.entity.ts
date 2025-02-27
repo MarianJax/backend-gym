@@ -1,5 +1,5 @@
-import { DiaSemana, Jornada } from 'src/enum/entities.enum';
-import { Rol } from 'src/rol/entities/rol.entity';
+import { DiaSemana, Jornada } from '../../enum/entities.enum';
+import { Rol } from '../../rol/entities/rol.entity';
 import {
   Column,
   Entity,

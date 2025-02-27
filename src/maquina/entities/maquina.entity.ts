@@ -1,7 +1,10 @@
-import { Mantenimiento } from 'src/mantenimiento/entities/mantenimiento.entity';
+import { Ejercicio } from '../../ejercicios/entities/ejercicio.entity';
+import { Mantenimiento } from '../../mantenimiento/entities/mantenimiento.entity';
 import {
   Column,
   Entity,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn
 } from 'typeorm';
@@ -31,6 +34,9 @@ export class Maquina {
 
   @Column({ name: 'descripcion', type: 'text' })
   descripcion: string;
+
+  @ManyToMany(() => Ejercicio, (ejercicio) => ejercicio.rutinas)
+  ejercicios: Ejercicio[];
 
   @OneToMany(() => Mantenimiento, (mantenimiento) => mantenimiento.maquina)
   mantenimiento: Mantenimiento[];

@@ -1,5 +1,5 @@
-import { Pago } from 'src/pago/entities/pago.entity';
-import { User } from 'src/user/entities/user.entity';
+import { Pago } from '../../pago/entities/pago.entity';
+import { User } from '../../user/entities/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ schema: 'esq_gimnasio', name: 'validaciones_pagos' })

@@ -22,4 +22,7 @@ export class CreateAgendamientoDto {
     @IsNotEmpty({ message: 'La membresía es requerida' })
     pago_id: string;
 
+    @IsNotEmpty({ message: 'El rol es necesario' })
+    rol: string;
+
 }

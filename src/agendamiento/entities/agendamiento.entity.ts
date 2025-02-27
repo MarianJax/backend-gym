@@ -1,6 +1,6 @@
-import { Membresia } from 'src/membresia/entities/membresia.entity';
-import { Pago } from 'src/pago/entities/pago.entity';
-import { User } from 'src/user/entities/user.entity';
+import { Membresia } from '../../membresia/entities/membresia.entity';
+import { Pago } from '../../pago/entities/pago.entity';
+import { User } from '../../user/entities/user.entity';
 import {
   Column,
   Entity,
@@ -27,15 +27,15 @@ export class Agendamiento {
   @Column({ name: 'asistio', type: 'boolean', default: false })
   asistio: boolean;
 
-  @ManyToOne(() => Membresia)
+  @ManyToOne(() => Membresia, (membresia) => membresia.agendamientos)
   @JoinColumn({ name: 'membresia_id' })
   membresias: Membresia;
 
-  @ManyToOne(() => Pago)
+  @ManyToOne(() => Pago, (pago) => pago.agendamiento)
   @JoinColumn({ name: 'pago_id' })
   pagos: Pago;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, (user) => user.agendamientos)
   @JoinColumn({ name: 'usuario_id' })
   user: User;
 }

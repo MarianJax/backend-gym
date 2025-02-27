@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, Min } from "class-validator";
+import { IsNotEmpty, IsOptional, IsString, Min } from "class-validator";
 
 export class CreateRolDto {
     @IsString({ message: 'El nombre debe ser un texto' })
@@ -7,14 +7,17 @@ export class CreateRolDto {
 
     @Min(0.25, { message: 'El monto de pago debe ser mayor a 0.25' })
     @IsNotEmpty({ message: 'El monto de pago es requerido' })
+    @IsOptional()
     monto_pago: number;
 
-    @IsString({ message: 'El tiempo debe ser un texto' })
+    @Min(1, { message: 'El tiempo debe ser mayor a 1' })
     @IsNotEmpty({ message: 'El tiempo es requerido' })
-    tiempo: string;
+    @IsOptional()
+    tiempo: number;
 
     @Min(1, { message: 'El cupo debe ser mayor a 1' })
     @IsNotEmpty({ message: 'El cupo es requerido' })
+    @IsOptional()
     cupo: number;
 }
 

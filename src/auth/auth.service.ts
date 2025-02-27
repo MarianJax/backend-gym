@@ -24,7 +24,6 @@ export class AuthService {
   async findByEmail(AuthDto: CreateAuthDto) {
     const user = await this.userRepository.findOne({
       where: { correo: AuthDto.correo },
-      select: ['id', 'correo', 'contrasena', 'nombre'],
     });
 
     // user  :{ nombre: '', contrana: 'fdgfds'}
@@ -54,8 +53,6 @@ export class AuthService {
             httpsAgent,
           },
         );
-
-        console.log('respuesta', response.data);
 
         const user = await this.upsertUser({
           nombre: response.data.value.nombres,
@@ -92,47 +89,47 @@ export class AuthService {
     id: string;
     correo: string;
     nombre: string;
-    rol: { id: string; nombre: string };
+    rol: { id: string; nombre: string }[];
   }> {
     try {
       const existingUser = await this.userRepository.findOne({
         where: {
           correo: user.correo,
         },
+        relations: ['roles'],
       });
+
       const rol = await this.validateRol(user.tipo_usuario_array);
-      const userDate = {
+
+      const userData = {
         nombre: user.nombre,
         contrasena: null,
         correo: user.correo,
-        roles: rol,
+        roles: [rol],
       };
+
       if (existingUser) {
-        await this.userRepository.update(existingUser.id, userDate);
-        const updatedUser = await this.userRepository.findOne({
-          where: {
-            correo: user.correo,
-          },
-          select: ['id', 'correo', 'nombre'],
-          relations: ['roles'],
-        });
+        const existeRol = existingUser.roles.some(
+          (existingRol) => existingRol.id === rol.id,
+        );
+        if (!existeRol) existingUser.roles.push(rol);
+        if (existingUser.nombre !== user.nombre)
+          existingUser.nombre = user.nombre;
+
+        const updatedUser = await this.userRepository.save(existingUser);
+
         const { contrasena, roles, ...newUser } = updatedUser;
         return {
           ...newUser,
-          rol: {
-            id: roles.id,
-            nombre: roles.nombre,
-          },
+          rol: roles.map((r) => ({ id: r.id, nombre: r.nombre })),
         };
       } else {
-        const newUser = await this.userRepository.save(userDate);
+        const userCreate = this.userRepository.create(userData);
+        const newUser = await this.userRepository.save(userCreate);
         const { contrasena, roles, ...newUs } = newUser;
         return {
           ...newUs,
-          rol: {
-            id: roles.id,
-            nombre: roles.nombre,
-          },
+          rol: roles,
         };
       }
     } catch (error) {

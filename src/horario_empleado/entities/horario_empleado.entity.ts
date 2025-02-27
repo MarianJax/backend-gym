@@ -1,4 +1,4 @@
-import { Entrenadores } from 'src/entrenador/entities/entrenador.entity';
+import { Rol } from 'src/rol/entities/rol.entity';
 import {
   Column,
   Entity,
@@ -21,7 +21,7 @@ export class HorarioEmpleado {
   @Column({ name: 'franja_hora_fin', type: 'time' })
   franja_hora_fin: Date;
 
-  @ManyToOne(() => Entrenadores, (entrenadores) => entrenadores.horario_empleados)
-  @JoinColumn({ name: 'entrenador_id' })
-  entrenador: Entrenadores;
+  @ManyToOne(() => Rol, (rol) => rol.horarios)
+  @JoinColumn({ name: 'rol_id' })
+  rol: Rol;
 }

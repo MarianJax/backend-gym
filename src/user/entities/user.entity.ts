@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as bcrypt from 'bcryptjs';
-import { Agendamiento } from 'src/agendamiento/entities/agendamiento.entity';
-import { Carrera } from 'src/carrera/entities/carrera.entity';
-import { Facultad } from 'src/facultad/entities/facultad.entity';
-import { Membresia } from 'src/membresia/entities/membresia.entity';
-import { Rol } from 'src/rol/entities/rol.entity';
-import { ValidacionesPago } from 'src/validaciones_pago/entities/validaciones_pago.entity';
+import { Agendamiento } from '../../agendamiento/entities/agendamiento.entity';
+import { Carrera } from '../../carrera/entities/carrera.entity';
+import { Facultad } from '../../facultad/entities/facultad.entity';
+import { Membresia } from '../../membresia/entities/membresia.entity';
+import { Rol } from '../../rol/entities/rol.entity';
+import { ValidacionesPago } from '../../validaciones_pago/entities/validaciones_pago.entity';
 import {
   BeforeInsert,
   BeforeUpdate,
@@ -13,6 +13,8 @@ import {
   Entity,
   Index,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   OneToOne,
@@ -36,6 +38,17 @@ export class User {
   @Column({ name: 'contrasena', type: 'varchar', length: 200, nullable: true })
   contrasena?: string;
 
+  @Column({
+    name: 'especialidad',
+    type: 'varchar',
+    length: 100,
+    nullable: true,
+  })
+  especialidad: string;
+
+  @Column({ name: 'telefono', type: 'varchar', length: 15, nullable: true })
+  telefono: string;
+
   @OneToOne(() => Facultad, (facultad) => facultad.user, { nullable: true })
   @JoinColumn({ name: 'facultad_id' })
   facultad: Facultad;
@@ -44,9 +57,9 @@ export class User {
   @JoinColumn({ name: 'carrera_id' })
   carrera: Carrera;
 
-  @ManyToOne(() => Rol, (rol) => rol.users, { eager: true })
-  @JoinColumn({ name: 'rol_id' })
-  roles: Rol;
+  @ManyToMany(() => Rol, (rol) => rol.users, { cascade: true })
+  @JoinTable()
+  roles: Rol[];
 
   @OneToMany(() => Membresia, (membresia) => membresia.users)
   membresias: Membresia[];
@@ -59,11 +72,14 @@ export class User {
 
   @BeforeInsert()
   async hashPassword() {
+    if (!this.contrasena) return;
+
     this.contrasena = await bcrypt.hash(this.contrasena, 10);
   }
 
   @BeforeUpdate()
   async hashPasswordUpdated() {
+    if (!this.contrasena) return;
     this.contrasena = await bcrypt.hash(this.contrasena, 10);
   }
 }

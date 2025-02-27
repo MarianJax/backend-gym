@@ -1,8 +1,10 @@
-import { Horario } from 'src/horario/entities/horario.entity';
-import { User } from 'src/user/entities/user.entity';
+import { HorarioEmpleado } from 'src/horario_empleado/entities/horario_empleado.entity';
+import { Horario } from '../../horario/entities/horario.entity';
+import { User } from '../../user/entities/user.entity';
 import {
   Column,
   Entity,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn
 } from 'typeorm';
@@ -15,20 +17,21 @@ export class Rol {
   @Column({ name: 'nombre', type: 'varchar', length: 50 })
   nombre: string;
 
-  @Column({ name: 'monto_pago', type: 'decimal', precision: 10, scale: 2 })
-  monto_pago: number;
+  @Column({ name: 'monto_pago', type: 'decimal', precision: 10, scale: 2, nullable: true })
+  monto_pago?: number;
 
-  @Column({ name: 'tiempo', type: 'text' })
-  tiempo: string;
+  @Column({ name: 'tiempo', type: 'integer', nullable: true })
+  tiempo?: number;
 
-  @Column({ name: 'cupos', type: 'integer' })
-  cupo: number;
+  @Column({ name: 'cupos', type: 'integer', nullable: true })
+  cupo?: number;
 
-  @OneToMany(() => Horario, (horario) => horario.rol,{
-    eager: true, // para que traiga las raza al hacer un findOne
-  })
+  @OneToMany(() => Horario, (horario) => horario.rol)
   horarios: Horario[];
 
-  @OneToMany(() => User, (user) => user.roles)
+  @OneToMany(() => HorarioEmpleado, (horario) => horario.rol)
+  horario_empleado: HorarioEmpleado[];
+
+  @ManyToMany(() => User, (user) => user.roles)
   users: User[];
 }

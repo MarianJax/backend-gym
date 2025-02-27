@@ -1,6 +1,6 @@
-import { Agendamiento } from 'src/agendamiento/entities/agendamiento.entity';
-import { Membresia } from 'src/membresia/entities/membresia.entity';
-import { ValidacionesPago } from 'src/validaciones_pago/entities/validaciones_pago.entity';
+import { Agendamiento } from '../../agendamiento/entities/agendamiento.entity';
+import { Membresia } from '../../membresia/entities/membresia.entity';
+import { ValidacionesPago } from '../../validaciones_pago/entities/validaciones_pago.entity';
 import {
   Column,
   Entity,

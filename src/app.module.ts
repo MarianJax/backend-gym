@@ -9,13 +9,14 @@ import { MaquinaModule } from './maquina/maquina.module';
 import { MantenimientoModule } from './mantenimiento/mantenimiento.module';
 import { MembresiaModule } from './membresia/membresia.module';
 import { RolModule } from './rol/rol.module';
-import { EntrenadorModule } from './entrenador/entrenador.module';
 import { AuthModule } from './auth/auth.module';
 import { HorarioEmpleadoModule } from './horario_empleado/horario_empleado.module';
 import { ValidacionesPagoModule } from './validaciones_pago/validaciones_pago.module';
 import { ConfigModule } from '@nestjs/config';
 import { FacultadModule } from './facultad/facultad.module';
 import { CarreraModule } from './carrera/carrera.module';
+import { RutinaModule } from './rutina/rutina.module';
+import { EjerciciosModule } from './ejercicios/ejercicios.module';
 import configServ from '../config/config-reg';
 
 @Module({
@@ -46,11 +47,12 @@ import configServ from '../config/config-reg';
     MembresiaModule,
     RolModule,
     HorarioEmpleadoModule,
-    EntrenadorModule,
     AuthModule,
     ValidacionesPagoModule,
     FacultadModule,
     CarreraModule,
+    RutinaModule,
+    EjerciciosModule,
   ],
   controllers: [],
   providers: [],

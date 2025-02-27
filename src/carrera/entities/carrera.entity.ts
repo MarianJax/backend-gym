@@ -1,5 +1,5 @@
-import { Facultad } from 'src/facultad/entities/facultad.entity';
-import { User } from 'src/user/entities/user.entity';
+import { Facultad } from '../../facultad/entities/facultad.entity';
+import { User } from '../../user/entities/user.entity';
 import {
   Column,
   Entity,
