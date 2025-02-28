@@ -1,4 +1,4 @@
-import { Rol } from 'src/rol/entities/rol.entity';
+import { Rol } from '../../rol/entities/rol.entity';
 import {
   Column,
   Entity,
