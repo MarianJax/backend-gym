@@ -1,4 +1,4 @@
-import { HorarioEmpleado } from 'src/horario_empleado/entities/horario_empleado.entity';
+import { HorarioEmpleado } from '../../horario_empleado/entities/horario_empleado.entity';
 import { Horario } from '../../horario/entities/horario.entity';
 import { User } from '../../user/entities/user.entity';
 import {

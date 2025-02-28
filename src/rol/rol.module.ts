@@ -10,6 +10,6 @@ import { User } from 'src/user/entities/user.entity';
 
   controllers: [RolController],
   providers: [RolService],
-  exports: [TypeOrmModule],
+  exports: [RolService],
 })
 export class RolModule {}
