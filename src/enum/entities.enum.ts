@@ -15,3 +15,8 @@ export enum DiaSemana {
     DOMINGO = 'Domingo',
 }
 
+export enum Estado {
+    DISPONIBLE = 'Disponible',
+    MANTENIMIENTO = 'Mantenimiento',
+    FUERASERVICIO = 'Fuera de servicio',
+}
