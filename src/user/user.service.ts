@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Rol } from 'src/rol/entities/rol.entity';
-import { ILike, In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { RolService } from 'src/rol/rol.service';
 
 @Injectable()
 export class UserService {
@@ -12,17 +12,12 @@ export class UserService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
 
-    @InjectRepository(Rol)
-    private rolRepository: Repository<Rol>,
+    private rolService: RolService,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     try {
-      const rls = await this.validateRole(createUserDto.rol_id);
-
-      const rol = rls.map((r) => ({ ...r }));
-
-      console.log(rol);
+      const roles = await this.rolService.findAllById(createUserDto.roles);
 
       const existEmail = await this.userRepository.findOne({
         where: { correo: createUserDto.correo },
@@ -36,7 +31,7 @@ export class UserService {
 
       const user = this.userRepository.create({
         ...createUserDto,
-        roles: rol,
+        roles,
       });
 
       console.log(user);
@@ -56,37 +51,38 @@ export class UserService {
   }
 
   async findOne(id: string): Promise<User> {
-    return await this.userRepository.findOne({
-      where: { id },
-      relations: ['roles'],
-    });
+    try {
+      return await this.userRepository.findOne({
+        where: { id },
+        relations: ['roles'],
+      });
+    } catch (error) { 
+      console.log(error);
+      throw new BadRequestException('Usuario no encontrado');
+    }
+  }
+
+  async findOneByEmail(correo: string): Promise<User> {
+    try {
+      return await this.userRepository.findOne({
+        where: { correo },
+        relations: ['roles'],
+      });
+    } catch (error) { 
+      console.log(error);
+      throw new BadRequestException('Usuario no encontrado');
+    }
   }
 
   async update(id: string, updateMaquinaDto: UpdateUserDto): Promise<void> {
-    await this.userRepository.update(id, updateMaquinaDto);
+    const roles = await this.rolService.findAllById(updateMaquinaDto.roles);
+    await this.userRepository.update(id, {
+      ...updateMaquinaDto,
+      roles,
+    });
   }
 
   async remove(id: string): Promise<void> {
     await this.userRepository.delete(id);
-  }
-
-  //  buscar el rol pero el id, aqui me confundí
-  private async validateRole(role: string[]): Promise<Rol[]> {
-    const roleFound = await this.rolRepository.find({
-      where: { id: In(role) },
-    });
-
-    // Si no se encuentra el rol, se lanza una excepción para que el frontend
-    // lo maneje y muestre alguna alerta o error
-    if (!roleFound) throw new BadRequestException(`Role ${role} not found`);
-
-    return roleFound;
-  }
-
-  async findOneByRol(nombre: string): Promise<Rol[]> {
-    return await this.rolRepository.find({
-      where: {  nombre: ILike(nombre) },
-      relations: ['horarios'],
-    });
   }
 }

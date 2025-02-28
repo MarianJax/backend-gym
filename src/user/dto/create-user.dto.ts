@@ -2,7 +2,6 @@ import {
   ArrayMinSize,
   IsArray,
   IsEmail,
-  IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -46,5 +45,5 @@ export class CreateUserDto {
   @IsArray()
   @IsNotEmpty({ message: 'El rol debe ser uno valido', each: true })
   @ArrayMinSize(1, { message: 'Ingrese al menos un rol' })
-  rol_id: string[];
+  roles: string[];
 }

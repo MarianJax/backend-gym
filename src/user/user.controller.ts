@@ -31,9 +31,4 @@ export class UserController {
   remove(@Param('id') id: string) {
     return this.userService.remove(id);
   }
-
-  @Get('rol/:nombre')
-  findOneByRol(@Param('nombre') nombre: string) {
-    return this.userService.findOneByRol(nombre);
-  }
 }
