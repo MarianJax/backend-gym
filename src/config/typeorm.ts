@@ -1,3 +1,4 @@
+import { Ejercicio } from '../ejercicios/entities/ejercicio.entity';
 import { Agendamiento } from '../agendamiento/entities/agendamiento.entity';
 import { Carrera } from '../carrera/entities/carrera.entity';
 import { Facultad } from '../facultad/entities/facultad.entity';
@@ -22,7 +23,7 @@ const AppDataSource = new DataSource({
   database: 'gymutm',
   schema: 'esq_gimnasio',
   synchronize: false,
-  entities: [Agendamiento, Carrera,User, Facultad, Horario, HorarioEmpleado, Mantenimiento, Maquina, Membresia, Pago, Rol, Rutina, ValidacionesPago ],
+  entities: [Agendamiento, Carrera,User, Facultad, Horario, HorarioEmpleado, Mantenimiento, Maquina, Membresia, Pago, Rol, Rutina, ValidacionesPago, Ejercicio ],
   migrations: ['./src/database/*-migrations.ts'],
   migrationsRun: true,
   logging: true,
