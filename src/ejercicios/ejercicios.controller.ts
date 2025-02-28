@@ -19,16 +19,16 @@ export class EjerciciosController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.ejerciciosService.findOne(+id);
+    return this.ejerciciosService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateEjercicioDto: UpdateEjercicioDto) {
-    return this.ejerciciosService.update(+id, updateEjercicioDto);
+    return this.ejerciciosService.update(id, updateEjercicioDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.ejerciciosService.remove(+id);
+    return this.ejerciciosService.remove(id);
   }
 }

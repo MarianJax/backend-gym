@@ -1,6 +1,6 @@
 import { Maquina } from '../../maquina/entities/maquina.entity';
 import { Rutina } from '../../rutina/entities/rutina.entity';
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ schema: 'esq_gimnasio', name: 'ejercicios' })
 export class Ejercicio {
@@ -26,7 +26,8 @@ export class Ejercicio {
   descripcion: string;
 
   @ManyToMany(() => Rutina, (rutina) => rutina.ejercicios)
-  rutinas: Rutina;
+  @JoinTable()
+  rutinas: Rutina[];
 
   @ManyToMany(() => Maquina, (maquina) => maquina.ejercicios)
   @JoinTable()
