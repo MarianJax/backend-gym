@@ -8,23 +8,21 @@ import { CreateAuthDto } from './dto/create-auth.dto';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { Rol } from 'src/rol/entities/rol.entity';
+import { UserService } from 'src/user/user.service';
+import { RolService } from 'src/rol/rol.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private userService: UserService,
 
-    @InjectRepository(Rol)
-    private rolRepository: Repository<Rol>,
+    private rolService: RolService,
 
     private configService: ConfigService,
-  ) {}
+  ) { }
 
   async findByEmail(AuthDto: CreateAuthDto) {
-    const user = await this.userRepository.findOne({
-      where: { correo: AuthDto.correo },
-    });
+    const user = await this.userService.findOneByEmail(AuthDto.correo);
 
     // user  :{ nombre: '', contrana: 'fdgfds'}
     if (!user || (user && !user.contrasena)) {
@@ -32,6 +30,7 @@ export class AuthService {
         const loginUrl = this.configService.get('config.DEV')
           ? this.configService.get('config.LOGIN_URL_DEV')
           : this.configService.get('config.LOGIN_URL_PROD');
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const https = require('https');
         const xApiKey = this.configService.get('config.X_API_KEY');
 
@@ -92,12 +91,7 @@ export class AuthService {
     rol: { id: string; nombre: string }[];
   }> {
     try {
-      const existingUser = await this.userRepository.findOne({
-        where: {
-          correo: user.correo,
-        },
-        relations: ['roles'],
-      });
+      const existingUser = await this.userService.findOneByEmail(user.correo);
 
       const rol = await this.validateRol(user.tipo_usuario_array);
 
@@ -116,16 +110,23 @@ export class AuthService {
         if (existingUser.nombre !== user.nombre)
           existingUser.nombre = user.nombre;
 
-        const updatedUser = await this.userRepository.save(existingUser);
+        const updatedUser = await this.userService.update(existingUser.id, {
+          ...existingUser,
+          roles: existingUser.roles.map(role => role.id),
+        });
+        const usrs = await this.userService.findOneByEmail(user.correo);
 
-        const { contrasena, roles, ...newUser } = updatedUser;
+        const { contrasena, roles, ...newUser } = usrs;
         return {
           ...newUser,
           rol: roles.map((r) => ({ id: r.id, nombre: r.nombre })),
         };
       } else {
-        const userCreate = this.userRepository.create(userData);
-        const newUser = await this.userRepository.save(userCreate);
+        const newUser = await this.userService.create({
+          ...userData,
+          roles: userData.roles.map(role => role.id),
+        });
+       
         const { contrasena, roles, ...newUs } = newUser;
         return {
           ...newUs,
@@ -140,19 +141,13 @@ export class AuthService {
 
   async validateRol(tipo_usuario_array: string[]): Promise<Rol> {
     if (tipo_usuario_array.includes('75|FUNCIONARIO')) {
-      return await this.rolRepository.findOne({
-        where: { nombre: ILike('Funcionario') },
-      });
+      return await this.rolService.findOneByName('Funcionario');
     } else if (
       tipo_usuario_array.includes('5|DOCENTE') ||
       tipo_usuario_array.includes('51|DOCENTE TIPO 2')
     ) {
-      return await this.rolRepository.findOne({
-        where: { nombre: 'Docente' },
-      });
+      return await this.rolService.findOneByName('Docente');
     }
-    return await this.rolRepository.findOne({
-      where: { nombre: 'Estudiante' },
-    });
+    return await this.rolService.findOneByName('Estudiante');
   }
 }
