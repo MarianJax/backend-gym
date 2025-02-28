@@ -9,7 +9,7 @@ import { ValidacionesPagoService } from './validaciones_pago.service';
 @Module({
   imports: [TypeOrmModule.forFeature([ValidacionesPago]), UserModule, PagoModule,],
   controllers: [ValidacionesPagoController],
-  providers: [ValidacionesPagoService, UserModule, PagoModule],
-  exports: [TypeOrmModule],
+  providers: [ValidacionesPagoService],
+  exports: [ValidacionesPagoService],
 })
 export class ValidacionesPagoModule { }
