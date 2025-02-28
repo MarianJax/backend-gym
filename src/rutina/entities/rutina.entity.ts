@@ -4,7 +4,6 @@ import {
   Column,
   Entity,
   ManyToMany,
-  JoinTable,
 } from 'typeorm';
 
 @Entity({ schema: 'esq_gimnasio', name: 'rutinas' })
@@ -18,13 +17,12 @@ export class Rutina {
   @Column({ name: 'intensidad', type: 'varchar', length: 100 })
   intensidad: string;
 
-  @Column({ name: 'cantidad_ejercicios', type: 'integer' })
+  @Column({ name: 'cantidad_ejercicios', type: 'integer', default: 0 })
   cantidad_ejercicios: number;
 
   @Column({ name: 'descripcion', type: 'varchar', length: 100 })
   descripcion: string;
 
   @ManyToMany(() => Ejercicio, (ejercicio) => ejercicio.rutinas)
-  @JoinTable()
   ejercicios: Ejercicio[];
 }

@@ -1,26 +1,47 @@
 import { Injectable } from '@nestjs/common';
 import { CreateRutinaDto } from './dto/create-rutina.dto';
 import { UpdateRutinaDto } from './dto/update-rutina.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Rutina } from './entities/rutina.entity';
+import { In, Repository } from 'typeorm';
 
 @Injectable()
 export class RutinaService {
-  create(createRutinaDto: CreateRutinaDto) {
-    return 'This action adds a new rutina';
+
+  constructor(
+    @InjectRepository(Rutina)
+    private readonly rutinaRepository: Repository<Rutina>,
+  ) { }
+
+  async create(createRutinaDto: CreateRutinaDto): Promise<Rutina> {
+    const rutina = this.rutinaRepository.create({
+      ...createRutinaDto,
+    });
+
+    await this.rutinaRepository.save(rutina);
+
+    return rutina;
+  }
+  async findAll(): Promise<Rutina[]> {
+    return await this.rutinaRepository.find();
+  }
+  async findAllById(ids: string[]): Promise<Rutina[]> {
+    return await this.rutinaRepository.find({
+      where: {
+        id: In(ids)
+      }
+    });
   }
 
-  findAll() {
-    return `This action returns all rutina`;
+  async findOne(id: string): Promise<Rutina> {
+    return await this.rutinaRepository.findOneBy({ id });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} rutina`;
+  async update(id: string, updateRutinaDto: UpdateRutinaDto): Promise<void> {
+    await this.rutinaRepository.update(id, updateRutinaDto);
   }
 
-  update(id: number, updateRutinaDto: UpdateRutinaDto) {
-    return `This action updates a #${id} rutina`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} rutina`;
+  async remove(id: string): Promise<void> {
+    await this.rutinaRepository.delete(id);
   }
 }

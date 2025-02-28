@@ -8,6 +8,6 @@ import { Rutina } from './entities/rutina.entity';
   imports: [TypeOrmModule.forFeature([Rutina])],
   controllers: [RutinaController],
   providers: [RutinaService],
-  exports: [TypeOrmModule]
+  exports: [RutinaService]
 })
 export class RutinaModule {}
