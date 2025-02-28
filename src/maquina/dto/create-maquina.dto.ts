@@ -1,5 +1,5 @@
 import { IsEnum, IsISO8601, IsNotEmpty, IsString, Min } from "class-validator";
-import { Estado } from "../entities/maquina.entity";
+import { Estado } from "../../enum/entities.enum";
 
 export class CreateMaquinaDto {
   @IsString({ message: 'El nombre de la máquina debe ser un texto' })
@@ -19,6 +19,7 @@ export class CreateMaquinaDto {
   estado: Estado;
 
   @IsNotEmpty({ message: 'La descripción no puede estar vacío' })
+  @IsString({ message: 'La descripción debe ser un texto' })
   descripcion: string;
 
 }

@@ -1,19 +1,13 @@
+import { Estado } from '../../enum/entities.enum';
 import { Ejercicio } from '../../ejercicios/entities/ejercicio.entity';
 import { Mantenimiento } from '../../mantenimiento/entities/mantenimiento.entity';
 import {
   Column,
   Entity,
-  JoinTable,
   ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn
 } from 'typeorm';
-
-export enum Estado {
-  DISPONIBLE = 'Disponible',
-  MANTENIMIENTO = 'Mantenimiento',
-  FUERASERVICIO = 'Fuera de servicio',
-}
 
 @Entity({ schema: 'esq_gimnasio', name: 'maquinas' })
 export class Maquina {
@@ -29,7 +23,7 @@ export class Maquina {
   @Column({ name: 'cantidad', type: 'integer' })
   cantidad: number;
 
-  @Column({ name: 'estado', type: 'enum', enum: Estado, default: Estado.DISPONIBLE })
+  @Column({ name: 'estado', type: 'enum', enum: Estado })
   estado: Estado;
 
   @Column({ name: 'descripcion', type: 'text' })

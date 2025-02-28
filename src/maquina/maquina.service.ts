@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Maquina } from './entities/maquina.entity';
 import { CreateMaquinaDto } from './dto/create-maquina.dto';
 import { UpdateMaquinaDto } from './dto/update-maquina.dto';
@@ -24,6 +24,12 @@ export class MaquinaService {
 
   async findAll(): Promise<Maquina[]> {
     return await this.maquinaRepository.find();
+  }
+
+  async findAllById(ids: string[]): Promise<Maquina[]> {
+    return await this.maquinaRepository.find({
+      where: { id: In(ids) },
+    });
   }
 
   async findOne(id: string): Promise<Maquina> {
