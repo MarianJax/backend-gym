@@ -1,13 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Membresia } from 'src/membresia/entities/membresia.entity';
-import { User } from 'src/user/entities/user.entity';
-import { ILike, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import {  LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { CreateAgendamientoDto } from './dto/create-agendamiento.dto';
 import { UpdateAgendamientoDto } from './dto/update-agendamiento.dto';
 import { Agendamiento } from './entities/agendamiento.entity';
-import { Pago } from 'src/pago/entities/pago.entity';
-import { Rol } from 'src/rol/entities/rol.entity';
+import { MembresiaService } from 'src/membresia/membresia.service';
+import { PagoService } from 'src/pago/pago.service';
+import { RolService } from 'src/rol/rol.service';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AgendamientoService {
@@ -15,17 +15,11 @@ export class AgendamientoService {
     @InjectRepository(Agendamiento)
     private readonly agendamientoRepository: Repository<Agendamiento>,
 
-    @InjectRepository(Membresia)
-    private readonly MembresiaRepository: Repository<Membresia>,
+    private membresiaService: MembresiaService,
+    private pagoService: PagoService,
+    private rolService: RolService,
+    private userService: UserService,
 
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
-
-    @InjectRepository(Pago)
-    private pagoRepository: Repository<Pago>,
-
-    @InjectRepository(Rol)
-    private rolRepository: Repository<Rol>,
   ) {}
 
   async verificarMaximoReservas({
@@ -58,7 +52,8 @@ export class AgendamientoService {
     hora_fin: Date;
     rol: string;
   }): Promise<void> {
-    const fetchRol = await this.findHorariosByRol(rol);
+    const fetchRol = await this.rolService.findOneByName(rol);
+
     const horarios = fetchRol.horarios;
 
     const isWithinRoleHours = horarios.some(
@@ -80,9 +75,9 @@ export class AgendamientoService {
   async create(
     createAgendamientoDto: CreateAgendamientoDto,
   ): Promise<Agendamiento> {
-    const user = await this.findUserRolId(createAgendamientoDto.usuario_id);
+    const user = await this.userService.findOne(createAgendamientoDto.usuario_id);
 
-    const fetchRol = await this.findHorariosByRol(createAgendamientoDto.rol);
+    const fetchRol = await this.rolService.findOneByName(createAgendamientoDto.rol);
 
     const maximoAlcanzado = await this.verificarMaximoReservas({
       hora_inicio: createAgendamientoDto.hora_inicio,
@@ -103,12 +98,12 @@ export class AgendamientoService {
       rol: createAgendamientoDto.rol,
     });
 
-    const membresias = await this.findMembresiaId(
+    const membresias = await this.membresiaService.findActiveMembresiaByIdAndDate(
       createAgendamientoDto.membresia_id,
       createAgendamientoDto.fecha,
     );
 
-    const pagos = await this.findPagoId(createAgendamientoDto.pago_id);
+    const pagos = await this.pagoService.findOne(createAgendamientoDto.pago_id);
 
     const agendamiento = this.agendamientoRepository.create({
       ...createAgendamientoDto,
@@ -137,56 +132,5 @@ export class AgendamientoService {
 
   async remove(id: string): Promise<void> {
     await this.agendamientoRepository.delete(id);
-  }
-
-  // Metodo para buscar un usuario, horarios y rol por su id
-  async findUserRolId(id: string): Promise<User> {
-    try {
-      const rl = await this.userRepository.findOneOrFail({
-        where: { id },
-        relations: ['roles'],
-      });
-      return rl;
-    } catch (error) {
-      console.log(error);
-      throw new BadRequestException('Usuario no encontrado');
-    }
-  }
-
-  // metodoo para obtener la membresia del usuario
-  async findMembresiaId(id: string, fecha: Date): Promise<Membresia> {
-    try {
-      return await this.MembresiaRepository.findOneOrFail({
-        where: {
-          id,
-          fecha_fin: MoreThanOrEqual(fecha),
-          fecha_inicio: LessThanOrEqual(fecha),
-        },
-      });
-    } catch (error) {
-      console.log(error);
-      throw new BadRequestException(
-        'No posee una membresia activa para agendar',
-      );
-    }
-  }
-
-  // metodoo para obtener el pago del usuario
-  async findPagoId(id: string): Promise<Pago> {
-    try {
-      return await this.pagoRepository.findOneByOrFail({
-        id,
-      });
-    } catch (error) {
-      console.log(error);
-      throw new BadRequestException('El pago no se ha encontrado');
-    }
-  }
-
-  async findHorariosByRol(rol: string): Promise<Rol> {
-    return this.rolRepository.findOne({
-      where: { nombre: ILike(rol) },
-      relations: ['horarios'],
-    });
   }
 }
