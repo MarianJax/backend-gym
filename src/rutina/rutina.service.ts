@@ -44,4 +44,8 @@ export class RutinaService {
   async remove(id: string): Promise<void> {
     await this.rutinaRepository.delete(id);
   }
+
+  async updatedCantidadEjercicios(rutinas: Rutina[]): Promise<void> {
+    await this.rutinaRepository.save(rutinas);
+  }
 }
