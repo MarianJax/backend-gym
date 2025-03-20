@@ -13,7 +13,7 @@ export class UserService {
     private userRepository: Repository<User>,
 
     private rolService: RolService,
-  ) {}
+  ) { }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     try {
@@ -55,8 +55,9 @@ export class UserService {
       return await this.userRepository.findOne({
         where: { id },
         relations: ['roles'],
+        select: ['id', 'nombre', 'apellido', 'correo', 'telefono', 'cedula'],
       });
-    } catch (error) { 
+    } catch (error) {
       console.log(error);
       throw new BadRequestException('Usuario no encontrado');
     }
@@ -68,18 +69,38 @@ export class UserService {
         where: { correo },
         relations: ['roles'],
       });
-    } catch (error) { 
+    } catch (error) {
       console.log(error);
       throw new BadRequestException('Usuario no encontrado');
     }
   }
 
-  async update(id: string, updateMaquinaDto: UpdateUserDto): Promise<void> {
-    const roles = await this.rolService.findAllById(updateMaquinaDto.roles);
-    await this.userRepository.update(id, {
-      ...updateMaquinaDto,
-      roles,
-    });
+  async update(id: string, { roles: rls, ...data }: UpdateUserDto): Promise<void> {
+    try {
+      const roles = await this.rolService.findAllById(rls);
+      // Obtener el usuario por su ID
+      const user = await this.userRepository.findOne({ where: { id }, relations: ['roles'] });
+
+      if (!user) {
+        throw new BadRequestException('Usuario no encontrado');
+      }
+
+      Object.assign(user, data);
+
+      // Limpiar la relación many-to-many (eliminar relaciones previas)
+      user.roles = [];
+
+      // Asignar los roles nuevos a la entidad de usuario
+      user.roles = roles;
+
+      // Guardar el usuario con los nuevos roles
+      await this.userRepository.save(user);
+
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException('Error al actualizar el usuario', error);
+
+    }
   }
 
   async remove(id: string): Promise<void> {

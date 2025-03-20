@@ -56,6 +56,7 @@ export class AuthService {
         const user = await this.upsertUser({
           nombre: response.data.value.nombres,
           correo: AuthDto.correo,
+          cedula: response.data.value.cedula,
           tipo_usuario_array: response.data.value.tipo_usuario_array,
         });
 
@@ -83,6 +84,7 @@ export class AuthService {
   async upsertUser(user: {
     nombre: string;
     correo: string;
+    cedula: string;
     tipo_usuario_array: string[];
   }): Promise<{
     id: string;
@@ -96,8 +98,10 @@ export class AuthService {
       const rol = await this.validateRol(user.tipo_usuario_array);
 
       const userData = {
-        nombre: user.nombre,
+        nombre: user.nombre.split(' ').slice(2).join(' '),
+        apellido: user.nombre.split(' ').slice(0, 2).join(' '),
         contrasena: null,
+        cedula: user.cedula,
         correo: user.correo,
         roles: [rol],
       };
@@ -122,11 +126,12 @@ export class AuthService {
           rol: roles.map((r) => ({ id: r.id, nombre: r.nombre })),
         };
       } else {
+
         const newUser = await this.userService.create({
           ...userData,
           roles: userData.roles.map(role => role.id),
         });
-       
+
         const { contrasena, roles, ...newUs } = newUser;
         return {
           ...newUs,

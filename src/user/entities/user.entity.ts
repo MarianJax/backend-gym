@@ -30,10 +30,18 @@ export class User {
   @Column({ name: 'nombre', type: 'varchar', length: 100 })
   nombre: string;
 
+  @Column({ name: 'apellido', type: 'varchar', length: 100 })
+  apellido: string;
+
   @Column({ name: 'correo', unique: true, type: 'varchar', length: 100 })
   @Unique('email_unique', ['email'])
   @Index('email_index_User', { unique: true })
   correo: string;
+
+  @Column({ name: 'cedula', unique: true, type: 'varchar', length: 100 })
+  @Unique('cedula_unique', ['cedula'])
+  @Index('cedula_index_User', { unique: true })
+  cedula: string;
 
   @Column({ name: 'contrasena', type: 'varchar', length: 200, nullable: true })
   contrasena?: string;

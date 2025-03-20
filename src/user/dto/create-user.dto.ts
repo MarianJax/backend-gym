@@ -14,6 +14,14 @@ export class CreateUserDto {
   @Length(3, 150, { message: 'El nombre debe tener al menos 3 caracteres' })
   nombre: string;
 
+  @IsString({ message: 'El apellido debe ser un texto' })
+  @Length(3, 150, { message: 'El apellido debe tener al menos 3 caracteres' })
+  apellido: string;
+
+  @IsString({ message: 'El cedula debe ser un texto' })
+  @Length(10, 10, { message: 'El cedula debe tener 10 caracteres' })
+  cedula: string;
+
   @IsEmail({}, { message: 'El correo debe ser un email' })
   @Length(3, 255, { message: 'El correo debe tener al menos 3 caracteres' })
   @Matches(/^[\w.%+-]+@utm\.edu\.ec$/, {
