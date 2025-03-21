@@ -20,7 +20,7 @@ export class HorarioEmpleadoService {
     createHorarioEmpleadoDto: CreateHorarioEmpleadoDto,
   ): Promise<HorarioEmpleado> {
     try {
-      const rol = await this.rolService.findOne(createHorarioEmpleadoDto.rol_id);
+      const rol = await this.rolService.findOneByName('Entrenador');
       const horarioEntrenador = this.HorarioEmpleadoRepository.create({
         ...createHorarioEmpleadoDto,
         rol,
