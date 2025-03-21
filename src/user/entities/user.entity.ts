@@ -15,7 +15,6 @@ import {
   JoinColumn,
   JoinTable,
   ManyToMany,
-  ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -81,7 +80,6 @@ export class User {
   @BeforeInsert()
   async hashPassword() {
     if (!this.contrasena) return;
-
     this.contrasena = await bcrypt.hash(this.contrasena, 10);
   }
 

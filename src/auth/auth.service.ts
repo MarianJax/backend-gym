@@ -11,7 +11,14 @@ import { Rol } from 'src/rol/entities/rol.entity';
 import { UserService } from 'src/user/user.service';
 import { RolService } from 'src/rol/rol.service';
 import { HttpService } from '@nestjs/axios';
-import { catchError, firstValueFrom, map, Observable, timeInterval, timeout } from 'rxjs';
+import {
+  catchError,
+  firstValueFrom,
+  map,
+  Observable,
+  timeInterval,
+  timeout,
+} from 'rxjs';
 import { Agent } from 'https';
 
 @Injectable()
@@ -23,56 +30,80 @@ export class AuthService {
 
     private configService: ConfigService,
 
-    private readonly httpService: HttpService
-  ) { }
+    private readonly httpService: HttpService,
+  ) {}
 
   async findByEmail(AuthDto: CreateAuthDto) {
     const user = await this.userService.findOneByEmail(AuthDto.correo);
 
-    if (!user || (user && !user.contrasena)) {
+    if (!user || (user && user.contrasena === null)) {
       try {
-        const dat = await this.authenticateUser({ usuario: AuthDto.correo, clave: AuthDto.contrasena });
+        const dat = await this.authenticateUser({
+          usuario: AuthDto.correo,
+          clave: AuthDto.contrasena,
+        });
         if (dat.state === 'success') {
           let userUpsert: User = user ? user : new User();
           const rol = await this.validateRol(dat.value.tipo_usuario_array);
-
+          console.log(dat.value.nombres);
           const upsertedUser = await this.userService.upsertUser({
-            nombre: dat.value.nombres.split(' ').slice(2).join(' ') ?? '',
-            apellido: dat.value.nombres.split(' ').slice(0, 2).join(' ') ?? '',
+            nombre: dat.value.nombres.split(' ').slice(2).join(' '),
+            apellido: dat.value.nombres.split(' ').slice(0, 2).join(' '),
             correo: AuthDto.correo,
             cedula: dat.value.cedula ?? '',
             roles: [rol],
           });
 
-          if (upsertedUser.user !== undefined && upsertedUser.user.identifiers[0].id !== undefined) {
-            userUpsert = await this.userService.findOne(upsertedUser.user.identifiers[0].id);
+          if (
+            upsertedUser.user !== undefined &&
+            upsertedUser.user.identifiers[0].id !== undefined
+          ) {
+            userUpsert = await this.userService.findOne(
+              upsertedUser.user.identifiers[0].id,
+            );
           }
 
-          userUpsert.roles = [rol];
+          const oldRol = userUpsert.roles
 
-          const newUser = await this.userService.save(userUpsert);
+          console.log(oldRol.includes(rol), rol, oldRol);
+
+          if (!oldRol.includes(rol)) {
+            userUpsert.roles = [rol, ...oldRol];
+          }
+
+          await this.userService.save(userUpsert);
+          const ur = await this.userService.findOneByEmail(AuthDto.correo);
 
           return {
-            state: 'success', user: {
-              id: newUser.id,
-              nombres: newUser.nombre,
-              apellidos: newUser.apellido,
-              correo: newUser.correo,
-              roles: newUser.roles.map((rol) => rol.nombre),
-            }
+            state: 'success',
+            user: {
+              id: ur.id,
+              nombres: ur.nombre,
+              apellidos: ur.apellido,
+              correo: ur.correo,
+              roles: ur.roles.map((r) => r.nombre),
+            },
           };
         } else {
           console.log(dat);
           throw new BadRequestException({ response: dat });
         }
-
       } catch (error) {
         console.log(error);
 
-        if (error.response && error.response.response && error.response.response.state === 'error') {
-          throw new BadRequestException({ state: 'error', response: error.response.response.error });
+        if (
+          error.response &&
+          error.response.response &&
+          error.response.response.state === 'error'
+        ) {
+          throw new BadRequestException({
+            state: 'error',
+            response: error.response.response.error,
+          });
         }
-        throw new BadRequestException('Ocurrió un error al autenticar el usuario');
+        throw new BadRequestException(
+          'Ocurrió un error al autenticar el usuario',
+        );
       }
     }
 
@@ -80,6 +111,8 @@ export class AuthService {
       AuthDto.contrasena,
       user.contrasena,
     );
+
+    console.log(user.contrasena, AuthDto.contrasena, comparaPassword);
 
     if (!comparaPassword) {
       throw new BadRequestException('La contraseña ingresada es incorrecta');
@@ -102,7 +135,7 @@ export class AuthService {
     return await this.rolService.findOneByName('Estudiante');
   }
 
-  async authenticateUser(data: { usuario: string; clave: string; }) {
+  async authenticateUser(data: { usuario: string; clave: string }) {
     const httpsAgent = new Agent({ rejectUnauthorized: false });
     const loginUrl = this.configService.get('config.DEV')
       ? this.configService.get('config.LOGIN_URL_DEV')
@@ -110,20 +143,20 @@ export class AuthService {
 
     try {
       return firstValueFrom(
-        this.httpService.post(loginUrl, data,
-          {
+        this.httpService
+          .post(loginUrl, data, {
             headers: {
               'Content-Type': 'application/json',
               'X-API-KEY': this.configService.get('config.X_API_KEY'),
             },
             timeout: 10000,
             httpsAgent,
-          },
-        ).pipe(
-          map((response) => {
-            return response.data;
-          }),
-        )
+          })
+          .pipe(
+            map((response) => {
+              return response.data;
+            }),
+          ),
       );
     } catch (error) {
       console.log(error);

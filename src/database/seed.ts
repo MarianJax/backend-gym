@@ -1,12 +1,51 @@
 import { Rol } from '../rol/entities/rol.entity';
 import AppDataSource from '../config/typeorm';
 import { Facultad } from '../facultad/entities/facultad.entity';
+import { User } from '../user/entities/user.entity';
+import * as bcrypt from 'bcryptjs';
+import { CreateAuthDto } from 'src/auth/dto/create-auth.dto';
+
+const user = [
+  {
+    nombre: 'Admin',
+    apellido: 'Admin',
+    correo: 'admin@utm.edu.ec',
+    contrasena: 'Admin',
+    cedula: '1234567890',
+    roles: 'Administrador',
+  },
+  {
+    nombre: 'estudiante 1',
+    apellido: 'est',
+    correo: 'estudiante@utm.edu.ec',
+    contrasena: 'Estudiante',
+    cedula: '1324567890',
+    roles: 'Estudiante',
+  },
+  {
+    nombre: 'Funcionario 1',
+    apellido: 'Admin',
+    correo: 'funcionario@utm.edu.ec',
+    contrasena: 'Funcionario',
+    cedula: '1234657890',
+    roles: 'Funcionario',
+  },
+  {
+    nombre: 'Docente 1',
+    apellido: 'Docente',
+    correo: 'docente@utm.edu.ec',
+    contrasena: 'Docente',
+    cedula: '1234567980',
+    roles: 'Docente',
+  },
+];
 
 const seed = async () => {
   await AppDataSource.initialize();
   const faultadRepository = AppDataSource.getRepository(Facultad);
   const rolesRepository = AppDataSource.getRepository(Rol);
-
+  const userRepository = AppDataSource.getRepository(User);
+  /*
   const facultades = faultadRepository.create([
     {
       nombre: 'Facultad de Ingeniería y Ciencias Aplicadas',
@@ -195,16 +234,33 @@ const seed = async () => {
       ],
     },
   ]);
-
+*/
   const roles = rolesRepository.create([
     { nombre: 'Administrador' },
-    { nombre: 'Estudiante', monto_pago: 0.50, tiempo: 1, cupo: 40 },
-    { nombre: 'Docente', monto_pago: 1.00, tiempo: 1, cupo: 40 },
-    { nombre: 'Funcionario', monto_pago: 1.00, tiempo: 1, cupo: 40, },
-    { nombre: 'Entrenador' }
+    { nombre: 'Estudiante', monto_pago: 0.5, tiempo: 1, cupo: 40 },
+    { nombre: 'Docente', monto_pago: 1.0, tiempo: 1, cupo: 40 },
+    { nombre: 'Funcionario', monto_pago: 1.0, tiempo: 1, cupo: 40 },
+    { nombre: 'Entrenador' },
   ]);
 
-  await faultadRepository.save(facultades);
+  Promise.all([
+    user.map(async (u) => {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(u.contrasena, salt);
+      const newUser = userRepository.create({
+        nombre: u.nombre,
+        apellido: u.apellido,
+        correo: u.correo,
+        contrasena: hashedPassword,
+        cedula: u.cedula,
+        roles: [roles.find((r) => r.nombre === u.roles)],
+      });
+
+      return await userRepository.save(newUser);
+    }),
+  ]);
+
+  //await faultadRepository.save(facultades);
   await rolesRepository.save(roles);
   console.log('Datos insertados correctamente.');
 };
