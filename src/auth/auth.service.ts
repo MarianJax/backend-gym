@@ -6,10 +6,13 @@ import { User } from 'src/user/entities/user.entity';
 import { ILike, Repository } from 'typeorm';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { ConfigService } from '@nestjs/config';
-import axios from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 import { Rol } from 'src/rol/entities/rol.entity';
 import { UserService } from 'src/user/user.service';
 import { RolService } from 'src/rol/rol.service';
+import { HttpService } from '@nestjs/axios';
+import { catchError, firstValueFrom, map, Observable, timeInterval, timeout } from 'rxjs';
+import { Agent } from 'https';
 
 @Injectable()
 export class AuthService {
@@ -19,51 +22,57 @@ export class AuthService {
     private rolService: RolService,
 
     private configService: ConfigService,
+
+    private readonly httpService: HttpService
   ) { }
 
   async findByEmail(AuthDto: CreateAuthDto) {
     const user = await this.userService.findOneByEmail(AuthDto.correo);
 
-    // user  :{ nombre: '', contrana: 'fdgfds'}
     if (!user || (user && !user.contrasena)) {
       try {
-        const loginUrl = this.configService.get('config.DEV')
-          ? this.configService.get('config.LOGIN_URL_DEV')
-          : this.configService.get('config.LOGIN_URL_PROD');
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const https = require('https');
-        const xApiKey = this.configService.get('config.X_API_KEY');
+        const dat = await this.authenticateUser({ usuario: AuthDto.correo, clave: AuthDto.contrasena });
+        if (dat.state === 'success') {
+          let userUpsert: User = user ? user : new User();
+          const rol = await this.validateRol(dat.value.tipo_usuario_array);
 
-        const httpsAgent = new https.Agent({
-          rejectUnauthorized: false, // Ignorar certificados no válidos
-        });
+          const upsertedUser = await this.userService.upsertUser({
+            nombre: dat.value.nombres.split(' ').slice(2).join(' ') ?? '',
+            apellido: dat.value.nombres.split(' ').slice(0, 2).join(' ') ?? '',
+            correo: AuthDto.correo,
+            cedula: dat.value.cedula ?? '',
+            roles: [rol],
+          });
 
-        const response = await axios.post(
-          loginUrl,
-          {
-            usuario: AuthDto.correo,
-            clave: AuthDto.contrasena,
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Api-Key': xApiKey,
-            },
-            httpsAgent,
-          },
-        );
+          if (upsertedUser.user !== undefined && upsertedUser.user.identifiers[0].id !== undefined) {
+            userUpsert = await this.userService.findOne(upsertedUser.user.identifiers[0].id);
+          }
 
-        const user = await this.upsertUser({
-          nombre: response.data.value.nombres,
-          correo: AuthDto.correo,
-          cedula: response.data.value.cedula,
-          tipo_usuario_array: response.data.value.tipo_usuario_array,
-        });
+          userUpsert.roles = [rol];
 
-        return user;
+          const newUser = await this.userService.save(userUpsert);
+
+          return {
+            state: 'success', user: {
+              id: newUser.id,
+              nombres: newUser.nombre,
+              apellidos: newUser.apellido,
+              correo: newUser.correo,
+              roles: newUser.roles.map((rol) => rol.nombre),
+            }
+          };
+        } else {
+          console.log(dat);
+          throw new BadRequestException({ response: dat });
+        }
+
       } catch (error) {
         console.log(error);
-        return { error, message: 'Usuario no encontrado' };
+
+        if (error.response && error.response.response && error.response.response.state === 'error') {
+          throw new BadRequestException({ state: 'error', response: error.response.response.error });
+        }
+        throw new BadRequestException('Ocurrió un error al autenticar el usuario');
       }
     }
 
@@ -81,69 +90,6 @@ export class AuthService {
     return newUser;
   }
 
-  async upsertUser(user: {
-    nombre: string;
-    correo: string;
-    cedula: string;
-    tipo_usuario_array: string[];
-  }): Promise<{
-    id: string;
-    correo: string;
-    nombre: string;
-    rol: { id: string; nombre: string }[];
-  }> {
-    try {
-      const existingUser = await this.userService.findOneByEmail(user.correo);
-
-      const rol = await this.validateRol(user.tipo_usuario_array);
-
-      const userData = {
-        nombre: user.nombre.split(' ').slice(2).join(' '),
-        apellido: user.nombre.split(' ').slice(0, 2).join(' '),
-        contrasena: null,
-        cedula: user.cedula,
-        correo: user.correo,
-        roles: [rol],
-      };
-
-      if (existingUser) {
-        const existeRol = existingUser.roles.some(
-          (existingRol) => existingRol.id === rol.id,
-        );
-        if (!existeRol) existingUser.roles.push(rol);
-        if (existingUser.nombre !== user.nombre)
-          existingUser.nombre = user.nombre;
-
-        const updatedUser = await this.userService.update(existingUser.id, {
-          ...existingUser,
-          roles: existingUser.roles.map(role => role.id),
-        });
-        const usrs = await this.userService.findOneByEmail(user.correo);
-
-        const { contrasena, roles, ...newUser } = usrs;
-        return {
-          ...newUser,
-          rol: roles.map((r) => ({ id: r.id, nombre: r.nombre })),
-        };
-      } else {
-
-        const newUser = await this.userService.create({
-          ...userData,
-          roles: userData.roles.map(role => role.id),
-        });
-
-        const { contrasena, roles, ...newUs } = newUser;
-        return {
-          ...newUs,
-          rol: roles,
-        };
-      }
-    } catch (error) {
-      console.log(error);
-      return error;
-    }
-  }
-
   async validateRol(tipo_usuario_array: string[]): Promise<Rol> {
     if (tipo_usuario_array.includes('75|FUNCIONARIO')) {
       return await this.rolService.findOneByName('Funcionario');
@@ -154,5 +100,34 @@ export class AuthService {
       return await this.rolService.findOneByName('Docente');
     }
     return await this.rolService.findOneByName('Estudiante');
+  }
+
+  async authenticateUser(data: { usuario: string; clave: string; }) {
+    const httpsAgent = new Agent({ rejectUnauthorized: false });
+    const loginUrl = this.configService.get('config.DEV')
+      ? this.configService.get('config.LOGIN_URL_DEV')
+      : this.configService.get('config.LOGIN_URL_PROD');
+
+    try {
+      return firstValueFrom(
+        this.httpService.post(loginUrl, data,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'X-API-KEY': this.configService.get('config.X_API_KEY'),
+            },
+            timeout: 10000,
+            httpsAgent,
+          },
+        ).pipe(
+          map((response) => {
+            return response.data;
+          }),
+        )
+      );
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException('Ocurrió un error de autenticación');
+    }
   }
 }

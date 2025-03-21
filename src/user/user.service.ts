@@ -5,6 +5,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { RolService } from 'src/rol/rol.service';
+import { Rol } from 'src/rol/entities/rol.entity';
 
 @Injectable()
 export class UserService {
@@ -44,6 +45,10 @@ export class UserService {
         throw error;
       }
     }
+  }
+
+  async save(user: User): Promise<User> {
+    return await this.userRepository.save(user);
   }
 
   async findAll(): Promise<User[]> {
@@ -105,5 +110,15 @@ export class UserService {
 
   async remove(id: string): Promise<void> {
     await this.userRepository.delete(id);
+  }
+
+  async upsertUser(data: { nombre: string, apellido: string, cedula: string, correo: string, roles: Rol[] }): Promise<any> {
+    try {
+      const user = await this.userRepository.upsert(data, { conflictPaths: ['correo'], skipUpdateIfNoValuesChanged: true, });
+      return user;
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException('Error al insertar o actualizar el usuario', error);
+    }
   }
 }
