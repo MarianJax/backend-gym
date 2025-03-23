@@ -45,8 +45,9 @@ export class MantenimientoService {
     return await this.mantenimientoRepository.findOneBy({ id });
   }
 
-  async update(id: string, updateMantenimientoDto: UpdateMantenimientoDto): Promise<void> {
-    await this.mantenimientoRepository.update(id, updateMantenimientoDto);
+  async update(id: string, { maquina_id, ...updateMantenimientoDto }: UpdateMantenimientoDto): Promise<void> {
+    const maquina = await this.maquinaService.findOne(maquina_id);
+    await this.mantenimientoRepository.update(id, { ...updateMantenimientoDto, maquina });
   }
 
   async remove(id: string): Promise<void> {
