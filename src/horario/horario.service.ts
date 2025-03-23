@@ -52,8 +52,9 @@ export class HorarioService {
     });
   }
 
-  async update(id: string, updateHorarioDto: UpdateHorarioDto): Promise<void> {
-    await this.HorarioRepository.update(id, updateHorarioDto);
+  async update(id: string, { rol_id, ...updateHorarioDto }: UpdateHorarioDto): Promise<void> {
+    const rol = await this.rolService.findOne(rol_id);
+    await this.HorarioRepository.update(id, { ...updateHorarioDto, rol });
   }
 
   async remove(id: string): Promise<void> {

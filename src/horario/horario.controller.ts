@@ -30,6 +30,7 @@ export class HorarioController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateHorarioDto: UpdateHorarioDto) {
+    console.log(updateHorarioDto);
     return this.horarioService.update(id, updateHorarioDto);
   }
 
