@@ -41,7 +41,7 @@ export class HorarioEmpleadoService {
   }
 
   async findAll(): Promise<HorarioEmpleado[]> {
-    return await this.HorarioEmpleadoRepository.find();
+    return await this.HorarioEmpleadoRepository.find({ relations: ['rol'] });
   }
 
   async findOne(id: string): Promise<HorarioEmpleado> {

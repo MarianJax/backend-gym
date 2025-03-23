@@ -1,3 +1,4 @@
+import { DiaSemana } from 'src/enum/entities.enum';
 import { Rol } from '../../rol/entities/rol.entity';
 import {
   Column,
@@ -17,6 +18,13 @@ export class HorarioEmpleado {
 
   @Column({ name: 'franja_hora_inicio', type: 'time' })
   franja_hora_inicio: Date;
+
+  @Column({
+    type: 'enum',
+    enum: DiaSemana,
+    name: 'dia_semana',
+  })
+  dia_semana: DiaSemana;
 
   @Column({ name: 'franja_hora_fin', type: 'time' })
   franja_hora_fin: Date;
