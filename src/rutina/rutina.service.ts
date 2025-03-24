@@ -34,7 +34,7 @@ export class RutinaService {
   }
 
   async findOne(id: string): Promise<Rutina> {
-    return await this.rutinaRepository.findOneBy({ id });
+    return await this.rutinaRepository.findOne({ where: { id }, relations: ['ejercicios', 'ejercicios.maquinas'] });
   }
 
   async update(id: string, updateRutinaDto: UpdateRutinaDto): Promise<void> {

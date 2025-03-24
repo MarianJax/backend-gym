@@ -23,6 +23,6 @@ export class Rutina {
   @Column({ name: 'descripcion', type: 'varchar', length: 100 })
   descripcion: string;
 
-  @ManyToMany(() => Ejercicio, (ejercicio) => ejercicio.rutinas)
+  @ManyToMany(() => Ejercicio, (ejercicio) => ejercicio.rutinas, { cascade: true, onDelete: 'CASCADE' })
   ejercicios: Ejercicio[];
 }
