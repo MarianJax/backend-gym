@@ -53,4 +53,10 @@ export class MantenimientoService {
   async remove(id: string): Promise<void> {
     await this.mantenimientoRepository.delete(id);
   }
+
+  async findByMaquinaId(maquina_id: string): Promise<Mantenimiento[]> {
+    return await this.mantenimientoRepository.find({ where: { maquina: { id: maquina_id } } });
+  }
+
+
 }

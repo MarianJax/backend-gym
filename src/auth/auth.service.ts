@@ -81,7 +81,7 @@ export class AuthService {
               nombres: ur.nombre,
               apellidos: ur.apellido,
               correo: ur.correo,
-              roles: ur.roles.map((r) => r.nombre),
+              roles: ur.roles[0].nombre,
             },
           };
         } else {

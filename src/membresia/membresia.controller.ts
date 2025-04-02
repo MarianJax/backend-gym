@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { MembresiaService } from './membresia.service';
 import { CreateMembresiaDto } from './dto/create-membresia.dto';
 import { UpdateMembresiaDto } from './dto/update-membresia.dto';
@@ -20,6 +20,11 @@ export class MembresiaController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.membresiaService.findOne(id);
+  }
+
+  @Get('usuario/:id')
+  findByUsuarioId(@Param('id') id: string, @Query('fecha') fecha: Date) {
+    return this.membresiaService.findByUserIdAndDate(id, fecha  );
   }
 
   @Patch(':id')

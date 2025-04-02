@@ -5,6 +5,7 @@ import { CreateHorarioDto } from './dto/create-horario.dto';
 import { UpdateHorarioDto } from './dto/update-horario.dto';
 import { Horario } from './entities/horario.entity';
 import { RolService } from 'src/rol/rol.service';
+import { DiaSemana } from 'src/enum/entities.enum';
 
 @Injectable()
 export class HorarioService {
@@ -50,6 +51,17 @@ export class HorarioService {
       },
       select: ['id', 'jornada', 'dia_semana', 'hora_inicio', 'hora_fin', 'rol'],
     });
+  }
+
+  async findHorarioRolFecha(rol: string, dia: DiaSemana): Promise<Horario[]> {
+    return await this.HorarioRepository.find({
+      where: {
+        rol: {
+          nombre: ILike(rol)
+        },
+        dia_semana: dia
+      }
+    })
   }
 
   async update(id: string, { rol_id, ...updateHorarioDto }: UpdateHorarioDto): Promise<void> {

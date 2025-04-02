@@ -45,7 +45,37 @@ export class RutinaService {
     await this.rutinaRepository.delete(id);
   }
 
+  async save (rutina: Rutina): Promise<Rutina> {
+    return await this.rutinaRepository.save(rutina);
+  }
+
   async updatedCantidadEjercicios(rutinas: Rutina[]): Promise<void> {
     await this.rutinaRepository.save(rutinas);
+  }
+
+  async disconectedEjercicios(id: string, ejercicioId: string) {
+    try {
+      const rutina = await this.findOne(id);
+
+      rutina.cantidad_ejercicios = rutina.cantidad_ejercicios - 1;
+      await this.rutinaRepository.save(rutina)
+
+      await this.rutinaRepository
+        .createQueryBuilder()
+        .relation(Rutina, "ejercicios")
+        .of(rutina)
+        .remove(ejercicioId);
+
+      return {
+        message: 'Ejercicio eliminado de la rutina',
+        success: true,
+      };
+    } catch (error) {
+      console.log(error);
+      return {
+        message: 'Error al eliminar el ejercicio de la rutina',
+        success: false,
+      };
+    }
   }
 }

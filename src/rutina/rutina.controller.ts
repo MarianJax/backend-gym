@@ -31,4 +31,9 @@ export class RutinaController {
   remove(@Param('id') id: string) {
     return this.rutinaService.remove(id);
   }
+
+  @Delete(':id/ejercicio/:ejercicioId')
+  disconectedEjercicios(@Param('id') id: string, @Param('ejercicioId') ejercicioId: string) {
+    return this.rutinaService.disconectedEjercicios(id, ejercicioId);
+  }
 }

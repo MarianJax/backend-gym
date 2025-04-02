@@ -31,4 +31,9 @@ export class MantenimientoController {
   remove(@Param('id') id: string) {
     return this.mantenimientoService.remove(id);
   }
+
+  @Get('maquina/:id')
+  findByMaquinaId(@Param('id') id: string) {
+    return this.mantenimientoService.findByMaquinaId(id);
+  }
 }

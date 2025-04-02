@@ -81,5 +81,22 @@ export class MembresiaService {
       );
     }
   }
+
+  async findByUserIdAndDate(id: string, fecha: Date): Promise<Membresia> {
+    try {
+      return await this.MembresiaRepository.findOne({
+        where: {
+          users: { id },
+          fecha_fin: MoreThanOrEqual(fecha),
+          fecha_inicio: LessThanOrEqual(fecha),
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException(
+        'No se pudo obtener la información',
+      );
+    }
+  }
   
 }

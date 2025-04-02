@@ -51,20 +51,57 @@ export class EjerciciosService {
     const rutinas = await this.rutinaService.findAllById(rts);
     const maquinas = await this.maquinaService.findAllById(mqs);
 
-    const ejercicio = await this.ejercicioRepository.findOne({ where: { id } });
+    const ejercicio = await this.ejercicioRepository.findOne({
+      where: { id },
+      relations: ['rutinas'], // Asegúrate de cargar las rutinas asociadas al ejercicio
+    });
 
     if (!ejercicio) {
       throw new BadRequestException('Ejercicio no encontrado');
     }
 
+    // Restar el ejercicio de las rutinas antiguas
+    for (const rutina of ejercicio.rutinas) {
+      rutina.cantidad_ejercicios = Math.max(0, rutina.cantidad_ejercicios - 1); // Asegura que la cantidad no sea negativa
+      await this.rutinaService.save(rutina); // Guarda las rutinas con la cantidad actualizada
+    }
+
+    // Actualizar los datos del ejercicio
     Object.assign(ejercicio, data);
     ejercicio.rutinas = rutinas;
     ejercicio.maquinas = maquinas;
 
+    // Aumentar el contador de ejercicios en las nuevas rutinas
+    for (const rutina of rutinas) {
+      rutina.cantidad_ejercicios += 1;
+      await this.rutinaService.save(rutina); // Guarda las rutinas con la cantidad actualizada
+    }
+
+    // Guardar el ejercicio con las nuevas rutinas y máquinas
     await this.ejercicioRepository.save(ejercicio);
   }
 
   async remove(id: string): Promise<void> {
+    // Buscar el ejercicio a eliminar
+    const ejercicio = await this.ejercicioRepository.findOne({
+      where: { id },
+      relations: ['rutinas'], // Cargar las rutinas asociadas al ejercicio
+    });
+
+    if (!ejercicio) {
+      throw new BadRequestException('Ejercicio no encontrado');
+    }
+
+    // Iterar sobre las rutinas asociadas al ejercicio y restar el ejercicio de ellas
+    for (const rutina of ejercicio.rutinas) {
+      // Reducir la cantidad de ejercicios en la rutina
+      if (rutina.cantidad_ejercicios > 0) {
+        rutina.cantidad_ejercicios = Math.max(0, rutina.cantidad_ejercicios - 1);
+        await this.rutinaService.save(rutina); // Guardar la rutina con la cantidad actualizada
+      }
+    }
+
+    // Eliminar el ejercicio de la base de datos
     await this.ejercicioRepository.delete(id);
   }
 }
