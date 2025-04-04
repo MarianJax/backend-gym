@@ -43,9 +43,9 @@ const user = [
 const seed = async () => {
   await AppDataSource.initialize();
   const faultadRepository = AppDataSource.getRepository(Facultad);
-  // const rolesRepository = AppDataSource.getRepository(Rol);
-  // const userRepository = AppDataSource.getRepository(User);
-
+  const rolesRepository = AppDataSource.getRepository(Rol);
+  const userRepository = AppDataSource.getRepository(User);
+  /*
   const facultades = faultadRepository.create([
     {
       nombre: 'Facultad de Ingeniería y Ciencias Aplicadas',
@@ -234,34 +234,34 @@ const seed = async () => {
       ],
     },
   ]);
-  /*
-    const roles = rolesRepository.create([
-      { nombre: 'Administrador' },
-      { nombre: 'Estudiante', monto_pago: 0.5, tiempo: 1, cupo: 40 },
-      { nombre: 'Docente', monto_pago: 1.0, tiempo: 1, cupo: 40 },
-      { nombre: 'Funcionario', monto_pago: 1.0, tiempo: 1, cupo: 40 },
-      { nombre: 'Entrenador' },
-    ]);
-  
-    Promise.all([
-      user.map(async (u) => {
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(u.contrasena, salt);
-        const newUser = userRepository.create({
-          nombre: u.nombre,
-          apellido: u.apellido,
-          correo: u.correo,
-          contrasena: hashedPassword,
-          cedula: u.cedula,
-          roles: [roles.find((r) => r.nombre === u.roles)],
-        });
-  
-        return await userRepository.save(newUser);
-      }),
-    ]);*/
+*/
+  const roles = rolesRepository.create([
+    { nombre: 'Administrador' },
+    { nombre: 'Estudiante', monto_pago: 0.5, tiempo: 1, cupo: 40 },
+    { nombre: 'Docente', monto_pago: 1.0, tiempo: 1, cupo: 40 },
+    { nombre: 'Funcionario', monto_pago: 1.0, tiempo: 1, cupo: 40 },
+    { nombre: 'Entrenador' },
+  ]);
 
-  await faultadRepository.save(facultades);
-  //await rolesRepository.save(roles);
+  Promise.all([
+    user.map(async (u) => {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(u.contrasena, salt);
+      const newUser = userRepository.create({
+        nombre: u.nombre,
+        apellido: u.apellido,
+        correo: u.correo,
+        contrasena: hashedPassword,
+        cedula: u.cedula,
+        roles: [roles.find((r) => r.nombre === u.roles)],
+      });
+
+      return await userRepository.save(newUser);
+    }),
+  ]);
+
+  //await faultadRepository.save(facultades);
+  await rolesRepository.save(roles);
   console.log('Datos insertados correctamente.');
 };
 
