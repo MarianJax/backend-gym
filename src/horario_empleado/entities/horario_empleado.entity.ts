@@ -1,4 +1,4 @@
-import { DiaSemana } from 'src/enum/entities.enum';
+import { DiaSemana } from '../../enum/entities.enum';
 import { Rol } from '../../rol/entities/rol.entity';
 import {
   Column,

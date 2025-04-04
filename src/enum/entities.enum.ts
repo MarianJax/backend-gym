@@ -11,8 +11,6 @@ export enum DiaSemana {
     MIERCOLES = 'Miercoles',
     JUEVES = 'Jueves',
     VIERNES = 'Viernes',
-    SABADO = 'Sabado',
-    DOMINGO = 'Domingo',
 }
 
 export enum Estado {
