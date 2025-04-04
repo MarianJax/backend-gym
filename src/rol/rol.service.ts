@@ -10,7 +10,7 @@ export class RolService {
   constructor(
     @InjectRepository(Rol)
     private readonly rolRepository: Repository<Rol>,
-  ) {}
+  ) { }
 
   async create(createRolDto: CreateRolDto) {
     const rol = this.rolRepository.create(createRolDto);
@@ -33,8 +33,16 @@ export class RolService {
 
   async findOneByName(nombre: string): Promise<Rol> {
     return await this.rolRepository.findOne({
-      where: {  nombre: ILike(nombre) },
+      where: { nombre: ILike(nombre) },
       relations: ['horarios'],
+    });
+  }
+
+  async findOneByUsuario(id: string): Promise<Rol[]> {
+    return await this.rolRepository.find({
+      where: {
+        users: { id }
+      },
     });
   }
 

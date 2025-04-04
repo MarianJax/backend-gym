@@ -43,6 +43,11 @@ export class RolController {
     return this.rolService.findOneByName(nombre);
   }
 
+  @Get('usuario/:id')
+  findOneByUsuario(@Param('id') id: string) {
+    return this.rolService.findOneByUsuario(id);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateRolDto: UpdateRolDto) {
     return this.rolService.update(id, updateRolDto);
@@ -52,4 +57,6 @@ export class RolController {
   remove(@Param('id') id: string) {
     return this.rolService.remove(id);
   }
+
+
 }
