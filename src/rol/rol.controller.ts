@@ -1,11 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { RolService } from './rol.service';
 import { CreateRolDto } from './dto/create-rol.dto';
 import { UpdateRolDto } from './dto/update-rol.dto';
 
 @Controller('rol')
 export class RolController {
-  constructor(private readonly rolService: RolService){}
+  constructor(private readonly rolService: RolService) { }
   /*async someAction(rolId: number) { 
     function verificarPermiso(roleId: number) { 
       var rolData = rolId[rolId]; if (!rolData) { console.log("Rol no encontrado."); 
@@ -38,8 +38,8 @@ export class RolController {
     return this.rolService.findOne(id);
   }
 
-  @Get()
-  findOneByRol(@Query('nombre') nombre: string) {
+  @Get('nombre/:nombre')
+  findOneByRol(@Param('nombre') nombre: string) {
     return this.rolService.findOneByName(nombre);
   }
 
