@@ -10,7 +10,7 @@ export class PagoService {
   constructor(
     @InjectRepository(Pago)
     private readonly PagoRepository: Repository<Pago>,
-  ) {}
+  ) { }
 
   async create(createPagoDto: CreatePagoDto): Promise<Pago> {
     return await this.PagoRepository.create(createPagoDto);
@@ -34,5 +34,9 @@ export class PagoService {
 
   async remove(id: string): Promise<void> {
     await this.PagoRepository.delete(id);
+  }
+
+  async findAllPagosRolAndUser(): Promise<Pago[]> {
+    return await this.PagoRepository.find();
   }
 }

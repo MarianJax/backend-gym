@@ -23,3 +23,9 @@ export enum Metodo {
   DIARIO = 'Diario', // tarjeta?
   MENSUAL = 'Mensual', // tranfrencia?
 }
+
+export enum EstadoPago {
+    PENDIENTE = 'Pendiente',
+    APROBADO = 'Aprobado',
+    RECHAZADO = 'Rechazado',
+}

@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import * as express from 'express';
 
 async function bootstrap() {
   // Configurar la zona horaria directamente en la app
@@ -35,6 +36,9 @@ async function bootstrap() {
       },
     }),
   );
+
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
   await app.listen(process.env.PORT ?? 3000);
 }
