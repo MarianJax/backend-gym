@@ -1,8 +1,8 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { Transform } from 'class-transformer';
 import { IsDate, IsEnum, IsNotEmpty, Min } from 'class-validator';
-import { Metodo } from '../entities/pago.entity';
 import { CreatePagoDto } from './create-pago.dto';
+import { Metodo } from 'src/enum/entities.enum';
 
 export class UpdatePagoDto extends PartialType(CreatePagoDto) {
     @Min(1, { message: 'El monto debe ser mayor a 0' })

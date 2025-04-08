@@ -63,7 +63,7 @@ export class AuthService {
             );
           }
 
-          const oldRol = userUpsert.roles
+          const oldRol = userUpsert.roles;
 
           console.log(oldRol.includes(rol), rol, oldRol);
 
@@ -120,7 +120,16 @@ export class AuthService {
 
     const { contrasena, roles, ...newUser } = user;
 
-    return newUser;
+    return {
+      state: 'success',
+      user: {
+        id: newUser.id,
+        nombres: newUser.nombre,
+        apellidos: newUser.apellido,
+        correo: newUser.correo,
+        roles: roles[0].nombre,
+      },
+    };
   }
 
   async validateRol(tipo_usuario_array: string[]): Promise<Rol> {
@@ -147,9 +156,8 @@ export class AuthService {
           .post(loginUrl, data, {
             headers: {
               'Content-Type': 'application/json',
-              'X-API-KEY': this.configService.get('config.X_API_KEY'),
+              'X-Api-Key': this.configService.get('config.X_API_KEY') as string,
             },
-            timeout: 10000,
             httpsAgent,
           })
           .pipe(
@@ -159,7 +167,7 @@ export class AuthService {
           ),
       );
     } catch (error) {
-      console.log(error);
+      console.log('->', error);
       throw new BadRequestException('Ocurrió un error de autenticación');
     }
   }

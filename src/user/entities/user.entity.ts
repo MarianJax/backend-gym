@@ -80,12 +80,14 @@ export class User {
   @BeforeInsert()
   async hashPassword() {
     if (!this.contrasena) return;
-    this.contrasena = await bcrypt.hash(this.contrasena, 10);
+    const salt = await bcrypt.genSalt(10);
+    this.contrasena = await bcrypt.hash(this.contrasena, salt);
   }
 
   @BeforeUpdate()
   async hashPasswordUpdated() {
     if (!this.contrasena) return;
-    this.contrasena = await bcrypt.hash(this.contrasena, 10);
+    const salt = await bcrypt.genSalt(10);
+    this.contrasena = await bcrypt.hash(this.contrasena, salt);
   }
 }

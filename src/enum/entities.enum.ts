@@ -18,3 +18,8 @@ export enum Estado {
     MANTENIMIENTO = 'Mantenimiento',
     FUERASERVICIO = 'Fuera de servicio',
 }
+
+export enum Metodo {
+  DIARIO = 'Diario', // tarjeta?
+  MENSUAL = 'Mensual', // tranfrencia?
+}

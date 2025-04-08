@@ -24,13 +24,12 @@ export class MembresiaService {
       const users = await this.userService.findOne(createMembresiaDto.usuario_id);
       const pagos = await this.pagoService.findOne(createMembresiaDto.pago_id);
 
-      const membresia = this.MembresiaRepository.create({
+      return await this.MembresiaRepository.save({
         ...createMembresiaDto,
         users,
         pagos
       });
 
-      return await this.MembresiaRepository.save(membresia);
     } catch (error) {
       console.log(error);
       if (error.code === '23505') {

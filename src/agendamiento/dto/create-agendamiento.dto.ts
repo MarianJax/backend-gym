@@ -1,28 +1,38 @@
-import { IsISO8601, IsMilitaryTime, IsNotEmpty, MinDate } from "class-validator";
+import {
+  IsISO8601,
+  IsMilitaryTime,
+  IsNotEmpty,
+  MinDate,
+} from 'class-validator';
 
 export class CreateAgendamientoDto {
-    @IsISO8601()
-    @MinDate(new Date(), { message: 'La fecha no puede ser menor a la fecha actual' })
-    fecha: Date;
+  @IsISO8601(
+    { strict: true },
+    { message: 'La fecha debe tener el formato YYYY-MM-DD' },
+  )
+  @IsNotEmpty({ message: 'La fecha no puede estar vacío' })
+  fecha: Date;
 
-    @IsNotEmpty({ message: 'El usuario es requerido' })
-    usuario_id: string;
+  @IsNotEmpty({ message: 'El usuario es requerido' })
+  usuario_id: string;
 
-    @IsMilitaryTime({ message: 'La hora de inicio debe ser una hora válida' })
-    @IsNotEmpty({ message: 'La hora de inicio es requerida' })
-    hora_inicio: Date;
+  @IsMilitaryTime({ message: 'La hora de inicio debe ser una hora válida' })
+  @IsNotEmpty({ message: 'La hora de inicio es requerida' })
+  hora_inicio: string | Date;
 
-    @IsMilitaryTime({ message: 'La hora de fin debe ser una hora válida' })
-    @IsNotEmpty({ message: 'La hora de fin es requerida' })
-    hora_fin: Date;
+  @IsMilitaryTime({ message: 'La hora de fin debe ser una hora válida' })
+  @IsNotEmpty({ message: 'La hora de fin es requerida' })
+  hora_fin: string | Date;
 
-    @IsNotEmpty({ message: 'La membresía es requerida' })
-    membresia_id: string;
+  @IsNotEmpty({ message: 'El metodo de pago es requerida' })
+  metodo_pago: string;
 
-    @IsNotEmpty({ message: 'La membresía es requerida' })
-    pago_id: string;
+  @IsNotEmpty({ message: 'El monto del pago es requerida' })
+  monto: number;
 
-    @IsNotEmpty({ message: 'El rol es necesario' })
-    rol: string;
+  @IsNotEmpty({ message: 'La evidencia del pago es necesario' })
+  evidencia_pago: Buffer;
 
+  @IsNotEmpty({ message: 'El rol es requerido' })
+  rol: string;
 }

@@ -2,7 +2,6 @@ import { Rol } from '../rol/entities/rol.entity';
 import AppDataSource from '../config/typeorm';
 import { Facultad } from '../facultad/entities/facultad.entity';
 import { User } from '../user/entities/user.entity';
-import * as bcrypt from 'bcryptjs';
 import { CreateAuthDto } from 'src/auth/dto/create-auth.dto';
 
 const user = [
@@ -245,13 +244,11 @@ const seed = async () => {
 
   Promise.all([
     user.map(async (u) => {
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(u.contrasena, salt);
       const newUser = userRepository.create({
         nombre: u.nombre,
         apellido: u.apellido,
         correo: u.correo,
-        contrasena: hashedPassword,
+        contrasena: u.contrasena,
         cedula: u.cedula,
         roles: [roles.find((r) => r.nombre === u.roles)],
       });

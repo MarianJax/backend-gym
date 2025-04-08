@@ -7,14 +7,11 @@ export class ValidacionesPago {
     @PrimaryGeneratedColumn('uuid', { name: 'id_validacion' })
     id: string;
 
-    @Column({ name: 'fecha_validacion', type: 'timestamptz' })
-    fecha_validacion: Date;
+    @Column({ name: 'fecha_validacion', type: 'timestamptz', nullable: true })
+    fecha_validacion?: Date;
 
-    @Column({ name: 'evidencia', type: 'text' })
-    evidencia: string;
-
-    @Column({ name: 'token_pago', type: 'varchar', length: 100 })
-    token_pago: string;
+    @Column({ name: 'evidencia', type: 'bytea' })
+    evidencia: Buffer;
 
     @ManyToOne(() => Pago, (pago) => pago.validacion_pago)
     @JoinColumn({ name: 'pago_id' })

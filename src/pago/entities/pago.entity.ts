@@ -1,17 +1,8 @@
+import { Metodo } from 'src/enum/entities.enum';
 import { Agendamiento } from '../../agendamiento/entities/agendamiento.entity';
 import { Membresia } from '../../membresia/entities/membresia.entity';
 import { ValidacionesPago } from '../../validaciones_pago/entities/validaciones_pago.entity';
-import {
-  Column,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn
-} from 'typeorm';
-
-export enum Metodo {
-  DIARIO = 'Diario', // tarjeta?
-  MENSUAL = 'Mensual', // tranfrencia?
-}
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ schema: 'esq_gimnasio', name: 'pagos' })
 export class Pago {

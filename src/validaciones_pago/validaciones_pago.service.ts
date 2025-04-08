@@ -22,19 +22,22 @@ export class ValidacionesPagoService {
       const user = await this.userService.findOne(createValidacionesPagoDto.usuario_id);
       const pago = await this.pagoService.findOne(createValidacionesPagoDto.pago_id);
 
-      const validacionesPago = this.validacionesPagoRepository.create({
+      return  this.validacionesPagoRepository.create({
         ...createValidacionesPagoDto,
         users: user,
         pagos: pago
       });
 
-      return await this.validacionesPagoRepository.save(validacionesPago);
     } catch (error) {
       console.log(error);
       if (error.code === '23505') {
         throw new Error('El usuario ya tiene una membresía activa');
       }
     }
+  }
+
+  async save(data: ValidacionesPago): Promise<ValidacionesPago> {
+    return await this.validacionesPagoRepository.save(data);
   }
 
   async findAll(): Promise<ValidacionesPago[]> {

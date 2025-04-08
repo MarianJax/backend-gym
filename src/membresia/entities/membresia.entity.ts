@@ -2,6 +2,7 @@ import { Agendamiento } from '../../agendamiento/entities/agendamiento.entity';
 import { Pago } from '../../pago/entities/pago.entity';
 import { User } from '../../user/entities/user.entity';
 import {
+  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
@@ -25,8 +26,8 @@ export class Membresia {
   @CreateDateColumn({ name: 'fecha_creacion', type: 'timestamptz' })
   fecha_inicio: Date;
 
-  @Column({ name: 'fecha_fin', type: 'timestamptz' })
-  fecha_fin: Date;
+  @Column({ name: 'fecha_fin', type: 'timestamptz', nullable: true })
+  fecha_fin?: Date;
 
   @Column({ name: 'costo', type: 'decimal', precision: 10, scale: 2 })
   costo: number
@@ -42,4 +43,10 @@ export class Membresia {
   @JoinColumn({ name: 'pago_id' })
   pagos: Pago;
 
+  @BeforeInsert()
+  async createEndDate() {
+    const fechaFin = new Date(this.fecha_inicio);
+    fechaFin.setMonth(fechaFin.getMonth() + 1); // Agregar un mes a la fecha de inicio
+    this.fecha_fin = fechaFin;
+  }
 }

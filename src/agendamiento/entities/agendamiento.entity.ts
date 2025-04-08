@@ -19,21 +19,21 @@ export class Agendamiento {
   fecha: Date;
 
   @Column({ name: 'hora_inicio', type: 'time' })
-  hora_inicio: Date;
+  hora_inicio: string | Date;
 
   @Column({ name: 'hora_fin', type: 'time' })
-  hora_fin: Date;
+  hora_fin: string | Date;
 
   @Column({ name: 'asistio', type: 'boolean', default: false })
   asistio: boolean;
 
-  @ManyToOne(() => Membresia, (membresia) => membresia.agendamientos)
+  @ManyToOne(() => Membresia, (membresia) => membresia.agendamientos, { nullable: true })
   @JoinColumn({ name: 'membresia_id' })
-  membresias: Membresia;
+  membresias?: Membresia;
 
-  @ManyToOne(() => Pago, (pago) => pago.agendamiento)
+  @ManyToOne(() => Pago, (pago) => pago.agendamiento, { nullable: true })
   @JoinColumn({ name: 'pago_id' })
-  pagos: Pago;
+  pagos?: Pago;
 
   @ManyToOne(() => User, (user) => user.agendamientos)
   @JoinColumn({ name: 'usuario_id' })

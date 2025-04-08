@@ -1,5 +1,5 @@
 import { IsEnum, IsISO8601, IsNotEmpty, Min } from "class-validator";
-import { Metodo } from "../entities/pago.entity";
+import { Metodo } from "../../enum/entities.enum";
 
 export class CreatePagoDto {
     @Min(1, { message: 'El monto debe ser mayor a 0' })
