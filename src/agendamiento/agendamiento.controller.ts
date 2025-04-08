@@ -5,7 +5,8 @@ import {
   Get,
   Param,
   Patch,
-  Post
+  Post,
+  Query
 } from '@nestjs/common';
 import { AgendamientoService } from './agendamiento.service';
 import { CreateAgendamientoDto } from './dto/create-agendamiento.dto';
@@ -18,6 +19,11 @@ export class AgendamientoController {
   @Post()
   create(@Body() createAgendamientoDto: CreateAgendamientoDto) {
     return this.agendamientoService.create(createAgendamientoDto);
+  }
+
+  @Get('with-pending-validation')
+  findAllWithPendingValidation(@Query('_limit') limit: number, @Query('_all') all: boolean) {
+    return this.agendamientoService.findAllWithPendingValidation(limit, all);
   }
 
   @Get()
@@ -35,7 +41,7 @@ export class AgendamientoController {
     @Param('id') id: string,
     @Body() updateAgendamientoDto: UpdateAgendamientoDto,
   ) {
-    return this.agendamientoService.update(+id, updateAgendamientoDto);
+    return this.agendamientoService.update(id, updateAgendamientoDto);
   }
 
   @Delete(':id')

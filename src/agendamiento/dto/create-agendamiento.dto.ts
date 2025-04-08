@@ -2,7 +2,7 @@ import {
   IsISO8601,
   IsMilitaryTime,
   IsNotEmpty,
-  MinDate,
+  IsNumber,
 } from 'class-validator';
 
 export class CreateAgendamientoDto {
@@ -27,11 +27,15 @@ export class CreateAgendamientoDto {
   @IsNotEmpty({ message: 'El metodo de pago es requerida' })
   metodo_pago: string;
 
+  @IsNotEmpty({ message: 'El tipo de imagen es requerida' })
+  tipo: string;
+
   @IsNotEmpty({ message: 'El monto del pago es requerida' })
   monto: number;
 
   @IsNotEmpty({ message: 'La evidencia del pago es necesario' })
-  evidencia_pago: Buffer;
+  @IsNumber({}, { each: true })
+  evidencia_pago: number[];
 
   @IsNotEmpty({ message: 'El rol es requerido' })
   rol: string;

@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import { In, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { CreateAgendamientoDto } from './dto/create-agendamiento.dto';
 import { UpdateAgendamientoDto } from './dto/update-agendamiento.dto';
 import { Agendamiento } from './entities/agendamiento.entity';
@@ -8,10 +8,9 @@ import { MembresiaService } from 'src/membresia/membresia.service';
 import { PagoService } from 'src/pago/pago.service';
 import { RolService } from 'src/rol/rol.service';
 import { UserService } from 'src/user/user.service';
-import { Metodo } from '../enum/entities.enum';
+import { EstadoPago, Metodo } from '../enum/entities.enum';
 import { ValidacionesPagoService } from 'src/validaciones_pago/validaciones_pago.service';
 
-import dayjs from 'dayjs';
 import { Membresia } from 'src/membresia/entities/membresia.entity';
 
 @Injectable()
@@ -25,7 +24,7 @@ export class AgendamientoService {
     private rolService: RolService,
     private userService: UserService,
     private readonly validacionesPagoService: ValidacionesPagoService,
-  ) {}
+  ) { }
 
   async verificarMaximoReservas({
     hora_inicio,
@@ -75,6 +74,7 @@ export class AgendamientoService {
 
   async create(createAgendamientoDto: CreateAgendamientoDto): Promise<any> {
     try {
+      console.log('Holaaaaaaaaaaaaaaaaaaaaaa ->', createAgendamientoDto);
       let membresia: Membresia | null = null;
       const users = await this.userService.findOne(
         createAgendamientoDto.usuario_id,
@@ -108,16 +108,16 @@ export class AgendamientoService {
         monto: createAgendamientoDto.monto,
         metodo_pago: createAgendamientoDto.metodo_pago as Metodo,
       });
-      console.log('Pago creado:');
       await this.pagoService.save(pagos);
-      console.log('Pago guardado:');
+
+      const buffer = Buffer.from(createAgendamientoDto.evidencia_pago);
 
       const evicendia_pago = await this.validacionesPagoService.create({
+        tipo: createAgendamientoDto.tipo,
         usuario_id: createAgendamientoDto.usuario_id,
         pago_id: pagos.id,
-        evidencia: createAgendamientoDto.evidencia_pago,
+        evidencia: buffer,
       });
-      console.log('Evidencia de pago creada:');
 
       if (!evicendia_pago) {
         throw new BadRequestException('Error al guardar la evidencia de pago');
@@ -148,10 +148,8 @@ export class AgendamientoService {
         asistio: false,
         user: users,
       });
-      console.log('Agendamiento creado:');
 
       await this.validacionesPagoService.save(evicendia_pago);
-      console.log('Agendamiento guardado:');
 
       await this.agendamientoRepository.save(agprev);
 
@@ -169,8 +167,100 @@ export class AgendamientoService {
     }
   }
 
+  async findAllWithPendingValidation(take: number, all: boolean): Promise<Agendamiento[]> {
+    let pagos = all ? {
+      validacion_pago: {
+        fecha_validacion: null,
+        estado: EstadoPago.PENDIENTE
+      }
+    } : {};
+
+    console.log(all, !all, pagos);
+
+    return await this.agendamientoRepository.find({
+      where: [
+        {
+          user: {
+            roles: {
+              nombre: In(['Estudiante', 'Funcionario'])
+            }
+          },
+          pagos
+        },
+        {
+          user: {
+            roles: {
+              nombre: In(['Estudiante', 'Funcionario'])
+            }
+          },
+          membresias: {
+            pagos
+          }
+        }
+      ],
+      select: {
+        id: true,
+        fecha: true,
+        user: {
+          nombre: true,
+          apellido: true,
+          cedula: true,
+          roles: {
+            nombre: true,
+          }
+        },
+        membresias: {
+          id: true,
+          pagos: {
+            id: true,
+            metodo_pago: true,
+            validacion_pago: {
+              id: true,
+              fecha_validacion: true,
+              estado: true,
+            }
+          },
+        },
+        pagos: {
+          id: true,
+          metodo_pago: true,
+          validacion_pago: {
+            id: true,
+            fecha_validacion: true,
+            estado: true,
+          }
+        }
+      },
+      relations: ['user', 'user.roles', 'pagos', 'membresias', 'membresias.pagos', 'pagos.validacion_pago', 'membresias.pagos.validacion_pago'],
+      take,
+    });
+  }
+
   async findAll(): Promise<Agendamiento[]> {
-    return await this.agendamientoRepository.find();
+    return await this.agendamientoRepository.find({
+      where:
+      {
+        user: {
+          roles: {
+            nombre: In(['Estudiante', 'Funcionario'])
+          }
+        },
+      },
+      select: {
+        id: true,
+        fecha: true,
+        asistio: true,
+        user: {
+          nombre: true,
+          apellido: true,
+          cedula: true,
+          roles: {
+            nombre: true,
+          }
+        },
+      },
+      relations: ['user', 'user.roles', ],
+    });
   }
 
   async findOne(id: string): Promise<Agendamiento> {
@@ -178,7 +268,7 @@ export class AgendamientoService {
   }
 
   async update(
-    id: number,
+    id: string,
     updateAgendamientoDto: UpdateAgendamientoDto,
   ): Promise<void> {
     await this.agendamientoRepository.update(id, updateAgendamientoDto);

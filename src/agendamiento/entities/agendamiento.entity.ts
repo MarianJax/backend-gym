@@ -2,6 +2,7 @@ import { Membresia } from '../../membresia/entities/membresia.entity';
 import { Pago } from '../../pago/entities/pago.entity';
 import { User } from '../../user/entities/user.entity';
 import {
+  AfterUpdate,
   Column,
   Entity,
   JoinColumn,
@@ -24,7 +25,7 @@ export class Agendamiento {
   @Column({ name: 'hora_fin', type: 'time' })
   hora_fin: string | Date;
 
-  @Column({ name: 'asistio', type: 'boolean', default: false })
+  @Column({ name: 'asistio', type: 'boolean', default: null, nullable: true })
   asistio: boolean;
 
   @ManyToOne(() => Membresia, (membresia) => membresia.agendamientos, { nullable: true })
@@ -38,4 +39,5 @@ export class Agendamiento {
   @ManyToOne(() => User, (user) => user.agendamientos)
   @JoinColumn({ name: 'usuario_id' })
   user: User;
+
 }
