@@ -4,7 +4,6 @@ import { User } from '../../user/entities/user.entity';
 import {
   BeforeInsert,
   Column,
-  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -12,18 +11,13 @@ import {
   PrimaryGeneratedColumn
 } from 'typeorm';
 
-export enum Tipo {
-  MENSUAL = 'Mensual',
-  DIARIO = 'Diario',
-}
-
 @Entity({ schema: 'esq_gimnasio', name: 'membresia' })
 export class Membresia {
 
   @PrimaryGeneratedColumn('uuid', { name: 'id_membresia' })
   id: string;
 
-  @CreateDateColumn({ name: 'fecha_creacion', type: 'timestamptz' })
+  @Column({ name: 'fecha_creacion', type: 'timestamptz' })
   fecha_inicio: Date;
 
   @Column({ name: 'fecha_fin', type: 'timestamptz', nullable: true })
@@ -39,14 +33,17 @@ export class Membresia {
   @OneToMany(() => Agendamiento, (agendamiento) => agendamiento.membresias)
   agendamientos: Agendamiento[];
 
-  @ManyToOne(() => Pago,  (pago) => pago.membresia)
+  @ManyToOne(() => Pago, (pago) => pago.membresia)
   @JoinColumn({ name: 'pago_id' })
   pagos: Pago;
 
   @BeforeInsert()
   async createEndDate() {
-    const fechaFin = new Date(this.fecha_inicio);
-    fechaFin.setMonth(fechaFin.getMonth() + 1); // Agregar un mes a la fecha de inicio
-    this.fecha_fin = fechaFin;
+    console.log('Fecha de inicio:', this.fecha_inicio, 'Tipo:', typeof this.fecha_inicio);
+    if (!this.fecha_fin) {
+      const fechaFin = new Date(this.fecha_inicio);
+      fechaFin.setMonth(fechaFin.getMonth() + 1); // Agregar un mes a la fecha de inicio
+      this.fecha_fin = fechaFin;
+    }
   }
 }

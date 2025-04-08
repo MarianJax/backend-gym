@@ -36,4 +36,6 @@ export class MembresiaController {
   remove(@Param('id') id: string) {
     return this.membresiaService.remove(id);
   }
+
+
 }

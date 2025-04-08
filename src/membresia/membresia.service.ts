@@ -18,17 +18,20 @@ export class MembresiaService {
   ) { }
 
   async create(
-    createMembresiaDto: CreateMembresiaDto,
+    { costo, fecha_inicio, pago_id, usuario_id }: CreateMembresiaDto,
   ): Promise<Membresia> {
     try {
-      const users = await this.userService.findOne(createMembresiaDto.usuario_id);
-      const pagos = await this.pagoService.findOne(createMembresiaDto.pago_id);
+      const users = await this.userService.findOne(usuario_id);
+      const pagos = await this.pagoService.findOne(pago_id);
 
-      return await this.MembresiaRepository.save({
-        ...createMembresiaDto,
+      const membresia = this.MembresiaRepository.create({
+        costo,
+        fecha_inicio,
         users,
         pagos
       });
+
+      return await this.MembresiaRepository.save(membresia);
 
     } catch (error) {
       console.log(error);
