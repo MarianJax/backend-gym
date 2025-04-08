@@ -1,6 +1,7 @@
+import { EstadoPago } from 'src/enum/entities.enum';
 import { Pago } from '../../pago/entities/pago.entity';
 import { User } from '../../user/entities/user.entity';
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { AfterUpdate, BeforeUpdate, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ schema: 'esq_gimnasio', name: 'validaciones_pagos' })
 export class ValidacionesPago {
@@ -13,6 +14,12 @@ export class ValidacionesPago {
     @Column({ name: 'evidencia', type: 'bytea' })
     evidencia: Buffer;
 
+    @Column({ name: 'estado', type: 'enum', enum: EstadoPago, default: EstadoPago.PENDIENTE })
+    estado: EstadoPago;
+
+    @Column({ name: 'tipo', type: 'varchar' })
+    tipo: string;
+
     @ManyToOne(() => Pago, (pago) => pago.validacion_pago)
     @JoinColumn({ name: 'pago_id' })
     pagos: Pago;
@@ -21,5 +28,4 @@ export class ValidacionesPago {
     @ManyToOne(() => User, (user) => user.validacion_pago)
     @JoinColumn({ name: 'usuario_id' })
     users: User;
-
 }
