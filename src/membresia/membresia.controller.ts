@@ -24,7 +24,7 @@ export class MembresiaController {
 
   @Get('usuario/:id')
   findByUsuarioId(@Param('id') id: string, @Query('fecha') fecha: Date) {
-    return this.membresiaService.findByUserIdAndDate(id, fecha  );
+    return this.membresiaService.findByUserIdAndDate(id, fecha);
   }
 
   @Patch(':id')
