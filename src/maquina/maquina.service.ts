@@ -26,6 +26,10 @@ export class MaquinaService {
     return await this.maquinaRepository.find();
   }
 
+  async count(): Promise<number> {
+    return await this.maquinaRepository.count();
+  }
+
   async findAllById(ids: string[]): Promise<Maquina[]> {
     return await this.maquinaRepository.find({
       where: { id: In(ids) },
