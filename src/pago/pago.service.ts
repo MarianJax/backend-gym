@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreatePagoDto } from './dto/create-pago.dto';
 import { UpdatePagoDto } from './dto/update-pago.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Pago } from './entities/pago.entity';
 
 @Injectable()
@@ -21,7 +21,36 @@ export class PagoService {
   }
 
   async findAll(): Promise<Pago[]> {
-    return await this.PagoRepository.find({ order: { fecha_pago: 'ASC' } });
+    return await this.PagoRepository.find({
+      where: {
+        validacion_pago: {
+          users: {
+            roles: {
+              nombre: In(['Estudiante', 'Funcionario']),
+            }
+          }
+        }
+      },
+      order: { fecha_pago: 'ASC' },
+      select: {
+        id: true,
+        metodo_pago: true,
+        monto: true,
+        fecha_pago: true,
+        validacion_pago: {
+          id: true,
+          users: {
+            apellido: true,
+            nombre: true,
+            cedula: true,
+            roles: {
+              nombre: true,
+            }
+          }
+        },
+      },
+      relations: ['validacion_pago', 'validacion_pago.users', 'validacion_pago.users.roles'],
+    });
   }
 
   async findOne(id: string): Promise<Pago> {
@@ -38,5 +67,10 @@ export class PagoService {
 
   async findAllPagosRolAndUser(): Promise<Pago[]> {
     return await this.PagoRepository.find();
+  }
+
+  async totalCosto(): Promise<number> {
+    const mantenimientos = await this.PagoRepository.find();
+    return mantenimientos.reduce((total, m) => total + Number(m.monto), 0);
   }
 }
