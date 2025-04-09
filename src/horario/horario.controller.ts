@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { HorarioService } from './horario.service';
 import { CreateHorarioDto } from './dto/create-horario.dto';
 import { UpdateHorarioDto } from './dto/update-horario.dto';
-import { DiaSemana } from 'src/enum/entities.enum';
+import { DiaSemana, Jornada } from 'src/enum/entities.enum';
 
 @Controller('horario')
 export class HorarioController {
@@ -18,11 +18,6 @@ export class HorarioController {
     return this.horarioService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.horarioService.findOne(id);
-  }
-
 
   @Get('roles/:rol')
   findHorarioRol(@Param('rol') rol: string) {
@@ -32,6 +27,17 @@ export class HorarioController {
   @Get('rol/:rol/:dia')
   findHorarioRolDia(@Param('rol') rol: string, @Param('dia') dia: string) {
     return this.horarioService.findHorarioRolFecha(rol, dia as DiaSemana);
+  }
+
+  @Get('membresia')
+  findHorarioMembresias(@Query('fecha') fecha: Date, @Query('jornada') jornada: string) {
+    return this.horarioService.findHorarioMembresia(fecha, jornada as Jornada);
+
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.horarioService.findOne(id);
   }
 
   @Patch(':id')
