@@ -84,9 +84,11 @@ export class MembresiaService {
     }
   }
 
-  async findByUserIdAndDate(id: string, fecha: Date): Promise<Membresia> {
+  async findByUserIdAndDate(id: string, fecha: Date): Promise<Membresia[]> {
     try {
-      return await this.MembresiaRepository.findOne({
+      const membresia = await this.MembresiaRepository.find();
+      console.log(fecha, membresia);
+      return await this.MembresiaRepository.find({
         where: {
           users: { id },
           fecha_fin: MoreThanOrEqual(fecha),
