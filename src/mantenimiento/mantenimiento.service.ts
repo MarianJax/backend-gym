@@ -58,5 +58,9 @@ export class MantenimientoService {
     return await this.mantenimientoRepository.find({ where: { maquina: { id: maquina_id } } });
   }
 
+  async totalCosto(): Promise<number> { 
+    const mantenimientos = await this.mantenimientoRepository.find();
+    return mantenimientos.reduce((total, m) => total + Number(m.costo), 0);
+  }
 
 }
