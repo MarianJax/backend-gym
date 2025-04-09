@@ -5,7 +5,7 @@ import { UpdateEjercicioDto } from './dto/update-ejercicio.dto';
 
 @Controller('ejercicios')
 export class EjerciciosController {
-  constructor(private readonly ejerciciosService: EjerciciosService) {}
+  constructor(private readonly ejerciciosService: EjerciciosService) { }
 
   @Post()
   create(@Body() createEjercicioDto: CreateEjercicioDto) {
