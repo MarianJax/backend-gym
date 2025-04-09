@@ -121,4 +121,8 @@ export class UserService {
       throw new BadRequestException('Error al insertar o actualizar el usuario', error);
     }
   }
+
+  async count(): Promise<number> { 
+    return await this.userRepository.count();
+  }
 }
