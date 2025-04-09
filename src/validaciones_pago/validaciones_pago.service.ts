@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateValidacionesPagoDto } from './dto/create-validaciones_pago.dto';
@@ -7,7 +7,6 @@ import { ValidacionesPago } from './entities/validaciones_pago.entity';
 import { PagoService } from 'src/pago/pago.service';
 import { UserService } from 'src/user/user.service';
 import { EstadoPago } from 'src/enum/entities.enum';
-import dayjs from 'dayjs';
 
 @Injectable()
 export class ValidacionesPagoService {
@@ -64,9 +63,6 @@ export class ValidacionesPagoService {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
     }).format(new Date());
 
     await this.validacionesPagoRepository.update(id, { ...updateValidacionesPagoDto, fecha_validacion });
