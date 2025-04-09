@@ -20,7 +20,7 @@ export class Rutina {
   @Column({ name: 'cantidad_ejercicios', type: 'integer', default: 0 })
   cantidad_ejercicios: number;
 
-  @Column({ name: 'descripcion', type: 'varchar', length: 100 })
+  @Column({ name: 'descripcion', type: 'text'})
   descripcion: string;
 
   @ManyToMany(() => Ejercicio, (ejercicio) => ejercicio.rutinas, { cascade: true, onDelete: 'CASCADE' })
