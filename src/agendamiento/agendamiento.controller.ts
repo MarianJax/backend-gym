@@ -31,6 +31,11 @@ export class AgendamientoController {
     return this.agendamientoService.findAll();
   }
 
+  @Get('/usuario/:id')
+  findByUsuarioId(@Param('id') id: string, @Query('_fecha') fecha: string) {
+    return this.agendamientoService.findByUsuarioId(id, fecha);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.agendamientoService.findOne(id);

@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import { Between, In, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { CreateAgendamientoDto } from './dto/create-agendamiento.dto';
 import { UpdateAgendamientoDto } from './dto/update-agendamiento.dto';
 import { Agendamiento } from './entities/agendamiento.entity';
@@ -168,7 +168,7 @@ export class AgendamientoService {
   }
 
   async findAllWithPendingValidation(take: number, all: boolean): Promise<Agendamiento[]> {
-    let pagos = all ? {
+    const pagos = all ? {
       validacion_pago: {
         fecha_validacion: null,
         estado: EstadoPago.PENDIENTE
@@ -234,6 +234,25 @@ export class AgendamientoService {
     });
   }
 
+  async findByUsuarioId(id: string, dat: string): Promise<Agendamiento[]> {
+    const fecha_agendamiento = new Date(dat);
+
+    const startDate = new Date(fecha_agendamiento);
+    startDate.setHours(0, 0, 0, 0);
+
+    const endDate = new Date(fecha_agendamiento);
+    endDate.setHours(23, 59, 59, 999);
+
+    return await this.agendamientoRepository.find({
+      where: {
+        user: {
+          id
+        },
+        fecha: Between(startDate, endDate)
+      }
+    })
+  }
+
   async findAll(): Promise<Agendamiento[]> {
     return await this.agendamientoRepository.find({
       where:
@@ -259,7 +278,7 @@ export class AgendamientoService {
           }
         },
       },
-      relations: ['user', 'user.roles', ],
+      relations: ['user', 'user.roles',],
     });
   }
 
