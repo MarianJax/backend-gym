@@ -26,7 +26,7 @@ export class Agendamiento {
   hora_fin: string | Date;
 
   @Column({ name: 'asistio', type: 'boolean', default: null, nullable: true })
-  asistio: boolean;
+  asistio?: boolean;
 
   @ManyToOne(() => Membresia, (membresia) => membresia.agendamientos, { nullable: true })
   @JoinColumn({ name: 'membresia_id' })

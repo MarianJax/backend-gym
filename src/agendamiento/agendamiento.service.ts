@@ -175,8 +175,6 @@ export class AgendamientoService {
       }
     } : {};
 
-    console.log(all, !all, pagos);
-
     return await this.agendamientoRepository.find({
       where: [
         {
@@ -250,6 +248,8 @@ export class AgendamientoService {
         id: true,
         fecha: true,
         asistio: true,
+        hora_fin: true,
+        hora_inicio: true,
         user: {
           nombre: true,
           apellido: true,
