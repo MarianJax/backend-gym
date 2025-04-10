@@ -2,7 +2,6 @@ import { Membresia } from '../../membresia/entities/membresia.entity';
 import { Pago } from '../../pago/entities/pago.entity';
 import { User } from '../../user/entities/user.entity';
 import {
-  AfterUpdate,
   Column,
   Entity,
   JoinColumn,

@@ -17,6 +17,11 @@ export class CarreraController {
     return this.carreraService.findAll();
   }
 
+  @Get('facultad/:id')
+  findAllByFacultad(@Param('id') id: string) {
+    return this.carreraService.findAllByFacultad(id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.carreraService.findOne(id);

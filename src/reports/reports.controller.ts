@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ReportsService } from './reports.service';
 
 @Controller('reports')
@@ -6,13 +6,13 @@ export class ReportsController {
   constructor(private readonly reportsService: ReportsService) { }
 
   @Get()
-  findAll() {
+  async findAll() {
     return this.reportsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.reportsService.findOne(+id);
+  @Get('/graphics')
+  async findForGraphics(@Query('_facultad') facultad?: string, @Query('_carrera') carrera?: string, @Query('_tipoPago') tipoPago?: string) {
+    return this.reportsService.findForGraphics(facultad, carrera, tipoPago);
   }
 
 }

@@ -33,6 +33,12 @@ export class CarreraService {
     return await this.carreraRepository.find();
   }
 
+  async findAllByFacultad(id: string): Promise<Carrera[]> {
+    return await this.carreraRepository.find({
+      where: { facultad: { id } },
+    });
+  }
+
   async findOne(id: string): Promise<Carrera> {
     return await this.carreraRepository.findOneBy({ id });
   }

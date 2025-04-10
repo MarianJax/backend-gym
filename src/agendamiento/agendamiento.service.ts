@@ -296,4 +296,126 @@ export class AgendamientoService {
   async remove(id: string): Promise<void> {
     await this.agendamientoRepository.delete(id);
   }
+
+  async findAllByRol(facultad?: string, carrera?: string, tipoPago?: string): Promise<{ rol: string, total: number }[]> {
+    const queryBuilder = this.agendamientoRepository.createQueryBuilder('agendamiento')
+      .innerJoin('agendamiento.user', 'user')
+      .innerJoin('user.roles', 'role')
+      .innerJoin('agendamiento.pagos', 'pagos')
+      .select('role.nombre', 'rol')
+      .addSelect('COUNT(*)', 'total')
+      .where('role.nombre IN (:...roles)', { roles: ['Estudiante', 'Funcionario'] })
+      .groupBy('role.nombre');
+
+    // Condiciones opcionales
+    if (facultad) {
+      queryBuilder.andWhere('user.facultad_id = :facultad', { facultad });
+
+      // Si el usuario tiene una facultad definida, también verificar su carrera
+      queryBuilder.andWhere('(user.carrera_id IS NOT NULL OR user.facultad_id = :facultad)', { facultad });
+    }
+    if (carrera) {
+      queryBuilder.andWhere('user.carrera = :carrera', { carrera });
+    }
+    if (tipoPago) {
+      queryBuilder.andWhere('pagos.metodo_pago = :tipoPago', { tipoPago });
+    }
+
+    return await queryBuilder.getRawMany()
+      .then(data => data.map(({ rol, total }) => ({ rol, total: Number(total) })));
+  }
+
+
+  async findAllByRolAndDia(facultad?: string, carrera?: string, tipoPago?: string): Promise<{ rol: string, dia: string, total: number }[]> {
+    const queryBuilder = this.agendamientoRepository.createQueryBuilder('agendamiento')
+      .innerJoin('agendamiento.user', 'user')
+      .innerJoin('user.roles', 'role')
+      .innerJoin('agendamiento.pagos', 'pagos')
+      .select('role.nombre', 'rol')
+      .addSelect("TO_CHAR(agendamiento.fecha, 'Day')", 'dia')
+      .addSelect('COUNT(*)', 'total')
+      .where('role.nombre IN (:...roles)', { roles: ['Estudiante', 'Funcionario'] })
+      .groupBy('role.nombre')
+      .addGroupBy("TO_CHAR(agendamiento.fecha, 'Day')")
+      .orderBy("MIN(agendamiento.fecha)", 'ASC');
+
+    // Condiciones opcionales
+    if (facultad) {
+      queryBuilder.andWhere('user.facultad_id = :facultad', { facultad });
+
+      // Si el usuario tiene una facultad definida, también verificar su carrera
+      queryBuilder.andWhere('(user.carrera_id IS NOT NULL OR user.facultad_id = :facultad)', { facultad });
+    }
+    if (carrera) {
+      queryBuilder.andWhere('user.carrera = :carrera', { carrera });
+    }
+    if (tipoPago) {
+      queryBuilder.andWhere('pagos.metodo_pago = :tipoPago', { tipoPago });
+    }
+
+    return await queryBuilder.getRawMany()
+      .then(data => data.map(({ rol, dia, total }) => ({ rol, dia: dia.trim(), total: Number(total) })));
+  }
+
+  async findAllByDia(facultad?: string, carrera?: string, tipoPago?: string): Promise<{ dia: string, total: number }[]> {
+    const queryBuilder = this.agendamientoRepository.createQueryBuilder('agendamiento')
+      .innerJoin('agendamiento.user', 'user')
+      .innerJoin('agendamiento.pagos', 'pagos')
+      .select("TRIM(TO_CHAR(agendamiento.fecha, 'Day'))", 'dia')
+      .addSelect('COUNT(*)', 'total')
+      .addSelect('EXTRACT(DOW FROM agendamiento.fecha)', 'orden')
+      .groupBy("TRIM(TO_CHAR(agendamiento.fecha, 'Day'))")
+      .addGroupBy('EXTRACT(DOW FROM agendamiento.fecha)')
+      .orderBy('orden', 'ASC');
+
+    // Condiciones opcionales
+    if (facultad) {
+      queryBuilder.andWhere('user.facultad_id = :facultad', { facultad });
+
+      // Si el usuario tiene una facultad definida, también verificar su carrera
+      queryBuilder.andWhere('(user.carrera_id IS NOT NULL OR user.facultad_id = :facultad)', { facultad });
+    }
+    if (carrera) {
+      queryBuilder.andWhere('user.carrera = :carrera', { carrera });
+    }
+    if (tipoPago) {
+      queryBuilder.andWhere('pagos.metodo_pago = :tipoPago', { tipoPago });
+    }
+
+    return await queryBuilder.getRawMany()
+      .then(data => data.map(({ dia, total }) => ({ dia, total: Number(total) })));
+  }
+
+  async findAllByEstado(facultad?: string, carrera?: string, tipoPago?: string): Promise<{ asistio: string, total: number }[]> {
+    const queryBuilder = this.agendamientoRepository.createQueryBuilder('agendamiento')
+      .select([
+        'CASE ' +
+        'WHEN agendamiento.asistio IS NULL THEN \'Pendientes\'' +
+        ' WHEN agendamiento.asistio = true THEN \'Asistidos\'' +
+        ' ELSE \'Inasistidos\' END AS asistio',
+        'COUNT(*) AS total'
+      ])
+      .innerJoin('agendamiento.user', 'user')
+      .innerJoin('agendamiento.pagos', 'pagos')
+      .groupBy('agendamiento.asistio');
+
+    // Condiciones opcionales
+    if (facultad) {
+      queryBuilder.andWhere('user.facultad_id = :facultad', { facultad });
+
+      // Si el usuario tiene una facultad definida, también verificar su carrera
+      queryBuilder.andWhere('(user.carrera_id IS NOT NULL OR user.facultad_id = :facultad)', { facultad });
+    }
+    if (carrera) {
+      queryBuilder.andWhere('user.carrera = :carrera', { carrera });
+    }
+    if (tipoPago) {
+      queryBuilder.andWhere('pagos.metodo_pago = :tipoPago', { tipoPago });
+    }
+
+    return await queryBuilder.getRawMany()
+      .then(data => data.map(({ asistio, total }) => ({ asistio, total: Number(total) })));
+  }
+
+
 }
