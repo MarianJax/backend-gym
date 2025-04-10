@@ -8,7 +8,7 @@ import { MembresiaService } from 'src/membresia/membresia.service';
 import { PagoService } from 'src/pago/pago.service';
 import { RolService } from 'src/rol/rol.service';
 import { UserService } from 'src/user/user.service';
-import { EstadoPago, Metodo } from '../enum/entities.enum';
+import { diasEn, EstadoPago, Metodo } from '../enum/entities.enum';
 import { ValidacionesPagoService } from 'src/validaciones_pago/validaciones_pago.service';
 
 import { Membresia } from 'src/membresia/entities/membresia.entity';
@@ -301,24 +301,35 @@ export class AgendamientoService {
     const queryBuilder = this.agendamientoRepository.createQueryBuilder('agendamiento')
       .innerJoin('agendamiento.user', 'user')
       .innerJoin('user.roles', 'role')
-      .innerJoin('agendamiento.pagos', 'pagos')
       .select('role.nombre', 'rol')
       .addSelect('COUNT(*)', 'total')
-      .where('role.nombre IN (:...roles)', { roles: ['Estudiante', 'Funcionario'] })
+      .where('role.nombre IN (:...roles)', { roles: ['Estudiante', 'Funcionario', 'Docente'] })
       .groupBy('role.nombre');
 
     // Condiciones opcionales
     if (facultad) {
-      queryBuilder.andWhere('user.facultad_id = :facultad', { facultad });
-
-      // Si el usuario tiene una facultad definida, también verificar su carrera
-      queryBuilder.andWhere('(user.carrera_id IS NOT NULL OR user.facultad_id = :facultad)', { facultad });
-    }
-    if (carrera) {
-      queryBuilder.andWhere('user.carrera = :carrera', { carrera });
+      queryBuilder.leftJoin('user.carrera', 'carr')
+        .leftJoin('user.facultad', 'fac')
+        .leftJoin('carr.facultad', 'c_fac')
+      if (!carrera) {
+        queryBuilder.andWhere(
+          '((user.facultad_id IS NOT NULL AND fac.id = :facultad) OR (user.carrera_id IS NOT NULL AND c_fac.id = :facultad))',
+          { facultad }
+        );
+      } else {
+        queryBuilder.andWhere(
+          '(user.carrera_id IS NOT NULL AND user.carrera_id = :carrera)',
+          { facultad, carrera }
+        );
+      }
     }
     if (tipoPago) {
-      queryBuilder.andWhere('pagos.metodo_pago = :tipoPago', { tipoPago });
+      queryBuilder.leftJoin('agendamiento.pagos', 'pagos')
+      queryBuilder.leftJoin('agendamiento.membresias', 'membresia')
+      queryBuilder.leftJoin('membresia.pagos', 'm_pagos')
+      queryBuilder.andWhere(
+        '((agendamiento.pago_id IS NOT NULL AND pagos.metodo_pago = :tipoPago) OR (agendamiento.membresia_id IS NOT NULL AND  m_pagos.metodo_pago = :tipoPago))',
+        { tipoPago });
     }
 
     return await queryBuilder.getRawMany()
@@ -330,37 +341,47 @@ export class AgendamientoService {
     const queryBuilder = this.agendamientoRepository.createQueryBuilder('agendamiento')
       .innerJoin('agendamiento.user', 'user')
       .innerJoin('user.roles', 'role')
-      .innerJoin('agendamiento.pagos', 'pagos')
       .select('role.nombre', 'rol')
       .addSelect("TO_CHAR(agendamiento.fecha, 'Day')", 'dia')
       .addSelect('COUNT(*)', 'total')
-      .where('role.nombre IN (:...roles)', { roles: ['Estudiante', 'Funcionario'] })
+      .where('role.nombre IN (:...roles)', { roles: ['Estudiante', 'Funcionario', 'Docente'] })
       .groupBy('role.nombre')
       .addGroupBy("TO_CHAR(agendamiento.fecha, 'Day')")
       .orderBy("MIN(agendamiento.fecha)", 'ASC');
 
     // Condiciones opcionales
     if (facultad) {
-      queryBuilder.andWhere('user.facultad_id = :facultad', { facultad });
-
-      // Si el usuario tiene una facultad definida, también verificar su carrera
-      queryBuilder.andWhere('(user.carrera_id IS NOT NULL OR user.facultad_id = :facultad)', { facultad });
-    }
-    if (carrera) {
-      queryBuilder.andWhere('user.carrera = :carrera', { carrera });
+      queryBuilder.leftJoin('user.carrera', 'carr')
+        .leftJoin('user.facultad', 'fac')
+        .leftJoin('carr.facultad', 'c_fac')
+      if (!carrera) {
+        queryBuilder.andWhere(
+          '((user.facultad_id IS NOT NULL AND fac.id = :facultad) OR (user.carrera_id IS NOT NULL AND c_fac.id = :facultad))',
+          { facultad }
+        );
+      } else {
+        queryBuilder.andWhere(
+          '(user.carrera_id IS NOT NULL AND user.carrera_id = :carrera)',
+          { facultad, carrera }
+        );
+      }
     }
     if (tipoPago) {
-      queryBuilder.andWhere('pagos.metodo_pago = :tipoPago', { tipoPago });
+      queryBuilder.leftJoin('agendamiento.pagos', 'pagos')
+      queryBuilder.leftJoin('agendamiento.membresias', 'membresia')
+      queryBuilder.leftJoin('membresia.pagos', 'm_pagos')
+      queryBuilder.andWhere(
+        '((agendamiento.pago_id IS NOT NULL AND pagos.metodo_pago = :tipoPago) OR (agendamiento.membresia_id IS NOT NULL AND  m_pagos.metodo_pago = :tipoPago))',
+        { tipoPago });
     }
 
     return await queryBuilder.getRawMany()
-      .then(data => data.map(({ rol, dia, total }) => ({ rol, dia: dia.trim(), total: Number(total) })));
+      .then(data => data.map(({ rol, dia, total }) => ({ rol, dia: diasEn[dia.trim()] ?? dia.trim(), total: Number(total) })));
   }
 
   async findAllByDia(facultad?: string, carrera?: string, tipoPago?: string): Promise<{ dia: string, total: number }[]> {
     const queryBuilder = this.agendamientoRepository.createQueryBuilder('agendamiento')
       .innerJoin('agendamiento.user', 'user')
-      .innerJoin('agendamiento.pagos', 'pagos')
       .select("TRIM(TO_CHAR(agendamiento.fecha, 'Day'))", 'dia')
       .addSelect('COUNT(*)', 'total')
       .addSelect('EXTRACT(DOW FROM agendamiento.fecha)', 'orden')
@@ -370,20 +391,32 @@ export class AgendamientoService {
 
     // Condiciones opcionales
     if (facultad) {
-      queryBuilder.andWhere('user.facultad_id = :facultad', { facultad });
-
-      // Si el usuario tiene una facultad definida, también verificar su carrera
-      queryBuilder.andWhere('(user.carrera_id IS NOT NULL OR user.facultad_id = :facultad)', { facultad });
-    }
-    if (carrera) {
-      queryBuilder.andWhere('user.carrera = :carrera', { carrera });
+      queryBuilder.leftJoin('user.carrera', 'carr')
+        .leftJoin('user.facultad', 'fac')
+        .leftJoin('carr.facultad', 'c_fac')
+      if (!carrera) {
+        queryBuilder.andWhere(
+          '((user.facultad_id IS NOT NULL AND fac.id = :facultad) OR (user.carrera_id IS NOT NULL AND c_fac.id = :facultad))',
+          { facultad }
+        );
+      } else {
+        queryBuilder.andWhere(
+          '(user.carrera_id IS NOT NULL AND user.carrera_id = :carrera)',
+          { facultad, carrera }
+        );
+      }
     }
     if (tipoPago) {
-      queryBuilder.andWhere('pagos.metodo_pago = :tipoPago', { tipoPago });
+      queryBuilder.leftJoin('agendamiento.pagos', 'pagos')
+      queryBuilder.leftJoin('agendamiento.membresias', 'membresia')
+      queryBuilder.leftJoin('membresia.pagos', 'm_pagos')
+      queryBuilder.andWhere(
+        '((agendamiento.pago_id IS NOT NULL AND pagos.metodo_pago = :tipoPago) OR (agendamiento.membresia_id IS NOT NULL AND  m_pagos.metodo_pago = :tipoPago))',
+        { tipoPago });
     }
 
     return await queryBuilder.getRawMany()
-      .then(data => data.map(({ dia, total }) => ({ dia, total: Number(total) })));
+      .then(data => data.map(({ dia, total }) => ({ dia: diasEn[dia.trim()], total: Number(total) })));
   }
 
   async findAllByEstado(facultad?: string, carrera?: string, tipoPago?: string): Promise<{ asistio: string, total: number }[]> {
@@ -396,22 +429,34 @@ export class AgendamientoService {
         'COUNT(*) AS total'
       ])
       .innerJoin('agendamiento.user', 'user')
-      .innerJoin('agendamiento.pagos', 'pagos')
-      .groupBy('agendamiento.asistio');
 
     // Condiciones opcionales
     if (facultad) {
-      queryBuilder.andWhere('user.facultad_id = :facultad', { facultad });
-
-      // Si el usuario tiene una facultad definida, también verificar su carrera
-      queryBuilder.andWhere('(user.carrera_id IS NOT NULL OR user.facultad_id = :facultad)', { facultad });
-    }
-    if (carrera) {
-      queryBuilder.andWhere('user.carrera = :carrera', { carrera });
+      queryBuilder.leftJoin('user.carrera', 'carr')
+        .leftJoin('user.facultad', 'fac')
+        .leftJoin('carr.facultad', 'c_fac')
+      if (!carrera) {
+        queryBuilder.andWhere(
+          '((user.facultad_id IS NOT NULL AND fac.id = :facultad) OR (user.carrera_id IS NOT NULL AND c_fac.id = :facultad))',
+          { facultad }
+        );
+      } else {
+        queryBuilder.andWhere(
+          '(user.carrera_id IS NOT NULL AND user.carrera_id = :carrera)',
+          { facultad, carrera }
+        );
+      }
     }
     if (tipoPago) {
-      queryBuilder.andWhere('pagos.metodo_pago = :tipoPago', { tipoPago });
+      queryBuilder.leftJoin('agendamiento.pagos', 'pagos')
+      queryBuilder.leftJoin('agendamiento.membresias', 'membresia')
+      queryBuilder.leftJoin('membresia.pagos', 'm_pagos')
+      queryBuilder.andWhere(
+        '((agendamiento.pago_id IS NOT NULL AND pagos.metodo_pago = :tipoPago) OR (agendamiento.membresia_id IS NOT NULL AND  m_pagos.metodo_pago = :tipoPago))',
+        { tipoPago });
     }
+
+    queryBuilder.groupBy('agendamiento.asistio');
 
     return await queryBuilder.getRawMany()
       .then(data => data.map(({ asistio, total }) => ({ asistio, total: Number(total) })));

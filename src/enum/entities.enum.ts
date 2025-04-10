@@ -20,8 +20,8 @@ export enum Estado {
 }
 
 export enum Metodo {
-  DIARIO = 'Diario', // tarjeta?
-  MENSUAL = 'Mensual', // tranfrencia?
+    DIARIO = 'Diario', // tarjeta?
+    MENSUAL = 'Mensual', // tranfrencia?
 }
 
 export enum EstadoPago {
@@ -29,3 +29,13 @@ export enum EstadoPago {
     APROBADO = 'Aprobado',
     RECHAZADO = 'Rechazado',
 }
+
+export const diasEn = {
+    Monday: 'Lunes',
+    Tuesday: 'Martes',
+    Wednesday: 'Miércoles',
+    Thursday: 'Jueves',
+    Friday: 'Viernes',
+    Saturday: 'Sábado',
+    Sunday: 'Domingo',
+};

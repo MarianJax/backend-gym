@@ -2,7 +2,6 @@ import { Rol } from '../rol/entities/rol.entity';
 import AppDataSource from '../config/typeorm';
 import { Facultad } from '../facultad/entities/facultad.entity';
 import { User } from '../user/entities/user.entity';
-import { CreateAuthDto } from 'src/auth/dto/create-auth.dto';
 
 const user = [
   {
@@ -44,7 +43,7 @@ const seed = async () => {
   const faultadRepository = AppDataSource.getRepository(Facultad);
   const rolesRepository = AppDataSource.getRepository(Rol);
   const userRepository = AppDataSource.getRepository(User);
-  /*
+
   const facultades = faultadRepository.create([
     {
       nombre: 'Facultad de Ingeniería y Ciencias Aplicadas',
@@ -233,12 +232,12 @@ const seed = async () => {
       ],
     },
   ]);
-*/
+
   const roles = rolesRepository.create([
     { nombre: 'Administrador' },
-    { nombre: 'Estudiante', monto_pago: 0.5, tiempo: 1, cupo: 40 },
-    { nombre: 'Docente', monto_pago: 1.0, tiempo: 1, cupo: 40 },
-    { nombre: 'Funcionario', monto_pago: 1.0, tiempo: 1, cupo: 40 },
+    { nombre: 'Estudiante', monto_pago: 1.0, tiempo: 1, cupo: 40 },
+    { nombre: 'Docente', monto_pago: 1.5, tiempo: 1, cupo: 40 },
+    { nombre: 'Funcionario', monto_pago: 1.5, tiempo: 1, cupo: 40 },
     { nombre: 'Entrenador' },
   ]);
 
@@ -257,7 +256,7 @@ const seed = async () => {
     }),
   ]);
 
-  //await faultadRepository.save(facultades);
+  await faultadRepository.save(facultades);
   await rolesRepository.save(roles);
   console.log('Datos insertados correctamente.');
 };
