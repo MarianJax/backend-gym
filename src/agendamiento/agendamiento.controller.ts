@@ -9,7 +9,7 @@ import {
   Query
 } from '@nestjs/common';
 import { AgendamientoService } from './agendamiento.service';
-import { CreateAgendamientoDto } from './dto/create-agendamiento.dto';
+import { CreateAgendamientoDto, CreateAgendamientoForMembresia } from './dto/create-agendamiento.dto';
 import { UpdateAgendamientoDto } from './dto/update-agendamiento.dto';
 
 @Controller('agendamiento')
@@ -21,9 +21,19 @@ export class AgendamientoController {
     return this.agendamientoService.create(createAgendamientoDto);
   }
 
+  @Post('membresia')
+  createAgendamientoForMembresia(@Body() data: CreateAgendamientoForMembresia) {
+    return this.agendamientoService.createAgendamientoForMembresia(data);
+  }
+
   @Get('with-pending-validation')
   findAllWithPendingValidation(@Query('_limit') limit: number, @Query('_all') all: boolean) {
     return this.agendamientoService.findAllWithPendingValidation(limit, all);
+  }
+
+  @Get('for-date')
+  findAllDate(@Query('_fecha') fecha: string) {
+    return this.agendamientoService.findAllDate(fecha);
   }
 
   @Get()

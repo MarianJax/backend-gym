@@ -2,6 +2,7 @@ import { Membresia } from '../../membresia/entities/membresia.entity';
 import { Pago } from '../../pago/entities/pago.entity';
 import { User } from '../../user/entities/user.entity';
 import {
+  BeforeInsert,
   Column,
   Entity,
   JoinColumn,
@@ -38,5 +39,10 @@ export class Agendamiento {
   @ManyToOne(() => User, (user) => user.agendamientos)
   @JoinColumn({ name: 'usuario_id' })
   user: User;
+
+  @BeforeInsert()
+  InitEstado() {
+    this.asistio = null;
+  }
 
 }

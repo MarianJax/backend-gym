@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, In, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
-import { CreateAgendamientoDto } from './dto/create-agendamiento.dto';
+import { CreateAgendamientoDto, CreateAgendamientoForMembresia } from './dto/create-agendamiento.dto';
 import { UpdateAgendamientoDto } from './dto/update-agendamiento.dto';
 import { Agendamiento } from './entities/agendamiento.entity';
 import { MembresiaService } from 'src/membresia/membresia.service';
@@ -74,7 +74,6 @@ export class AgendamientoService {
 
   async create(createAgendamientoDto: CreateAgendamientoDto): Promise<any> {
     try {
-      console.log('Holaaaaaaaaaaaaaaaaaaaaaa ->', createAgendamientoDto);
       let membresia: Membresia | null = null;
       const users = await this.userService.findOne(
         createAgendamientoDto.usuario_id,
@@ -232,6 +231,39 @@ export class AgendamientoService {
       relations: ['user', 'user.roles', 'pagos', 'membresias', 'membresias.pagos', 'pagos.validacion_pago', 'membresias.pagos.validacion_pago'],
       take,
     });
+  }
+
+  async findAllDate(fecha: string): Promise<Agendamiento[]> {
+    const fecha_agendamiento = new Date(fecha);
+    const startDate = new Date(fecha_agendamiento);
+    startDate.setHours(0, 0, 0, 0);
+    const endDate = new Date(fecha_agendamiento);
+    endDate.setHours(23, 59, 59, 999);
+
+    return await this.agendamientoRepository.find({
+      where: {
+        fecha: Between(startDate, endDate)
+      }
+    });
+  }
+
+  async createAgendamientoForMembresia({ fecha, hora_fin, hora_inicio, membresia, usuario_id }:
+    CreateAgendamientoForMembresia): Promise<Agendamiento> {
+    const user = await this.userService.findOne(usuario_id)
+
+    const memb = await this.membresiaService.findOne(membresia);
+    if (!memb) {
+      throw new BadRequestException('Membresía no encontrada');
+    }
+
+    const agendamiento = this.agendamientoRepository.create({
+      fecha,
+      hora_fin,
+      hora_inicio,
+      user,
+      membresias: memb
+    });
+    return await this.agendamientoRepository.save(agendamiento);
   }
 
   async findByUsuarioId(id: string, dat: string): Promise<Agendamiento[]> {
