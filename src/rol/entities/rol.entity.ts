@@ -17,8 +17,11 @@ export class Rol {
   @Column({ name: 'nombre', type: 'varchar', length: 50 })
   nombre: string;
 
-  @Column({ name: 'monto_pago', type: 'decimal', precision: 10, scale: 2, nullable: true })
-  monto_pago?: number;
+  @Column({ name: 'pago_diario', type: 'decimal', precision: 10, scale: 2, nullable: true })
+  pago_diario?: number;
+
+  @Column({ name: 'pago_mensual', type: 'decimal', precision: 10, scale: 2, nullable: true })
+  pago_mensual?: number;
 
   @Column({ name: 'tiempo', type: 'integer', nullable: true })
   tiempo?: number;

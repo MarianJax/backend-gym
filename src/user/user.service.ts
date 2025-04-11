@@ -6,6 +6,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { RolService } from 'src/rol/rol.service';
 import { Rol } from 'src/rol/entities/rol.entity';
+import { FacultadService } from 'src/facultad/facultad.service';
+import { CarreraService } from 'src/carrera/carrera.service';
 
 @Injectable()
 export class UserService {
@@ -14,6 +16,8 @@ export class UserService {
     private userRepository: Repository<User>,
 
     private rolService: RolService,
+    private facultadService: FacultadService,
+    private carreraService: CarreraService
   ) { }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -59,8 +63,30 @@ export class UserService {
     try {
       return await this.userRepository.findOne({
         where: { id },
-        relations: ['roles'],
-        select: ['id', 'nombre', 'apellido', 'correo', 'telefono', 'cedula'],
+        relations: ['roles', 'carrera', 'facultad'],
+        select: {
+          id: true,
+          nombre: true,
+          apellido: true,
+          correo: true,
+          cedula: true,
+          carrera: {
+            id: true,
+            nombre: true,
+          },
+          facultad: {
+            id: true,
+            nombre: true,
+          },
+          roles: {
+            id: true,
+            nombre: true,
+            pago_diario: true,
+            pago_mensual: true,
+            tiempo: true,
+            cupo: true,
+          }
+        },
       });
     } catch (error) {
       console.log(error);
@@ -80,23 +106,42 @@ export class UserService {
     }
   }
 
-  async update(id: string, { roles: rls, ...data }: UpdateUserDto): Promise<void> {
+  async update(id: string, { roles: rls, facultad: facultadId, carrera: carreraId, ...data }: UpdateUserDto): Promise<void> {
     try {
-      const roles = await this.rolService.findAllById(rls);
-      // Obtener el usuario por su ID
-      const user = await this.userRepository.findOne({ where: { id }, relations: ['roles'] });
+      const user = await this.userRepository.findOne({ where: { id }, relations: ['roles', 'facultad', 'carrera'], });
 
       if (!user) {
         throw new BadRequestException('Usuario no encontrado');
       }
 
-      Object.assign(user, data);
+      if (rls) {
+        const roles = await this.rolService.findAllById(rls);
+        // Limpiar la relación many-to-many (eliminar relaciones previas)
+        user.roles = [];
 
-      // Limpiar la relación many-to-many (eliminar relaciones previas)
-      user.roles = [];
+        // Asignar los roles nuevos a la entidad de usuario
+        user.roles = roles;
+      }
 
-      // Asignar los roles nuevos a la entidad de usuario
-      user.roles = roles;
+        Object.assign(user, data);
+
+      // --- Actualizar facultad o carrera ---
+      if (facultadId) {
+        const facultad = await this.facultadService.findOne(facultadId);
+        if (!facultad) {
+          throw new BadRequestException('Facultad no encontrada');
+        }
+        user.facultad = facultad;
+        user.carrera = null; // Limpiar carrera si se pasa facultad
+      }
+
+      if (carreraId) {
+        const carrera = await this.carreraService.findOne(carreraId);
+        if (!carrera) {
+          throw new BadRequestException('Carrera no encontrada');
+        }
+        user.carrera = carrera;
+      }
 
       // Guardar el usuario con los nuevos roles
       await this.userRepository.save(user);
@@ -122,7 +167,7 @@ export class UserService {
     }
   }
 
-  async count(): Promise<number> { 
+  async count(): Promise<number> {
     return await this.userRepository.count();
   }
 }

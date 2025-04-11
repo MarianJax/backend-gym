@@ -235,9 +235,9 @@ const seed = async () => {
 
   const roles = rolesRepository.create([
     { nombre: 'Administrador' },
-    { nombre: 'Estudiante', monto_pago: 1.0, tiempo: 1, cupo: 40 },
-    { nombre: 'Docente', monto_pago: 1.5, tiempo: 1, cupo: 40 },
-    { nombre: 'Funcionario', monto_pago: 1.5, tiempo: 1, cupo: 40 },
+    { nombre: 'Estudiante', pago_diario: 1.0, tiempo: 1, cupo: 40 },
+    { nombre: 'Docente', pago_diario: 1.5, tiempo: 1, cupo: 40 },
+    { nombre: 'Funcionario', pago_diario: 1.5, tiempo: 1, cupo: 40 },
     { nombre: 'Entrenador' },
   ]);
 
