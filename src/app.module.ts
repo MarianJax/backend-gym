@@ -18,6 +18,7 @@ import { CarreraModule } from './carrera/carrera.module';
 import { RutinaModule } from './rutina/rutina.module';
 import { EjerciciosModule } from './ejercicios/ejercicios.module';
 import configServ from '../config/config-reg';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import configServ from '../config/config-reg';
     CarreraModule,
     RutinaModule,
     EjerciciosModule,
+    ReportsModule,
   ],
   controllers: [],
   providers: [],
