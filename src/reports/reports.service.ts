@@ -39,6 +39,11 @@ export class ReportsService {
 
     const reservasPorEstados = await this.agendamientoService.findAllByEstado(facultad, carrera, tipoPago)
 
+    console.log(reservasPorEstados, 'reservasPorEstados')
+    console.log(reservasPorRolesYDias, 'reservasPorRolesYDias');
+    console.log(reservasPorDias, 'reservasPorDias');
+    console.log(reservasRol, 'reservasRol');
+
     return {
       reservasRol,
       reservasPorRolesYDias,

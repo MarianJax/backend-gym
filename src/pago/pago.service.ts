@@ -10,7 +10,7 @@ export class PagoService {
   constructor(
     @InjectRepository(Pago)
     private readonly PagoRepository: Repository<Pago>,
-  ) { }
+  ) {}
 
   async create(createPagoDto: CreatePagoDto): Promise<Pago> {
     return await this.PagoRepository.create(createPagoDto);
@@ -26,10 +26,10 @@ export class PagoService {
         validacion_pago: {
           users: {
             roles: {
-              nombre: In(['Estudiante', 'Funcionario']),
-            }
-          }
-        }
+              nombre: In(['Estudiante', 'Funcionario', 'Docente']),
+            },
+          },
+        },
       },
       order: { fecha_pago: 'ASC' },
       select: {
@@ -45,11 +45,15 @@ export class PagoService {
             cedula: true,
             roles: {
               nombre: true,
-            }
-          }
+            },
+          },
         },
       },
-      relations: ['validacion_pago', 'validacion_pago.users', 'validacion_pago.users.roles'],
+      relations: [
+        'validacion_pago',
+        'validacion_pago.users',
+        'validacion_pago.users.roles',
+      ],
     });
   }
 

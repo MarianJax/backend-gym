@@ -1,4 +1,4 @@
-import { Metodo } from 'src/enum/entities.enum';
+import { Metodo } from '../../enum/entities.enum';
 import { Agendamiento } from '../../agendamiento/entities/agendamiento.entity';
 import { Membresia } from '../../membresia/entities/membresia.entity';
 import { ValidacionesPago } from '../../validaciones_pago/entities/validaciones_pago.entity';

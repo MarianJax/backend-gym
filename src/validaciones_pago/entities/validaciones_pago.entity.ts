@@ -1,4 +1,4 @@
-import { EstadoPago } from 'src/enum/entities.enum';
+import { EstadoPago } from '../../enum/entities.enum';
 import { Pago } from '../../pago/entities/pago.entity';
 import { User } from '../../user/entities/user.entity';
 import { AfterUpdate, BeforeUpdate, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';

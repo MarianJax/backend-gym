@@ -235,12 +235,12 @@ const seed = async () => {
 
   const roles = rolesRepository.create([
     { nombre: 'Administrador' },
-    { nombre: 'Estudiante', pago_diario: 1.0, tiempo: 1, cupo: 40 },
-    { nombre: 'Docente', pago_diario: 1.5, tiempo: 1, cupo: 40 },
-    { nombre: 'Funcionario', pago_diario: 1.5, tiempo: 1, cupo: 40 },
+    { nombre: 'Estudiante', pago_diario: 1.0, pago_mensual: 25.00, tiempo: 1, cupo: 40 },
+    { nombre: 'Docente', pago_diario: 1.5, pago_mensual: 30.00, tiempo: 1, cupo: 40 },
+    { nombre: 'Funcionario', pago_diario: 1.5, pago_mensual: 30.00, tiempo: 1, cupo: 40 },
     { nombre: 'Entrenador' },
   ]);
-
+/*
   Promise.all([
     user.map(async (u) => {
       const newUser = userRepository.create({
@@ -254,10 +254,10 @@ const seed = async () => {
 
       return await userRepository.save(newUser);
     }),
-  ]);
+  ]);*/
 
   await faultadRepository.save(facultades);
-  await rolesRepository.save(roles);
+  //await rolesRepository.save(roles);
   console.log('Datos insertados correctamente.');
 };
 
