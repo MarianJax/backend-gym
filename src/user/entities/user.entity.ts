@@ -84,10 +84,4 @@ export class User {
     this.contrasena = await bcrypt.hash(this.contrasena, salt);
   }
 
-  @BeforeUpdate()
-  async hashPasswordUpdated() {
-    if (!this.contrasena) return;
-    const salt = await bcrypt.genSalt(10);
-    this.contrasena = await bcrypt.hash(this.contrasena, salt);
-  }
 }

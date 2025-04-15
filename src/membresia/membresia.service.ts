@@ -15,11 +15,14 @@ export class MembresiaService {
 
     private readonly userService: UserService,
     private readonly pagoService: PagoService,
-  ) { }
+  ) {}
 
-  async create(
-    { costo, fecha_inicio, pago_id, usuario_id }: CreateMembresiaDto,
-  ): Promise<Membresia> {
+  async create({
+    costo,
+    fecha_inicio,
+    pago_id,
+    usuario_id,
+  }: CreateMembresiaDto): Promise<Membresia> {
     try {
       const users = await this.userService.findOne(usuario_id);
       const pagos = await this.pagoService.findOne(pago_id);
@@ -28,11 +31,10 @@ export class MembresiaService {
         costo,
         fecha_inicio,
         users,
-        pagos
+        pagos,
       });
 
       return await this.MembresiaRepository.save(membresia);
-
     } catch (error) {
       console.log(error);
       if (error.code === '23505') {
@@ -44,8 +46,8 @@ export class MembresiaService {
   async findAll(): Promise<Membresia[]> {
     return await this.MembresiaRepository.find({
       order: {
-        fecha_inicio: 'ASC'
-      }
+        fecha_inicio: 'ASC',
+      },
     });
   }
 
@@ -57,17 +59,17 @@ export class MembresiaService {
     id: string,
     updateMembresiaDto: UpdateMembresiaDto,
   ): Promise<void> {
-    await this.MembresiaRepository.update(
-      id,
-      updateMembresiaDto,
-    );
+    await this.MembresiaRepository.update(id, updateMembresiaDto);
   }
 
   async remove(id: string): Promise<void> {
     await this.MembresiaRepository.delete(id);
   }
 
-  async findActiveMembresiaByIdAndDate(id: string, fecha: Date): Promise<Membresia> {
+  async findActiveMembresiaByIdAndDate(
+    id: string,
+    fecha: Date,
+  ): Promise<Membresia> {
     try {
       return await this.MembresiaRepository.findOneOrFail({
         where: {
@@ -84,23 +86,28 @@ export class MembresiaService {
     }
   }
 
-  async findByUserIdAndDate(id: string, fecha: Date): Promise<Membresia[]> {
+  async findByUserIdAndDate(id: string, fecha: Date): Promise<Membresia> {
     try {
-      const membresia = await this.MembresiaRepository.find();
-      console.log(fecha, membresia);
-      return await this.MembresiaRepository.find({
+      return await this.MembresiaRepository.findOne({
         where: {
           users: { id },
           fecha_fin: MoreThanOrEqual(fecha),
           fecha_inicio: LessThanOrEqual(fecha),
         },
+        select: {
+          id: true,
+          pagos: {
+            id: true,
+            validacion_pago: {
+              estado: true,
+            },
+          },
+        },
+        relations: ['pagos', 'pagos.validacion_pago'],
       });
     } catch (error) {
       console.log(error);
-      throw new BadRequestException(
-        'No se pudo obtener la información',
-      );
+      throw new BadRequestException('No se pudo obtener la información');
     }
   }
-  
 }
