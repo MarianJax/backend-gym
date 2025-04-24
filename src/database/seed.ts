@@ -240,7 +240,7 @@ const seed = async () => {
     { nombre: 'Funcionario', pago_diario: 1.5, pago_mensual: 30.00, tiempo: 1, cupo: 40 },
     { nombre: 'Entrenador' },
   ]);
-/*
+
   Promise.all([
     user.map(async (u) => {
       const newUser = userRepository.create({
@@ -254,10 +254,10 @@ const seed = async () => {
 
       return await userRepository.save(newUser);
     }),
-  ]);*/
+  ]);
 
   await faultadRepository.save(facultades);
-  //await rolesRepository.save(roles);
+  await rolesRepository.save(roles);
   console.log('Datos insertados correctamente.');
 };
 
