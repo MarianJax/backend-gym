@@ -145,7 +145,6 @@ export class AuthService {
   }
 
   async authenticateUser(data: { usuario: string; clave: string }) {
-    const httpsAgent = new Agent({ rejectUnauthorized: false });
     const loginUrl = this.configService.get('config.DEV')
       ? this.configService.get('config.LOGIN_URL_DEV')
       : this.configService.get('config.LOGIN_URL_PROD');
@@ -158,7 +157,6 @@ export class AuthService {
               'Content-Type': 'application/json',
               'X-Api-Key': this.configService.get('config.X_API_KEY') as string,
             },
-            httpsAgent,
           })
           .pipe(
             map((response) => {

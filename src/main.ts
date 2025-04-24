@@ -2,19 +2,26 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import * as express from 'express';
+import { ExpressAdapter } from '@nestjs/platform-express';
+import * as fs from 'fs';
 
 async function bootstrap() {
+  const httpsOptions = {
+    key: fs.readFileSync('./ruta/a/tu/clave.key'), // Cambiar la ruta a la ubicación de la clave privada
+    cert: fs.readFileSync('./ruta/a/tu/certificado.crt'), // Cambiar la ruta a la ubicación de la certificado
+  };
+
+  const server = express();
   // Configurar la zona horaria directamente en la app
   Intl.DateTimeFormat().resolvedOptions().timeZone = 'America/Guayaquil';
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(server), {
+    httpsOptions,
+  });
   app.enableCors();
 
   app.useGlobalPipes(
     new ValidationPipe({
-     // whitelist: true,
-      //forbidNonWhitelisted: true,
-      //transform: true,
       exceptionFactory: (errors) => {
         if (errors.length > 0) {
           const formattedErrors = errors.reduce((acc, error) => {
