@@ -5,7 +5,7 @@ import { CreateValidacionesPagoDto } from './dto/create-validaciones_pago.dto';
 import { UpdateValidacionesPagoDto } from './dto/update-validaciones_pago.dto';
 import { ValidacionesPago } from './entities/validaciones_pago.entity';
 import { PagoService } from 'src/pago/pago.service';
-import { UserService } from 'src/user/user.service';
+import { PersonaService } from 'src/persona/persona.service';
 import { EstadoPago } from 'src/enum/entities.enum';
 
 @Injectable()
@@ -14,21 +14,21 @@ export class ValidacionesPagoService {
     @InjectRepository(ValidacionesPago)
     private validacionesPagoRepository: Repository<ValidacionesPago>,
 
-    private readonly userService: UserService,
+    private readonly personaService: PersonaService,
     private readonly pagoService: PagoService,
   ) { }
 
   async create({ evidencia, pago_id, usuario_id, fecha_validacion, tipo }: CreateValidacionesPagoDto) {
     try {
 
-      const user = await this.userService.findOne(usuario_id);
+      const persona = await this.personaService.findOne(usuario_id);
       const pago = await this.pagoService.findOne(pago_id);
 
       return this.validacionesPagoRepository.create({
         evidencia,
         fecha_validacion,
         tipo,
-        users: user,
+        personas: persona,
         pagos: pago
       });
 

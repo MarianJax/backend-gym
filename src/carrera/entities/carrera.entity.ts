@@ -1,5 +1,5 @@
 import { Facultad } from '../../facultad/entities/facultad.entity';
-import { User } from '../../user/entities/user.entity';
+import { Persona } from '../../persona/entities/persona.entity';
 import {
   Column,
   Entity,
@@ -17,8 +17,8 @@ export class Carrera {
   @Column({ name: 'nombre', type: 'varchar', length: 100 })
   nombre: string;
 
-  @OneToOne(() => User, (user) => user.carrera)
-  user: User;
+  @OneToOne(() => Persona, (persona) => persona.carrera)
+  persona: Persona;
 
   @ManyToOne(() => Facultad, (facultad) => facultad.carrera)
   @JoinColumn({ name: 'facultad_id' })

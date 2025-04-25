@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserModule } from './user/user.module';
+import { PersonaModule } from './persona/persona.module';
 import { AgendamientoModule } from './agendamiento/agendamiento.module';
 import { PagoModule } from './pago/pago.module';
 import { HorarioModule } from './horario/horario.module';
@@ -39,7 +39,7 @@ import { ReportsModule } from './reports/reports.module';
       logging: false,
       schema: 'esq_gimnasio',
     }),
-    UserModule,
+    PersonaModule,
     AgendamientoModule,
     MaquinaModule,
     PagoModule,

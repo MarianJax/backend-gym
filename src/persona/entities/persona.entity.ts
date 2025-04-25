@@ -21,9 +21,9 @@ import {
   Unique,
 } from 'typeorm';
 
-@Entity({ schema: 'esq_gimnasio', name: 'usuarios' })
-export class User {
-  @PrimaryGeneratedColumn('uuid', { name: 'id_usuario' })
+@Entity({ schema: 'esq_gimnasio', name: 'personas' })
+export class Persona {
+  @PrimaryGeneratedColumn('uuid', { name: 'id_persona' })
   id: string;
 
   @Column({ name: 'nombre', type: 'varchar', length: 100 })
@@ -56,25 +56,25 @@ export class User {
   @Column({ name: 'telefono', type: 'varchar', length: 15, nullable: true })
   telefono: string;
 
-  @OneToOne(() => Facultad, (facultad) => facultad.user, { nullable: true })
+  @OneToOne(() => Facultad, (facultad) => facultad.persona, { nullable: true })
   @JoinColumn({ name: 'facultad_id' })
   facultad: Facultad;
 
-  @OneToOne(() => Carrera, (carrera) => carrera.user, { nullable: true })
+  @OneToOne(() => Carrera, (carrera) => carrera.persona, { nullable: true })
   @JoinColumn({ name: 'carrera_id' })
   carrera: Carrera;
 
-  @ManyToMany(() => Rol, (rol) => rol.users, { cascade: true })
+  @ManyToMany(() => Rol, (rol) => rol.personas, { cascade: true })
   @JoinTable()
   roles: Rol[];
 
-  @OneToMany(() => Membresia, (membresia) => membresia.users)
+  @OneToMany(() => Membresia, (membresia) => membresia.personas)
   membresias: Membresia[];
 
-  @OneToMany(() => Agendamiento, (agendamiento) => agendamiento.user)
+  @OneToMany(() => Agendamiento, (agendamiento) => agendamiento.persona)
   agendamientos: Agendamiento[];
 
-  @OneToMany(() => ValidacionesPago, (validacion_pago) => validacion_pago.users)
+  @OneToMany(() => ValidacionesPago, (validacion_pago) => validacion_pago.personas)
   validacion_pago: ValidacionesPago[];
 
   @BeforeInsert()

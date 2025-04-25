@@ -1,6 +1,6 @@
 import { Agendamiento } from '../../agendamiento/entities/agendamiento.entity';
 import { Pago } from '../../pago/entities/pago.entity';
-import { User } from '../../user/entities/user.entity';
+import { Persona } from '../../persona/entities/persona.entity';
 import {
   BeforeInsert,
   Column,
@@ -26,9 +26,9 @@ export class Membresia {
   @Column({ name: 'costo', type: 'decimal', precision: 10, scale: 2 })
   costo: number
 
-  @ManyToOne(() => User, (user) => user.membresias)
+  @ManyToOne(() => Persona, (persona) => persona.membresias)
   @JoinColumn({ name: 'usuario_id' })
-  users: User;
+  personas: Persona;
 
   @OneToMany(() => Agendamiento, (agendamiento) => agendamiento.membresias)
   agendamientos: Agendamiento[];

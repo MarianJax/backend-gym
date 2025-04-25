@@ -1,31 +1,31 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
+import { CreatePersonaDto } from './dto/create-persona.dto';
+import { UpdatePersonaDto } from './dto/update-persona.dto';
+import { Persona } from './entities/persona.entity';
 import { RolService } from 'src/rol/rol.service';
 import { Rol } from 'src/rol/entities/rol.entity';
 import { FacultadService } from 'src/facultad/facultad.service';
 import { CarreraService } from 'src/carrera/carrera.service';
 
 @Injectable()
-export class UserService {
+export class PersonaService {
   constructor(
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
+    @InjectRepository(Persona)
+    private personaRepository: Repository<Persona>,
 
     private rolService: RolService,
     private facultadService: FacultadService,
     private carreraService: CarreraService
   ) { }
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createPersonaDto: CreatePersonaDto): Promise<Persona> {
     try {
-      const roles = await this.rolService.findAllById(createUserDto.roles);
+      const roles = await this.rolService.findAllById(createPersonaDto.roles);
 
-      const existEmail = await this.userRepository.findOne({
-        where: { correo: createUserDto.correo },
+      const existEmail = await this.personaRepository.findOne({
+        where: { correo: createPersonaDto.correo },
       });
 
       if (existEmail) {
@@ -34,15 +34,15 @@ export class UserService {
         );
       }
 
-      const user = this.userRepository.create({
-        ...createUserDto,
+      const persona = this.personaRepository.create({
+        ...createPersonaDto,
         roles,
       });
 
-      console.log(user);
+      console.log(persona);
 
       //  crea un usuario con el rol que se le asignó
-      return await this.userRepository.save(user);
+      return await this.personaRepository.save(persona);
     } catch (error) {
       console.log(error);
       if (error instanceof BadRequestException) {
@@ -51,17 +51,17 @@ export class UserService {
     }
   }
 
-  async save(user: User): Promise<User> {
-    return await this.userRepository.save(user);
+  async save(persona: Persona): Promise<Persona> {
+    return await this.personaRepository.save(persona);
   }
 
-  async findAll(): Promise<User[]> {
-    return await this.userRepository.find({ relations: ['roles'] });
+  async findAll(): Promise<Persona[]> {
+    return await this.personaRepository.find({ relations: ['roles'] });
   }
 
-  async findOne(id: string): Promise<User> {
+  async findOne(id: string): Promise<Persona> {
     try {
-      return await this.userRepository.findOne({
+      return await this.personaRepository.findOne({
         where: { id },
         relations: ['roles', 'carrera', 'facultad'],
         select: {
@@ -94,9 +94,9 @@ export class UserService {
     }
   }
 
-  async findOneByEmail(correo: string): Promise<User> {
+  async findOneByEmail(correo: string): Promise<Persona> {
     try {
-      return await this.userRepository.findOne({
+      return await this.personaRepository.findOne({
         where: { correo },
         relations: ['roles'],
       });
@@ -106,24 +106,24 @@ export class UserService {
     }
   }
 
-  async update(id: string, { roles: rls, facultad: facultadId, carrera: carreraId, ...data }: UpdateUserDto): Promise<void> {
+  async update(id: string, { roles: rls, facultad: facultadId, carrera: carreraId, ...data }: UpdatePersonaDto): Promise<void> {
     try {
-      const user = await this.userRepository.findOne({ where: { id }, relations: ['roles', 'facultad', 'carrera'], });
+      const persona = await this.personaRepository.findOne({ where: { id }, relations: ['roles', 'facultad', 'carrera'], });
 
-      if (!user) {
+      if (!persona) {
         throw new BadRequestException('Usuario no encontrado');
       }
 
       if (rls) {
         const roles = await this.rolService.findAllById(rls);
         // Limpiar la relación many-to-many (eliminar relaciones previas)
-        user.roles = [];
+        persona.roles = [];
 
         // Asignar los roles nuevos a la entidad de usuario
-        user.roles = roles;
+        persona.roles = roles;
       }
 
-        Object.assign(user, data);
+      Object.assign(persona, data);
 
       // --- Actualizar facultad o carrera ---
       if (facultadId) {
@@ -131,8 +131,8 @@ export class UserService {
         if (!facultad) {
           throw new BadRequestException('Facultad no encontrada');
         }
-        user.facultad = facultad;
-        user.carrera = null; // Limpiar carrera si se pasa facultad
+        persona.facultad = facultad;
+        persona.carrera = null; // Limpiar carrera si se pasa facultad
       }
 
       if (carreraId) {
@@ -140,11 +140,11 @@ export class UserService {
         if (!carrera) {
           throw new BadRequestException('Carrera no encontrada');
         }
-        user.carrera = carrera;
+        persona.carrera = carrera;
       }
 
       // Guardar el usuario con los nuevos roles
-      await this.userRepository.save(user);
+      await this.personaRepository.save(persona);
 
     } catch (error) {
       console.log(error);
@@ -154,13 +154,13 @@ export class UserService {
   }
 
   async remove(id: string): Promise<void> {
-    await this.userRepository.delete(id);
+    await this.personaRepository.delete(id);
   }
 
-  async upsertUser(data: { nombre: string, apellido: string, cedula: string, correo: string, roles: Rol[] }): Promise<any> {
+  async upsertPersona(data: { nombre: string, apellido: string, cedula: string, correo: string, roles: Rol[] }): Promise<any> {
     try {
-      const user = await this.userRepository.upsert(data, { conflictPaths: ['correo'], skipUpdateIfNoValuesChanged: true, });
-      return user;
+      const persona = await this.personaRepository.upsert(data, { conflictPaths: ['correo'], skipUpdateIfNoValuesChanged: true, });
+      return persona;
     } catch (error) {
       console.log(error);
       throw new BadRequestException('Error al insertar o actualizar el usuario', error);
@@ -168,6 +168,6 @@ export class UserService {
   }
 
   async count(): Promise<number> {
-    return await this.userRepository.count();
+    return await this.personaRepository.count();
   }
 }

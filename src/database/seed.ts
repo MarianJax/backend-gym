@@ -1,9 +1,9 @@
 import { Rol } from '../rol/entities/rol.entity';
 import AppDataSource from '../config/typeorm';
 import { Facultad } from '../facultad/entities/facultad.entity';
-import { User } from '../user/entities/user.entity';
+import { Persona } from '../persona/entities/persona.entity';
 
-const user = [
+const persona = [
   {
     nombre: 'Admin',
     apellido: 'Admin',
@@ -42,7 +42,7 @@ const seed = async () => {
   await AppDataSource.initialize();
   const faultadRepository = AppDataSource.getRepository(Facultad);
   const rolesRepository = AppDataSource.getRepository(Rol);
-  const userRepository = AppDataSource.getRepository(User);
+  const personaRepository = AppDataSource.getRepository(Persona);
 
   const facultades = faultadRepository.create([
     {
@@ -242,8 +242,8 @@ const seed = async () => {
   ]);
 
   Promise.all([
-    user.map(async (u) => {
-      const newUser = userRepository.create({
+    persona.map(async (u) => {
+      const newPersona = personaRepository.create({
         nombre: u.nombre,
         apellido: u.apellido,
         correo: u.correo,
@@ -252,7 +252,7 @@ const seed = async () => {
         roles: [roles.find((r) => r.nombre === u.roles)],
       });
 
-      return await userRepository.save(newUser);
+      return await personaRepository.save(newPersona);
     }),
   ]);
 

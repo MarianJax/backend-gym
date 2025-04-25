@@ -1,6 +1,6 @@
 import { HorarioEmpleado } from '../../horario_empleado/entities/horario_empleado.entity';
 import { Horario } from '../../horario/entities/horario.entity';
-import { User } from '../../user/entities/user.entity';
+import { Persona } from '../../persona/entities/persona.entity';
 import {
   Column,
   Entity,
@@ -35,6 +35,6 @@ export class Rol {
   @OneToMany(() => HorarioEmpleado, (horario) => horario.rol)
   horario_empleado: HorarioEmpleado[];
 
-  @ManyToMany(() => User, (user) => user.roles)
-  users: User[];
+  @ManyToMany(() => Persona, (persona) => persona.roles)
+  personas: Persona[];
 }

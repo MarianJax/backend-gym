@@ -1,6 +1,6 @@
 import { Membresia } from '../../membresia/entities/membresia.entity';
 import { Pago } from '../../pago/entities/pago.entity';
-import { User } from '../../user/entities/user.entity';
+import { Persona } from '../../persona/entities/persona.entity';
 import {
   BeforeInsert,
   Column,
@@ -36,9 +36,9 @@ export class Agendamiento {
   @JoinColumn({ name: 'pago_id' })
   pagos?: Pago;
 
-  @ManyToOne(() => User, (user) => user.agendamientos)
+  @ManyToOne(() => Persona, (persona) => persona.agendamientos)
   @JoinColumn({ name: 'usuario_id' })
-  user: User;
+  persona: Persona;
 
   @BeforeInsert()
   InitEstado() {

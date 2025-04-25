@@ -9,7 +9,7 @@ import {
   Matches,
 } from 'class-validator';
 
-export class CreateUserDto {
+export class CreatePersonaDto {
   @IsString({ message: 'El nombre debe ser un texto' })
   @Length(3, 150, { message: 'El nombre debe tener al menos 3 caracteres' })
   nombre: string;

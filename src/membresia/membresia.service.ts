@@ -4,7 +4,7 @@ import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { CreateMembresiaDto } from './dto/create-membresia.dto';
 import { UpdateMembresiaDto } from './dto/update-membresia.dto';
 import { Membresia } from './entities/membresia.entity';
-import { UserService } from 'src/user/user.service';
+import { PersonaService } from 'src/persona/persona.service';
 import { PagoService } from 'src/pago/pago.service';
 
 @Injectable()
@@ -13,7 +13,7 @@ export class MembresiaService {
     @InjectRepository(Membresia)
     private readonly MembresiaRepository: Repository<Membresia>,
 
-    private readonly userService: UserService,
+    private readonly personaService: PersonaService,
     private readonly pagoService: PagoService,
   ) {}
 
@@ -24,13 +24,13 @@ export class MembresiaService {
     usuario_id,
   }: CreateMembresiaDto): Promise<Membresia> {
     try {
-      const users = await this.userService.findOne(usuario_id);
+      const personas = await this.personaService.findOne(usuario_id);
       const pagos = await this.pagoService.findOne(pago_id);
 
       const membresia = this.MembresiaRepository.create({
         costo,
         fecha_inicio,
-        users,
+        personas,
         pagos,
       });
 
@@ -86,11 +86,11 @@ export class MembresiaService {
     }
   }
 
-  async findByUserIdAndDate(id: string, fecha: Date): Promise<Membresia> {
+  async findByPersonaIdAndDate(id: string, fecha: Date): Promise<Membresia> {
     try {
       return await this.MembresiaRepository.findOne({
         where: {
-          users: { id },
+          personas: { id },
           fecha_fin: MoreThanOrEqual(fecha),
           fecha_inicio: LessThanOrEqual(fecha),
         },

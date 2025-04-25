@@ -1,7 +1,7 @@
 import { EstadoPago } from '../../enum/entities.enum';
 import { Pago } from '../../pago/entities/pago.entity';
-import { User } from '../../user/entities/user.entity';
-import { AfterUpdate, BeforeUpdate, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Persona } from '../../persona/entities/persona.entity';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ schema: 'esq_gimnasio', name: 'validaciones_pagos' })
 export class ValidacionesPago {
@@ -25,7 +25,7 @@ export class ValidacionesPago {
     pagos: Pago;
 
 
-    @ManyToOne(() => User, (user) => user.validacion_pago)
+    @ManyToOne(() => Persona, (persona) => persona.validacion_pago)
     @JoinColumn({ name: 'usuario_id' })
-    users: User;
+    personas: Persona;
 }

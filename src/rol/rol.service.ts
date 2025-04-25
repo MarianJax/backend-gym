@@ -41,7 +41,7 @@ export class RolService {
   async findOneByUsuario(id: string): Promise<Rol[]> {
     return await this.rolRepository.find({
       where: {
-        users: { id }
+        personas: { id }
       },
     });
   }

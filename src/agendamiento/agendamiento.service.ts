@@ -16,7 +16,7 @@ import { Agendamiento } from './entities/agendamiento.entity';
 import { MembresiaService } from 'src/membresia/membresia.service';
 import { PagoService } from 'src/pago/pago.service';
 import { RolService } from 'src/rol/rol.service';
-import { UserService } from 'src/user/user.service';
+import { PersonaService } from 'src/persona/persona.service';
 import { diasEn, EstadoPago, Metodo } from '../enum/entities.enum';
 import { ValidacionesPagoService } from 'src/validaciones_pago/validaciones_pago.service';
 
@@ -31,7 +31,7 @@ export class AgendamientoService {
     private membresiaService: MembresiaService,
     private pagoService: PagoService,
     private rolService: RolService,
-    private userService: UserService,
+    private personaService: PersonaService,
     private readonly validacionesPagoService: ValidacionesPagoService,
   ) {}
 
@@ -84,7 +84,7 @@ export class AgendamientoService {
   async create(createAgendamientoDto: CreateAgendamientoDto): Promise<any> {
     try {
       let membresia: Membresia | null = null;
-      const users = await this.userService.findOne(
+      const personas = await this.personaService.findOne(
         createAgendamientoDto.usuario_id,
       );
 
@@ -133,7 +133,7 @@ export class AgendamientoService {
       if (!pagos) {
         throw new BadRequestException('Error al guardar el pago');
       }
-      if (!users) {
+      if (!personas) {
         throw new BadRequestException('Error al guardar el usuario');
       }
       if (createAgendamientoDto.metodo_pago === Metodo.MENSUAL) {
@@ -141,7 +141,7 @@ export class AgendamientoService {
           costo: createAgendamientoDto.monto,
           fecha_inicio: createAgendamientoDto.fecha,
           pago_id: pagos.id,
-          usuario_id: users.id,
+          usuario_id: personas.id,
         });
         const membSave = await this.membresiaService.findOne(membprev.id);
         membresia = membSave;
@@ -154,7 +154,7 @@ export class AgendamientoService {
         hora_inicio: createAgendamientoDto.hora_inicio as Date,
         hora_fin: createAgendamientoDto.hora_fin as Date,
         asistio: false,
-        user: users,
+        persona: personas,
       });
 
       await this.validacionesPagoService.save(evicendia_pago);
@@ -191,7 +191,7 @@ export class AgendamientoService {
     return await this.agendamientoRepository.find({
       where: [
         {
-          user: {
+          persona: {
             roles: {
               nombre: In(['Estudiante', 'Funcionario', 'Docente']),
             },
@@ -199,7 +199,7 @@ export class AgendamientoService {
           pagos,
         },
         {
-          user: {
+          persona: {
             roles: {
               nombre: In(['Estudiante', 'Funcionario', 'Docente']),
             },
@@ -212,7 +212,7 @@ export class AgendamientoService {
       select: {
         id: true,
         fecha: true,
-        user: {
+        persona: {
           nombre: true,
           apellido: true,
           cedula: true,
@@ -243,8 +243,8 @@ export class AgendamientoService {
         },
       },
       relations: [
-        'user',
-        'user.roles',
+        'persona',
+        'persona.roles',
         'pagos',
         'membresias',
         'membresias.pagos',
@@ -276,7 +276,7 @@ export class AgendamientoService {
     membresia,
     usuario_id,
   }: CreateAgendamientoForMembresia): Promise<Agendamiento> {
-    const user = await this.userService.findOne(usuario_id);
+    const persona = await this.personaService.findOne(usuario_id);
 
     const memb = await this.membresiaService.findOne(membresia);
     if (!memb) {
@@ -287,7 +287,7 @@ export class AgendamientoService {
       fecha,
       hora_fin,
       hora_inicio,
-      user,
+      persona,
       membresias: memb,
     });
     return await this.agendamientoRepository.save(agendamiento);
@@ -304,7 +304,7 @@ export class AgendamientoService {
 
     return await this.agendamientoRepository.find({
       where: {
-        user: {
+        persona: {
           id,
         },
         fecha: Between(startDate, endDate),
@@ -315,7 +315,7 @@ export class AgendamientoService {
   async findAll(): Promise<Agendamiento[]> {
     return await this.agendamientoRepository.find({
       where: {
-        user: {
+        persona: {
           roles: {
             nombre: In(['Estudiante', 'Funcionario', 'Docente']),
           },
@@ -327,7 +327,7 @@ export class AgendamientoService {
         asistio: true,
         hora_fin: true,
         hora_inicio: true,
-        user: {
+        persona: {
           nombre: true,
           apellido: true,
           cedula: true,
@@ -336,7 +336,7 @@ export class AgendamientoService {
           },
         },
       },
-      relations: ['user', 'user.roles'],
+      relations: ['persona', 'persona.roles'],
     });
   }
 
@@ -362,8 +362,8 @@ export class AgendamientoService {
   ): Promise<{ rol: string; total: number }[]> {
     const queryBuilder = this.agendamientoRepository
       .createQueryBuilder('agendamiento')
-      .innerJoin('agendamiento.user', 'user')
-      .innerJoin('user.roles', 'role')
+      .innerJoin('agendamiento.persona', 'persona')
+      .innerJoin('persona.roles', 'role')
       .select('role.nombre', 'rol')
       .addSelect('COUNT(*)', 'total')
       .where('role.nombre IN (:...roles)', {
@@ -375,21 +375,21 @@ export class AgendamientoService {
     if (facultad) {
       if (!carrera) {
         queryBuilder
-          .addSelect('user.carrera', 'car')
-          .addSelect('user.facultad', 'fac')
-          .leftJoin('user.carrera', 'carr')
-          .leftJoin('user.facultad', 'facultad')
-          .addGroupBy('user.carrera')
-          .addGroupBy('user.facultad');
+          .addSelect('persona.carrera', 'car')
+          .addSelect('persona.facultad', 'fac')
+          .leftJoin('persona.carrera', 'carr')
+          .leftJoin('persona.facultad', 'facultad')
+          .addGroupBy('persona.carrera')
+          .addGroupBy('persona.facultad');
 
         queryBuilder.andWhere(
-          '((user.facultad_id IS NOT NULL AND user.facultad_id = :facultad) OR (user.carrera_id IS NOT NULL AND carr.facultad_id = :facultad))',
+          '((persona.facultad_id IS NOT NULL AND persona.facultad_id = :facultad) OR (persona.carrera_id IS NOT NULL AND carr.facultad_id = :facultad))',
           { facultad },
         );
       } else {
         queryBuilder
-          .innerJoin('user.carrera', 'carrera')
-          .andWhere('(user.carrera_id IS NOT NULL AND carrera.id = :carrera)', {
+          .innerJoin('persona.carrera', 'carrera')
+          .andWhere('(persona.carrera_id IS NOT NULL AND carrera.id = :carrera)', {
             facultad,
             carrera,
           });
@@ -419,8 +419,8 @@ export class AgendamientoService {
   ): Promise<{ rol: string; dia: string; total: number }[]> {
     const queryBuilder = this.agendamientoRepository
       .createQueryBuilder('agendamiento')
-      .innerJoin('agendamiento.user', 'user')
-      .innerJoin('user.roles', 'role')
+      .innerJoin('agendamiento.persona', 'persona')
+      .innerJoin('persona.roles', 'role')
       .select('role.nombre', 'rol')
       .addSelect("TO_CHAR(agendamiento.fecha, 'Day')", 'dia')
       .addSelect('COUNT(*)', 'total')
@@ -434,16 +434,16 @@ export class AgendamientoService {
     // Condiciones opcionales
     if (facultad && !carrera) {
       queryBuilder
-        .leftJoin('user.facultad', 'fac')
-        .leftJoin('user.carrera', 'carr')
+        .leftJoin('persona.facultad', 'fac')
+        .leftJoin('persona.carrera', 'carr')
         .andWhere(
-          '((user.facultad_id IS NOT NULL AND user.facultad_id = :facultad) OR (user.carrera_id IS NOT NULL AND carr.facultad_id = :facultad))',
+          '((persona.facultad_id IS NOT NULL AND persona.facultad_id = :facultad) OR (persona.carrera_id IS NOT NULL AND carr.facultad_id = :facultad))',
           {
             facultad,
           },
         );
     } else if (carrera) {
-      queryBuilder.andWhere('user.carrera_id = :carrera', { carrera });
+      queryBuilder.andWhere('persona.carrera_id = :carrera', { carrera });
     }
     if (tipoPago) {
       queryBuilder.leftJoin('agendamiento.pagos', 'pagos');
@@ -471,7 +471,7 @@ export class AgendamientoService {
   ): Promise<{ dia: string; total: number }[]> {
     const queryBuilder = this.agendamientoRepository
       .createQueryBuilder('agendamiento')
-      .innerJoin('agendamiento.user', 'user')
+      .innerJoin('agendamiento.persona', 'persona')
       .select("TRIM(TO_CHAR(agendamiento.fecha, 'Day'))", 'dia')
       .addSelect('COUNT(*)', 'total')
       .addSelect('EXTRACT(DOW FROM agendamiento.fecha)', 'orden');
@@ -480,16 +480,16 @@ export class AgendamientoService {
     if (facultad) {
       if (!carrera) {
         queryBuilder
-          .leftJoin('user.carrera', 'carr')
-          .leftJoin('user.facultad', 'fac')
+          .leftJoin('persona.carrera', 'carr')
+          .leftJoin('persona.facultad', 'fac')
           .leftJoin('carr.facultad', 'c_fac')
           .andWhere(
-            '((user.facultad_id IS NOT NULL AND fac.id = :facultad) OR (user.carrera_id IS NOT NULL AND c_fac.id = :facultad))',
+            '((persona.facultad_id IS NOT NULL AND fac.id = :facultad) OR (persona.carrera_id IS NOT NULL AND c_fac.id = :facultad))',
             { facultad },
           );
       } else {
         queryBuilder.andWhere(
-          '(user.carrera_id IS NOT NULL AND user.carrera_id = :carrera)',
+          '(persona.carrera_id IS NOT NULL AND persona.carrera_id = :carrera)',
           { facultad, carrera },
         );
       }
@@ -531,22 +531,22 @@ export class AgendamientoService {
           " ELSE 'Inasistidos' END AS asistio",
         'COUNT(*) AS total',
       ])
-      .innerJoin('agendamiento.user', 'user');
+      .innerJoin('agendamiento.persona', 'persona');
 
     // Condiciones opcionales
     if (facultad) {
       queryBuilder
-        .leftJoin('user.carrera', 'carr')
-        .leftJoin('user.facultad', 'fac')
+        .leftJoin('persona.carrera', 'carr')
+        .leftJoin('persona.facultad', 'fac')
         .leftJoin('carr.facultad', 'c_fac');
       if (!carrera) {
         queryBuilder.andWhere(
-          '((user.facultad_id IS NOT NULL AND fac.id = :facultad) OR (user.carrera_id IS NOT NULL AND c_fac.id = :facultad))',
+          '((persona.facultad_id IS NOT NULL AND fac.id = :facultad) OR (persona.carrera_id IS NOT NULL AND c_fac.id = :facultad))',
           { facultad },
         );
       } else {
         queryBuilder.andWhere(
-          '(user.carrera_id IS NOT NULL AND user.carrera_id = :carrera)',
+          '(persona.carrera_id IS NOT NULL AND persona.carrera_id = :carrera)',
           { facultad, carrera },
         );
       }

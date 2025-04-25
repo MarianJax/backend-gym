@@ -2,13 +2,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
-import { User } from 'src/user/entities/user.entity';
+import { Persona } from 'src/persona/entities/persona.entity';
 import { ILike, Repository } from 'typeorm';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { Rol } from 'src/rol/entities/rol.entity';
-import { UserService } from 'src/user/user.service';
+import { PersonaService } from 'src/persona/persona.service';
 import { RolService } from 'src/rol/rol.service';
 import { HttpService } from '@nestjs/axios';
 import {
@@ -24,7 +24,7 @@ import { Agent } from 'https';
 @Injectable()
 export class AuthService {
   constructor(
-    private userService: UserService,
+    private personaService: PersonaService,
 
     private rolService: RolService,
 
@@ -34,19 +34,19 @@ export class AuthService {
   ) {}
 
   async findByEmail(AuthDto: CreateAuthDto) {
-    const user = await this.userService.findOneByEmail(AuthDto.correo);
+    const persona = await this.personaService.findOneByEmail(AuthDto.correo);
 
-    if (!user || (user && user.contrasena === null)) {
+    if (!persona || (persona && persona.contrasena === null)) {
       try {
-        const dat = await this.authenticateUser({
+        const dat = await this.authenticatePersona({
           usuario: AuthDto.correo,
           clave: AuthDto.contrasena,
         });
         if (dat.state === 'success') {
-          let userUpsert: User = user ? user : new User();
+          let personaUpsert: Persona = persona ? persona : new Persona();
           const rol = await this.validateRol(dat.value.tipo_usuario_array);
           console.log(dat.value.nombres);
-          const upsertedUser = await this.userService.upsertUser({
+          const upsertedPersona = await this.personaService.upsertPersona({
             nombre: dat.value.nombres.split(' ').slice(2).join(' '),
             apellido: dat.value.nombres.split(' ').slice(0, 2).join(' '),
             correo: AuthDto.correo,
@@ -55,28 +55,28 @@ export class AuthService {
           });
 
           if (
-            upsertedUser.user !== undefined &&
-            upsertedUser.user.identifiers[0].id !== undefined
+            upsertedPersona.persona !== undefined &&
+            upsertedPersona.persona.identifiers[0].id !== undefined
           ) {
-            userUpsert = await this.userService.findOne(
-              upsertedUser.user.identifiers[0].id,
+            personaUpsert = await this.personaService.findOne(
+              upsertedPersona.persona.identifiers[0].id,
             );
           }
 
-          const oldRol = userUpsert.roles;
+          const oldRol = personaUpsert.roles;
 
           console.log(oldRol.includes(rol), rol, oldRol);
 
           if (!oldRol.includes(rol)) {
-            userUpsert.roles = [rol, ...oldRol];
+            personaUpsert.roles = [rol, ...oldRol];
           }
 
-          await this.userService.save(userUpsert);
-          const ur = await this.userService.findOneByEmail(AuthDto.correo);
+          await this.personaService.save(personaUpsert);
+          const ur = await this.personaService.findOneByEmail(AuthDto.correo);
 
           return {
             state: 'success',
-            user: {
+            persona: {
               id: ur.id,
               nombres: ur.nombre,
               apellidos: ur.apellido,
@@ -109,24 +109,24 @@ export class AuthService {
 
     const comparaPassword = await bcrypt.compare(
       AuthDto.contrasena,
-      user.contrasena,
+      persona.contrasena,
     );
 
-    console.log(user.contrasena, AuthDto.contrasena, comparaPassword);
+    console.log(persona.contrasena, AuthDto.contrasena, comparaPassword);
 
     if (!comparaPassword) {
       throw new BadRequestException('La contraseña ingresada es incorrecta');
     }
 
-    const { contrasena, roles, ...newUser } = user;
+    const { contrasena, roles, ...newPersona } = persona;
 
     return {
       state: 'success',
-      user: {
-        id: newUser.id,
-        nombres: newUser.nombre,
-        apellidos: newUser.apellido,
-        correo: newUser.correo,
+      persona: {
+        id: newPersona.id,
+        nombres: newPersona.nombre,
+        apellidos: newPersona.apellido,
+        correo: newPersona.correo,
         roles: roles[0].nombre,
       },
     };
@@ -144,7 +144,7 @@ export class AuthService {
     return await this.rolService.findOneByName('Estudiante');
   }
 
-  async authenticateUser(data: { usuario: string; clave: string }) {
+  async authenticatePersona(data: { usuario: string; clave: string }) {
     const loginUrl = this.configService.get('config.DEV')
       ? this.configService.get('config.LOGIN_URL_DEV')
       : this.configService.get('config.LOGIN_URL_PROD');
