@@ -24,7 +24,7 @@ export class PagoService {
     return await this.PagoRepository.find({
       where: {
         validacion_pago: {
-          users: {
+          personas: {
             roles: {
               nombre: In(['Estudiante', 'Funcionario', 'Docente']),
             },
@@ -39,7 +39,7 @@ export class PagoService {
         fecha_pago: true,
         validacion_pago: {
           id: true,
-          users: {
+          personas: {
             apellido: true,
             nombre: true,
             cedula: true,
