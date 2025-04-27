@@ -82,10 +82,22 @@ export class AgendamientoService {
 
   async create(createAgendamientoDto: CreateAgendamientoDto): Promise<any> {
     try {
+      const agendamientoActual = await this.agendamientoRepository.findOne({
+        where: {
+          fecha: createAgendamientoDto.fecha,
+        },
+      });
+
+      if (agendamientoActual) {
+        throw new BadRequestException(
+          'Ya existe un agendamiento para la fecha seleccionada',
+        );
+      }
+
       let membresia: Membresia | null = null;
 
       const fetchRol = await this.distribucionService.findOneByRolName(
-        createAgendamientoDto.rol,
+        createAgendamientoDto.distribucion,
       );
 
       const maximoAlcanzado = await this.verificarMaximoReservas({
@@ -104,7 +116,7 @@ export class AgendamientoService {
       await this.verificarHorasPorRol({
         hora_inicio: createAgendamientoDto.hora_inicio as string,
         hora_fin: createAgendamientoDto.hora_fin as string,
-        rol: createAgendamientoDto.rol,
+        rol: createAgendamientoDto.distribucion,
       });
 
       const pagos = await this.pagoService.create({
@@ -140,6 +152,9 @@ export class AgendamientoService {
         membresia = membSave;
       }
 
+      // Llamado a la API del usuario para obtener informacion de la carrera y facultad
+      const { carr_id, facu_id } = await this.findFacuOrCarr(createAgendamientoDto.usuario_id);
+
       const agprev = this.agendamientoRepository.create({
         membresias: membresia,
         pagos: !membresia ? pagos : null,
@@ -148,6 +163,8 @@ export class AgendamientoService {
         hora_fin: createAgendamientoDto.hora_fin as Date,
         asistio: false,
         usuario_id: createAgendamientoDto.usuario_id,
+        facu_id: facu_id,
+        carr_id: carr_id,
       });
 
       await this.validacionesPagoService.save(evicendia_pago);
@@ -166,6 +183,39 @@ export class AgendamientoService {
       console.log(error);
       throw new BadRequestException(error);
     }
+  }
+
+  async findFacuOrCarr(id_usuario: string) {
+    let facu_id = null;
+    let carr_id = null;
+    // Fetch the user data from the API PARA METODO GET
+    const response = await fetch(`http://localhost:3000/usuario/${id_usuario}`);
+
+    /* FETCH PARA METODO POST
+  const response = await fetch(
+    `http://localhost:3000/usuario/${id_usuario}`
+  ,{
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ cedula: id_usuario }),
+  });*/
+
+    if (!response.ok) {
+      throw new BadRequestException('Error al obtener los datos del usuario');
+    }
+    const data = await response.json();
+    // Check if the user has a faculty or career
+    if (data.facultad_id) {
+      facu_id = data.facultad_id;
+    } else if (data.carrera_id) {
+      carr_id = data.carrera_id;
+    } else {
+      throw new BadRequestException('El usuario no tiene facultad o carrera');
+    }
+
+    return { facu_id, carr_id };
   }
 
   async findAllWithPendingValidation(
@@ -331,6 +381,24 @@ export class AgendamientoService {
     return total.total;
   }
 
+  async countAgendamientos(): Promise<number> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    const total = await this.agendamientoRepository
+      .createQueryBuilder('agendamiento')
+      .select('COUNT(*)', 'total')
+      .where('agendamiento.fecha >= :today AND agendamiento.fecha < :tomorrow', {
+        today,
+        tomorrow,
+      })
+      .getRawOne();
+
+    return total.total;
+  }
+
   async findAllByRol(
     facultad?: string,
     carrera?: string,
@@ -365,10 +433,13 @@ export class AgendamientoService {
       } else {
         queryBuilder
           .innerJoin('persona.carrera', 'carrera')
-          .andWhere('(persona.carrera_id IS NOT NULL AND carrera.id = :carrera)', {
-            facultad,
-            carrera,
-          });
+          .andWhere(
+            '(persona.carrera_id IS NOT NULL AND carrera.id = :carrera)',
+            {
+              facultad,
+              carrera,
+            },
+          );
       }
     }
     if (tipoPago) {

@@ -35,13 +35,13 @@ export class HorarioService {
   }
 
   async findAll(): Promise<Horario[]> {
-    return await this.HorarioRepository.find({ relations: ['rol'] });
+    return await this.HorarioRepository.find({ relations: ['distribucion'] });
   }
 
   async findOne(id: string): Promise<Horario> {
     return await this.HorarioRepository.findOne({
       where: { id },
-      relations: ['rol'],
+      relations: ['distribucion'],
     });
   }
 

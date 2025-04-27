@@ -30,10 +30,10 @@ export class DistribucionController {
     return this.distribucionService.findOne(id);
   }
 
- /* @Get('nombre/:nombre')
+  @Get('nombre/:nombre')
   findOneByRol(@Param('nombre') nombre: string) {
-    return this.distribucionService.findOneByName(nombre);
-  }*/
+    return this.distribucionService.findOneByRolName(nombre);
+  }
 
   @Get('usuario/:id')
   findOneByUsuario(@Param('id') id: string) {

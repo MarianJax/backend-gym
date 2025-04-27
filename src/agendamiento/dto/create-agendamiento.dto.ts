@@ -37,8 +37,8 @@ export class CreateAgendamientoDto {
   @IsNumber({}, { each: true })
   evidencia_pago: number[];
 
-  @IsNotEmpty({ message: 'El rol es requerido' })
-  rol: string;
+  @IsNotEmpty({ message: 'La distribución es requerido' })
+  distribucion: string;
 }
 
 export class CreateAgendamientoForMembresia {

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AgendamientoService } from 'src/agendamiento/agendamiento.service';
+import { DistribucionService } from 'src/distribucion/distribucion.service';
 import { MantenimientoService } from 'src/mantenimiento/mantenimiento.service';
 import { MaquinaService } from 'src/maquina/maquina.service';
 import { PagoService } from 'src/pago/pago.service';
@@ -10,7 +11,8 @@ export class ReportsService {
     private readonly maquinaService: MaquinaService,
     private readonly mantenimientoService: MantenimientoService,
     private readonly pagoService: PagoService,
-    private readonly agendamientoService: AgendamientoService
+    private readonly agendamientoService: AgendamientoService,
+    private readonly distribucionService: DistribucionService,
   ) { }
 
   async findAll() {
@@ -26,7 +28,7 @@ export class ReportsService {
       mantenimientos: parseFloat(mantenimientos.toFixed(2)),
       pagos: parseFloat(pagos.toFixed(2))
     };
-  }
+  }  
 
   async findForGraphics(facultad?: string, carrera?: string, tipoPago?: string) {
     const reservasRol = await this.agendamientoService.findAllByRol(facultad, carrera, tipoPago)
