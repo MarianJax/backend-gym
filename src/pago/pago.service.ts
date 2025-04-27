@@ -22,15 +22,6 @@ export class PagoService {
 
   async findAll(): Promise<Pago[]> {
     return await this.PagoRepository.find({
-      where: {
-        validacion_pago: {
-          users: {
-            roles: {
-              nombre: In(['Estudiante', 'Funcionario', 'Docente']),
-            },
-          },
-        },
-      },
       order: { fecha_pago: 'ASC' },
       select: {
         id: true,
@@ -39,14 +30,7 @@ export class PagoService {
         fecha_pago: true,
         validacion_pago: {
           id: true,
-          users: {
-            apellido: true,
-            nombre: true,
-            cedula: true,
-            roles: {
-              nombre: true,
-            },
-          },
+          usuario_id: true,
         },
       },
       relations: [

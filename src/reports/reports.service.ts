@@ -3,12 +3,10 @@ import { AgendamientoService } from 'src/agendamiento/agendamiento.service';
 import { MantenimientoService } from 'src/mantenimiento/mantenimiento.service';
 import { MaquinaService } from 'src/maquina/maquina.service';
 import { PagoService } from 'src/pago/pago.service';
-import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class ReportsService {
   constructor(
-    private readonly userService: UserService,
     private readonly maquinaService: MaquinaService,
     private readonly mantenimientoService: MantenimientoService,
     private readonly pagoService: PagoService,
@@ -17,7 +15,7 @@ export class ReportsService {
 
   async findAll() {
     const [users, maquinas, mantenimientos, pagos] = await Promise.all([
-      await this.userService.count(),
+      await this.agendamientoService.countUsers(),
       await this.maquinaService.count(),
       await this.mantenimientoService.totalCosto(),
       await this.pagoService.totalCosto(),

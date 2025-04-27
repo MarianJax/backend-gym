@@ -1,6 +1,6 @@
 import { Agendamiento } from '../../agendamiento/entities/agendamiento.entity';
 import { Pago } from '../../pago/entities/pago.entity';
-import { User } from '../../user/entities/user.entity';
+
 import {
   BeforeInsert,
   Column,
@@ -8,12 +8,11 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-  PrimaryGeneratedColumn
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity({ schema: 'esq_gimnasio', name: 'membresia' })
 export class Membresia {
-
   @PrimaryGeneratedColumn('uuid', { name: 'id_membresia' })
   id: string;
 
@@ -24,11 +23,10 @@ export class Membresia {
   fecha_fin?: Date;
 
   @Column({ name: 'costo', type: 'decimal', precision: 10, scale: 2 })
-  costo: number
+  costo: number;
 
-  @ManyToOne(() => User, (user) => user.membresias)
-  @JoinColumn({ name: 'usuario_id' })
-  users: User;
+  @Column({ name: 'usuario_id', type: 'varchar', length: 50 })
+  usuario_id: string;
 
   @OneToMany(() => Agendamiento, (agendamiento) => agendamiento.membresias)
   agendamientos: Agendamiento[];
@@ -39,7 +37,12 @@ export class Membresia {
 
   @BeforeInsert()
   async createEndDate() {
-    console.log('Fecha de inicio:', this.fecha_inicio, 'Tipo:', typeof this.fecha_inicio);
+    console.log(
+      'Fecha de inicio:',
+      this.fecha_inicio,
+      'Tipo:',
+      typeof this.fecha_inicio,
+    );
     if (!this.fecha_fin) {
       const fechaFin = new Date(this.fecha_inicio);
       fechaFin.setMonth(fechaFin.getMonth() + 1); // Agregar un mes a la fecha de inicio
