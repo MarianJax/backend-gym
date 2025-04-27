@@ -225,8 +225,6 @@ export class AgendamientoService {
         },
       },
       relations: [
-        'user',
-        'user.roles',
         'pagos',
         'membresias',
         'membresias.pagos',
@@ -305,7 +303,7 @@ export class AgendamientoService {
         hora_inicio: true,
         usuario_id: true,
       },
-      relations: ['user', 'user.roles'],
+      relations: ['persona', 'persona.roles'],
     });
   }
 
@@ -340,8 +338,8 @@ export class AgendamientoService {
   ): Promise<{ rol: string; total: number }[]> {
     const queryBuilder = this.agendamientoRepository
       .createQueryBuilder('agendamiento')
-      .innerJoin('agendamiento.user', 'user')
-      .innerJoin('user.roles', 'role')
+      .innerJoin('agendamiento.persona', 'persona')
+      .innerJoin('persona.roles', 'role')
       .select('role.nombre', 'rol')
       .addSelect('COUNT(*)', 'total')
       .where('role.nombre IN (:...roles)', {
@@ -353,21 +351,21 @@ export class AgendamientoService {
     if (facultad) {
       if (!carrera) {
         queryBuilder
-          .addSelect('user.carrera', 'car')
-          .addSelect('user.facultad', 'fac')
-          .leftJoin('user.carrera', 'carr')
-          .leftJoin('user.facultad', 'facultad')
-          .addGroupBy('user.carrera')
-          .addGroupBy('user.facultad');
+          .addSelect('persona.carrera', 'car')
+          .addSelect('persona.facultad', 'fac')
+          .leftJoin('persona.carrera', 'carr')
+          .leftJoin('persona.facultad', 'facultad')
+          .addGroupBy('persona.carrera')
+          .addGroupBy('persona.facultad');
 
         queryBuilder.andWhere(
-          '((user.facultad_id IS NOT NULL AND user.facultad_id = :facultad) OR (user.carrera_id IS NOT NULL AND carr.facultad_id = :facultad))',
+          '((persona.facultad_id IS NOT NULL AND persona.facultad_id = :facultad) OR (persona.carrera_id IS NOT NULL AND carr.facultad_id = :facultad))',
           { facultad },
         );
       } else {
         queryBuilder
-          .innerJoin('user.carrera', 'carrera')
-          .andWhere('(user.carrera_id IS NOT NULL AND carrera.id = :carrera)', {
+          .innerJoin('persona.carrera', 'carrera')
+          .andWhere('(persona.carrera_id IS NOT NULL AND carrera.id = :carrera)', {
             facultad,
             carrera,
           });
@@ -397,8 +395,8 @@ export class AgendamientoService {
   ): Promise<{ rol: string; dia: string; total: number }[]> {
     const queryBuilder = this.agendamientoRepository
       .createQueryBuilder('agendamiento')
-      .innerJoin('agendamiento.user', 'user')
-      .innerJoin('user.roles', 'role')
+      .innerJoin('agendamiento.persona', 'persona')
+      .innerJoin('persona.roles', 'role')
       .select('role.nombre', 'rol')
       .addSelect("TO_CHAR(agendamiento.fecha, 'Day')", 'dia')
       .addSelect('COUNT(*)', 'total')
@@ -412,16 +410,16 @@ export class AgendamientoService {
     // Condiciones opcionales
     if (facultad && !carrera) {
       queryBuilder
-        .leftJoin('user.facultad', 'fac')
-        .leftJoin('user.carrera', 'carr')
+        .leftJoin('persona.facultad', 'fac')
+        .leftJoin('persona.carrera', 'carr')
         .andWhere(
-          '((user.facultad_id IS NOT NULL AND user.facultad_id = :facultad) OR (user.carrera_id IS NOT NULL AND carr.facultad_id = :facultad))',
+          '((persona.facultad_id IS NOT NULL AND persona.facultad_id = :facultad) OR (persona.carrera_id IS NOT NULL AND carr.facultad_id = :facultad))',
           {
             facultad,
           },
         );
     } else if (carrera) {
-      queryBuilder.andWhere('user.carrera_id = :carrera', { carrera });
+      queryBuilder.andWhere('persona.carrera_id = :carrera', { carrera });
     }
     if (tipoPago) {
       queryBuilder.leftJoin('agendamiento.pagos', 'pagos');
@@ -449,7 +447,7 @@ export class AgendamientoService {
   ): Promise<{ dia: string; total: number }[]> {
     const queryBuilder = this.agendamientoRepository
       .createQueryBuilder('agendamiento')
-      .innerJoin('agendamiento.user', 'user')
+      .innerJoin('agendamiento.persona', 'persona')
       .select("TRIM(TO_CHAR(agendamiento.fecha, 'Day'))", 'dia')
       .addSelect('COUNT(*)', 'total')
       .addSelect('EXTRACT(DOW FROM agendamiento.fecha)', 'orden');
@@ -458,16 +456,16 @@ export class AgendamientoService {
     if (facultad) {
       if (!carrera) {
         queryBuilder
-          .leftJoin('user.carrera', 'carr')
-          .leftJoin('user.facultad', 'fac')
+          .leftJoin('persona.carrera', 'carr')
+          .leftJoin('persona.facultad', 'fac')
           .leftJoin('carr.facultad', 'c_fac')
           .andWhere(
-            '((user.facultad_id IS NOT NULL AND fac.id = :facultad) OR (user.carrera_id IS NOT NULL AND c_fac.id = :facultad))',
+            '((persona.facultad_id IS NOT NULL AND fac.id = :facultad) OR (persona.carrera_id IS NOT NULL AND c_fac.id = :facultad))',
             { facultad },
           );
       } else {
         queryBuilder.andWhere(
-          '(user.carrera_id IS NOT NULL AND user.carrera_id = :carrera)',
+          '(persona.carrera_id IS NOT NULL AND persona.carrera_id = :carrera)',
           { facultad, carrera },
         );
       }
@@ -509,22 +507,22 @@ export class AgendamientoService {
           " ELSE 'Inasistidos' END AS asistio",
         'COUNT(*) AS total',
       ])
-      .innerJoin('agendamiento.user', 'user');
+      .innerJoin('agendamiento.persona', 'persona');
 
     // Condiciones opcionales
     if (facultad) {
       queryBuilder
-        .leftJoin('user.carrera', 'carr')
-        .leftJoin('user.facultad', 'fac')
+        .leftJoin('persona.carrera', 'carr')
+        .leftJoin('persona.facultad', 'fac')
         .leftJoin('carr.facultad', 'c_fac');
       if (!carrera) {
         queryBuilder.andWhere(
-          '((user.facultad_id IS NOT NULL AND fac.id = :facultad) OR (user.carrera_id IS NOT NULL AND c_fac.id = :facultad))',
+          '((persona.facultad_id IS NOT NULL AND fac.id = :facultad) OR (persona.carrera_id IS NOT NULL AND c_fac.id = :facultad))',
           { facultad },
         );
       } else {
         queryBuilder.andWhere(
-          '(user.carrera_id IS NOT NULL AND user.carrera_id = :carrera)',
+          '(persona.carrera_id IS NOT NULL AND persona.carrera_id = :carrera)',
           { facultad, carrera },
         );
       }

@@ -82,7 +82,7 @@ export class MembresiaService {
     }
   }
 
-  async findByUserIdAndDate(id: string, fecha: Date): Promise<Membresia> {
+  async findByPersonaIdAndDate(id: string, fecha: Date): Promise<Membresia> {
     try {
       return await this.MembresiaRepository.findOne({
         where: {

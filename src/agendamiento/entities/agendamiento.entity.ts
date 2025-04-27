@@ -1,7 +1,6 @@
 import { Distribucion } from 'src/distribucion/entities/distribucion.entity';
 import { Membresia } from '../../membresia/entities/membresia.entity';
 import { Pago } from '../../pago/entities/pago.entity';
-
 import {
   BeforeInsert,
   Column,
