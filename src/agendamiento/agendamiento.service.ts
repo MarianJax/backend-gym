@@ -5,6 +5,7 @@ import {
   In,
   LessThanOrEqual,
   MoreThanOrEqual,
+  Not,
   Repository,
 } from 'typeorm';
 import {
@@ -15,8 +16,7 @@ import { UpdateAgendamientoDto } from './dto/update-agendamiento.dto';
 import { Agendamiento } from './entities/agendamiento.entity';
 import { MembresiaService } from 'src/membresia/membresia.service';
 import { PagoService } from 'src/pago/pago.service';
-import { RolService } from 'src/rol/rol.service';
-import { UserService } from 'src/user/user.service';
+import { DistribucionService } from 'src/distribucion/distribucion.service';
 import { diasEn, EstadoPago, Metodo } from '../enum/entities.enum';
 import { ValidacionesPagoService } from 'src/validaciones_pago/validaciones_pago.service';
 
@@ -30,8 +30,7 @@ export class AgendamientoService {
 
     private membresiaService: MembresiaService,
     private pagoService: PagoService,
-    private rolService: RolService,
-    private userService: UserService,
+    private distribucionService: DistribucionService,
     private readonly validacionesPagoService: ValidacionesPagoService,
   ) {}
 
@@ -65,7 +64,7 @@ export class AgendamientoService {
     hora_fin: string;
     rol: string;
   }): Promise<void> {
-    const fetchRol = await this.rolService.findOneByName(rol);
+    const fetchRol = await this.distribucionService.findOneByRolName(rol);
 
     const horarios = fetchRol.horarios;
 
@@ -84,11 +83,8 @@ export class AgendamientoService {
   async create(createAgendamientoDto: CreateAgendamientoDto): Promise<any> {
     try {
       let membresia: Membresia | null = null;
-      const users = await this.userService.findOne(
-        createAgendamientoDto.usuario_id,
-      );
 
-      const fetchRol = await this.rolService.findOneByName(
+      const fetchRol = await this.distribucionService.findOneByRolName(
         createAgendamientoDto.rol,
       );
 
@@ -101,7 +97,7 @@ export class AgendamientoService {
 
       if (maximoAlcanzado) {
         throw new BadRequestException(
-          `Número máximo de reservas alcanzado para los ${fetchRol.nombre}`,
+          `Número máximo de reservas alcanzado para el rol seleccionado`,
         );
       }
 
@@ -133,15 +129,12 @@ export class AgendamientoService {
       if (!pagos) {
         throw new BadRequestException('Error al guardar el pago');
       }
-      if (!users) {
-        throw new BadRequestException('Error al guardar el usuario');
-      }
       if (createAgendamientoDto.metodo_pago === Metodo.MENSUAL) {
         const membprev = await this.membresiaService.create({
           costo: createAgendamientoDto.monto,
           fecha_inicio: createAgendamientoDto.fecha,
           pago_id: pagos.id,
-          usuario_id: users.id,
+          usuario_id: createAgendamientoDto.usuario_id,
         });
         const membSave = await this.membresiaService.findOne(membprev.id);
         membresia = membSave;
@@ -154,7 +147,7 @@ export class AgendamientoService {
         hora_inicio: createAgendamientoDto.hora_inicio as Date,
         hora_fin: createAgendamientoDto.hora_fin as Date,
         asistio: false,
-        user: users,
+        usuario_id: createAgendamientoDto.usuario_id,
       });
 
       await this.validacionesPagoService.save(evicendia_pago);
@@ -191,18 +184,14 @@ export class AgendamientoService {
     return await this.agendamientoRepository.find({
       where: [
         {
-          user: {
-            roles: {
-              nombre: In(['Estudiante', 'Funcionario', 'Docente']),
-            },
+          distribución: {
+            rol_id: In(['Estudiante', 'Funcionario', 'Docente']),
           },
           pagos,
         },
         {
-          user: {
-            roles: {
-              nombre: In(['Estudiante', 'Funcionario', 'Docente']),
-            },
+          distribución: {
+            rol_id: In(['Estudiante', 'Funcionario', 'Docente']),
           },
           membresias: {
             pagos,
@@ -212,14 +201,7 @@ export class AgendamientoService {
       select: {
         id: true,
         fecha: true,
-        user: {
-          nombre: true,
-          apellido: true,
-          cedula: true,
-          roles: {
-            nombre: true,
-          },
-        },
+        usuario_id: true,
         membresias: {
           id: true,
           pagos: {
@@ -276,8 +258,6 @@ export class AgendamientoService {
     membresia,
     usuario_id,
   }: CreateAgendamientoForMembresia): Promise<Agendamiento> {
-    const user = await this.userService.findOne(usuario_id);
-
     const memb = await this.membresiaService.findOne(membresia);
     if (!memb) {
       throw new BadRequestException('Membresía no encontrada');
@@ -287,7 +267,7 @@ export class AgendamientoService {
       fecha,
       hora_fin,
       hora_inicio,
-      user,
+      usuario_id,
       membresias: memb,
     });
     return await this.agendamientoRepository.save(agendamiento);
@@ -304,9 +284,7 @@ export class AgendamientoService {
 
     return await this.agendamientoRepository.find({
       where: {
-        user: {
-          id,
-        },
+        usuario_id: id,
         fecha: Between(startDate, endDate),
       },
     });
@@ -315,10 +293,8 @@ export class AgendamientoService {
   async findAll(): Promise<Agendamiento[]> {
     return await this.agendamientoRepository.find({
       where: {
-        user: {
-          roles: {
-            nombre: In(['Estudiante', 'Funcionario', 'Docente']),
-          },
+        distribución: {
+          rol_id: In(['Estudiante', 'Funcionario', 'Docente']),
         },
       },
       select: {
@@ -327,14 +303,7 @@ export class AgendamientoService {
         asistio: true,
         hora_fin: true,
         hora_inicio: true,
-        user: {
-          nombre: true,
-          apellido: true,
-          cedula: true,
-          roles: {
-            nombre: true,
-          },
-        },
+        usuario_id: true,
       },
       relations: ['user', 'user.roles'],
     });
@@ -353,6 +322,15 @@ export class AgendamientoService {
 
   async remove(id: string): Promise<void> {
     await this.agendamientoRepository.delete(id);
+  }
+
+  async countUsers(): Promise<number> {
+    const total = await this.agendamientoRepository
+      .createQueryBuilder('agendamiento')
+      .select('COUNT(DISTINCT agendamiento.usuario_id)', 'total')
+      .getRawOne();
+
+    return total.total;
   }
 
   async findAllByRol(

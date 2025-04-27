@@ -1,13 +1,14 @@
+import { Distribucion } from 'src/distribucion/entities/distribucion.entity';
 import { Membresia } from '../../membresia/entities/membresia.entity';
 import { Pago } from '../../pago/entities/pago.entity';
-import { User } from '../../user/entities/user.entity';
+
 import {
   BeforeInsert,
   Column,
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryGeneratedColumn
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity({ schema: 'esq_gimnasio', name: 'agendamiento' })
@@ -28,7 +29,18 @@ export class Agendamiento {
   @Column({ name: 'asistio', type: 'boolean', default: null, nullable: true })
   asistio?: boolean;
 
-  @ManyToOne(() => Membresia, (membresia) => membresia.agendamientos, { nullable: true })
+  @Column({ name: 'usuario_id', type: 'varchar', length: 50 })
+  usuario_id: string;
+
+  @Column({ name: 'facu_id', type: 'varchar', length: 100 })
+  facu_id: string;
+
+  @Column({ name: 'carr_id', type: 'varchar', length: 100 })
+  carr_id: string;
+
+  @ManyToOne(() => Membresia, (membresia) => membresia.agendamientos, {
+    nullable: true,
+  })
   @JoinColumn({ name: 'membresia_id' })
   membresias?: Membresia;
 
@@ -36,13 +48,12 @@ export class Agendamiento {
   @JoinColumn({ name: 'pago_id' })
   pagos?: Pago;
 
-  @ManyToOne(() => User, (user) => user.agendamientos)
-  @JoinColumn({ name: 'usuario_id' })
-  user: User;
+  @ManyToOne(() => Distribucion, (dist) => dist.agendamiento, { nullable: true })
+  @JoinColumn({ name: 'distrubucion_id' })
+  distribución?: Distribucion;
 
   @BeforeInsert()
   InitEstado() {
     this.asistio = null;
   }
-
 }
