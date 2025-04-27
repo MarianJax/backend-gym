@@ -4,7 +4,7 @@ import { ILike, Raw, Repository } from 'typeorm';
 import { CreateHorarioDto } from './dto/create-horario.dto';
 import { UpdateHorarioDto } from './dto/update-horario.dto';
 import { Horario } from './entities/horario.entity';
-import { RolService } from 'src/rol/rol.service';
+import { DistribucionService } from 'src/distribucion/distribucion.service';
 import { DiaSemana, Jornada } from '../enum/entities.enum';
 
 @Injectable()
@@ -13,16 +13,16 @@ export class HorarioService {
     @InjectRepository(Horario)
     private readonly HorarioRepository: Repository<Horario>,
 
-    private rolService: RolService,
+    private distribucionService: DistribucionService,
   ) {}
 
   async create(createHorarioDto: CreateHorarioDto): Promise<Horario> {
     try {
-      const rol = await this.rolService.findOne(createHorarioDto.rol_id);
+      const rol = await this.distribucionService.findOne(createHorarioDto.rol_id);
 
       const horario = this.HorarioRepository.create({
         ...createHorarioDto,
-        rol,
+        distribucion: rol,
       });
 
       return await this.HorarioRepository.save(horario);
@@ -48,19 +48,19 @@ export class HorarioService {
   async findHorarioRol(rol: string): Promise<Horario[]> {
     return await this.HorarioRepository.find({
       where: {
-        rol: {
-          nombre: ILike(rol),
+        distribucion: {
+          rol_id: ILike(rol),
         },
       },
-      select: ['id', 'jornada', 'dia_semana', 'hora_inicio', 'hora_fin', 'rol'],
+      select: ['id', 'jornada', 'dia_semana', 'hora_inicio', 'hora_fin', 'distribucion'],
     });
   }
 
   async findHorarioRolFecha(rol: string, dia: DiaSemana): Promise<Horario[]> {
     return await this.HorarioRepository.find({
       where: {
-        rol: {
-          nombre: ILike(rol),
+        distribucion: {
+          rol_id: ILike(rol),
         },
         dia_semana: dia,
       },
@@ -104,8 +104,8 @@ export class HorarioService {
     id: string,
     { rol_id, ...updateHorarioDto }: UpdateHorarioDto,
   ): Promise<void> {
-    const rol = await this.rolService.findOne(rol_id);
-    await this.HorarioRepository.update(id, { ...updateHorarioDto, rol });
+    const rol = await this.distribucionService.findOne(rol_id);
+    await this.HorarioRepository.update(id, { ...updateHorarioDto, distribucion: rol });
   }
 
   async remove(id: string): Promise<void> {

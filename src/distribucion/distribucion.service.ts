@@ -31,12 +31,12 @@ export class DistribucionService {
     return await this.distribucionRepository.findOneBy({ id });
   }
 
-  /*async findOneByName(nombre: string): Promise<Distribucion> {
+  async findOneByRolName(nombre: string): Promise<Distribucion> {
     return await this.distribucionRepository.findOne({
-      where: { nombre: ILike(nombre) },
+      where: { rol_id: ILike(nombre) },
       relations: ['horarios'],
     });
-  }*/
+  }
 
   async findOneByUsuario(id: string): Promise<Distribucion[]> {
     return await this.distribucionRepository.find({

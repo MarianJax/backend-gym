@@ -1,3 +1,4 @@
+import { Agendamiento } from 'src/agendamiento/entities/agendamiento.entity';
 import { Horario } from '../../horario/entities/horario.entity';
 
 import {
@@ -40,6 +41,9 @@ export class Distribucion {
   @Column({ name: 'cupos', type: 'integer', nullable: true })
   cupo?: number;
 
-  @OneToMany(() => Horario, (horario) => horario.rol)
+  @OneToMany(() => Horario, (horario) => horario.distribucion)
   horarios: Horario[];
+
+  @OneToMany(() => Agendamiento, (agend) => agend.distribución)
+  agendamiento: Agendamiento[];
 }

@@ -18,4 +18,7 @@ export class CreateHorarioEmpleadoDto {
     @IsMilitaryTime({ message: 'La franja de hora de fin debe ser una hora válida' })
     franja_hora_fin: string;
 
+    @IsNotEmpty({ message: 'El usuario es requerido' })
+    usuario_id: string;
+
 }

@@ -1,13 +1,12 @@
+import { Distribucion } from 'src/distribucion/entities/distribucion.entity';
 import { DiaSemana, Jornada } from '../../enum/entities.enum';
-import { Rol } from '../../rol/entities/rol.entity';
 import {
   Column,
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryGeneratedColumn
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-
 
 @Entity({ schema: 'esq_gimnasio', name: 'horarios' })
 export class Horario {
@@ -34,8 +33,7 @@ export class Horario {
   @Column({ name: 'hora_fin', type: 'time' })
   hora_fin: Date;
 
-  @ManyToOne(() => Rol, (rol) => rol.horarios)
-  @JoinColumn({ name: 'rol_id' })
-  rol: Rol;
-
+  @ManyToOne(() => Distribucion, (dist) => dist.horarios)
+  @JoinColumn({ name: 'distribucion_id' })
+  distribucion: Distribucion;
 }

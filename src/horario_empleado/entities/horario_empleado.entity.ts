@@ -1,5 +1,4 @@
 import { DiaSemana } from '../../enum/entities.enum';
-import { Rol } from '../../rol/entities/rol.entity';
 import {
   Column,
   Entity,
@@ -10,6 +9,7 @@ import {
 
 @Entity({ schema: 'esq_gimnasio', name: 'horario_empleado' })
 export class HorarioEmpleado {
+
   @PrimaryGeneratedColumn('uuid', { name: 'id_horario_empleado' })
   id: string;
 
@@ -18,6 +18,9 @@ export class HorarioEmpleado {
 
   @Column({ name: 'franja_hora_inicio', type: 'time' })
   franja_hora_inicio: Date;
+
+  @Column({ name: 'usuario_id', type: 'varchar', length: 50 })
+  usuario_id: string;
 
   @Column({
     type: 'enum',
@@ -29,7 +32,4 @@ export class HorarioEmpleado {
   @Column({ name: 'franja_hora_fin', type: 'time' })
   franja_hora_fin: Date;
 
-  @ManyToOne(() => Rol, (rol) => rol.horarios)
-  @JoinColumn({ name: 'rol_id' })
-  rol: Rol;
 }
