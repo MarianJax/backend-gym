@@ -31,11 +31,14 @@ export class Agendamiento {
   @Column({ name: 'usuario_id', type: 'varchar', length: 50 })
   usuario_id: string;
 
-  @Column({ name: 'facu_id', type: 'varchar', length: 100 })
-  facu_id: string;
+  @Column({ name: 'facu_id', type: 'varchar', length: 100, default: null, nullable: true })
+  facu_id?: string;
 
-  @Column({ name: 'carr_id', type: 'varchar', length: 100 })
-  carr_id: string;
+  @Column({ name: 'carr_id', type: 'varchar', length: 100, default: null, nullable: true })
+  carr_id?: string;
+
+  @Column({ name: 'dep_id', type: 'varchar', length: 100, default: null, nullable: true })
+  dep_id?: string;
 
   @ManyToOne(() => Membresia, (membresia) => membresia.agendamientos, {
     nullable: true,

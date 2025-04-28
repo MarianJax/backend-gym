@@ -9,7 +9,7 @@ import {
   In,
   LessThanOrEqual,
   MoreThanOrEqual,
-  Repository
+  Repository,
 } from 'typeorm';
 import { diasEn, EstadoPago, Metodo } from '../enum/entities.enum';
 import {
@@ -152,7 +152,9 @@ export class AgendamientoService {
       }
 
       //#region CONSULTAR API DE USUARIOS PARA OBTENER ID DE CARRERA O FACULTAD
-      const { carr_id, facu_id } = await this.findFacuOrCarr(createAgendamientoDto.usuario_id);
+      const { carr_id, facu_id, dep_id } = await this.findFacuOrCarr(
+        createAgendamientoDto.usuario_id,
+      );
 
       const agprev = this.agendamientoRepository.create({
         membresias: membresia,
@@ -164,6 +166,7 @@ export class AgendamientoService {
         usuario_id: createAgendamientoDto.usuario_id,
         facu_id: facu_id,
         carr_id: carr_id,
+        dep_id: dep_id,
       });
 
       await this.validacionesPagoService.save(evicendia_pago);
@@ -183,9 +186,11 @@ export class AgendamientoService {
     }
   }
 
+  //#region  LOGICA PARA OBTENER ID DE CARRERA O FACULTAD
   async findFacuOrCarr(id_usuario: string) {
     let facu_id = null;
     let carr_id = null;
+    let dep_id = null;
     // Fetch the user data from the API PARA METODO GET
     const response = await fetch(`http://localhost:3000/usuario/${id_usuario}`);
 
@@ -209,11 +214,13 @@ export class AgendamientoService {
       facu_id = data.facultad_id;
     } else if (data.carrera_id) {
       carr_id = data.carrera_id;
+    } else if (data.departamento_id) {
+      dep_id = data.departamento_id;
     } else {
       throw new BadRequestException('El usuario no tiene facultad o carrera');
     }
 
-    return { facu_id, carr_id };
+    return { facu_id, carr_id, dep_id };
   }
 
   async findAllWithPendingValidation(
@@ -287,7 +294,9 @@ export class AgendamientoService {
 
     agendamientos.map(async (agendamiento) => {
       // EndPoint de la API para obtener el usuario por ID
-      const user = await fetch('http://localhost:3000/api/user/' + agendamiento.usuario_id) // GET
+      const user = await fetch(
+        'http://localhost:3000/api/user/' + agendamiento.usuario_id,
+      ); // GET
       // const userPOST = await fetch('http://localhost:3000/api/user/', {
       //   method: 'POST',
       //   headers: {
@@ -303,9 +312,9 @@ export class AgendamientoService {
         user: {
           nombres: userData.nombres,
           roles: userData.roles,
-        }
-      }
-     });
+        },
+      };
+    });
 
     return formatterPagos;
   }
@@ -381,7 +390,9 @@ export class AgendamientoService {
 
     agendamientos.map(async (agendamiento) => {
       // EndPoint de la API para obtener el usuario por ID
-      const user = await fetch('http://localhost:3000/api/user/' + agendamiento.usuario_id) // GET
+      const user = await fetch(
+        'http://localhost:3000/api/user/' + agendamiento.usuario_id,
+      ); // GET
       // const userPOST = await fetch('http://localhost:3000/api/user/', {
       //   method: 'POST',
       //   headers: {
@@ -397,9 +408,9 @@ export class AgendamientoService {
         user: {
           nombres: userData.nombres,
           roles: userData.roles,
-        }
-      }
-     });
+        },
+      };
+    });
 
     return formatterPagos;
   }
@@ -437,10 +448,13 @@ export class AgendamientoService {
     const total = await this.agendamientoRepository
       .createQueryBuilder('agendamiento')
       .select('COUNT(*)', 'total')
-      .where('agendamiento.fecha >= :today AND agendamiento.fecha < :tomorrow', {
-        today,
-        tomorrow,
-      })
+      .where(
+        'agendamiento.fecha >= :today AND agendamiento.fecha < :tomorrow',
+        {
+          today,
+          tomorrow,
+        },
+      )
       .getRawOne();
 
     return total.total;
