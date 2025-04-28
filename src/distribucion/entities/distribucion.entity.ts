@@ -4,9 +4,8 @@ import { Horario } from '../../horario/entities/horario.entity';
 import {
   Column,
   Entity,
-  ManyToMany,
   OneToMany,
-  PrimaryGeneratedColumn,
+  PrimaryGeneratedColumn
 } from 'typeorm';
 
 @Entity({ schema: 'esq_gimnasio', name: 'distribucion' })

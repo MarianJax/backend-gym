@@ -23,11 +23,6 @@ export class AuthService {
         clave: AuthDto.contrasena,
       });
       if (dat.state === 'success') {
-        
-        const upsertedUser = {
-          nombre: dat.value,
-        };
-
         return {
           state: 'success',
           user: {

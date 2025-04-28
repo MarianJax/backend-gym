@@ -40,7 +40,7 @@ export class ValidacionesPagoService {
   }
 
   async findAll(): Promise<ValidacionesPago[]> {
-    return await this.validacionesPagoRepository.find({ relations: ['roles'], where: { estado: EstadoPago.PENDIENTE } });
+    return await this.validacionesPagoRepository.find({ relations: ['pagos'], where: { estado: EstadoPago.PENDIENTE } });
   }
 
   async findOne(id: string): Promise<ValidacionesPago> {

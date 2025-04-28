@@ -39,12 +39,39 @@ export class MembresiaService {
     }
   }
 
-  async findAll(): Promise<Membresia[]> {
-    return await this.MembresiaRepository.find({
+  async findAll(): Promise<any[]> {
+    const membresias = await this.MembresiaRepository.find({
       order: {
         fecha_inicio: 'ASC',
       },
     });
+
+    //#region CONSULTAR API DE USUARIOS
+    const formatterPagos = [];
+
+    membresias.map(async (membresia) => {
+      // EndPoint de la API para obtener el usuario por ID
+      const user = await fetch('http://localhost:3000/api/user/' + membresia.usuario_id) // GET
+      // const userPOST = await fetch('http://localhost:3000/api/user/', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({ cedula: pago.validacion_pago[0].usuario_id }),
+      // });
+
+      const userData = await user.json(); // { id_personal: 1546546, nombres: "NOMBRE DEL USUARIO", roles: "ESTUDIANTE", FACULTAD: "CIENCIAS .." }
+
+      return {
+        ...membresia,
+        user: {
+          nombres: userData.nombres,
+          roles: userData.roles,
+        }
+      }
+     });
+
+    return formatterPagos;
   }
 
   async findOne(id: string): Promise<Membresia> {

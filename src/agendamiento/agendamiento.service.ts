@@ -1,24 +1,23 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { DistribucionService } from 'src/distribucion/distribucion.service';
+import { MembresiaService } from 'src/membresia/membresia.service';
+import { PagoService } from 'src/pago/pago.service';
+import { ValidacionesPagoService } from 'src/validaciones_pago/validaciones_pago.service';
 import {
   Between,
   In,
   LessThanOrEqual,
   MoreThanOrEqual,
-  Not,
-  Repository,
+  Repository
 } from 'typeorm';
+import { diasEn, EstadoPago, Metodo } from '../enum/entities.enum';
 import {
   CreateAgendamientoDto,
   CreateAgendamientoForMembresia,
 } from './dto/create-agendamiento.dto';
 import { UpdateAgendamientoDto } from './dto/update-agendamiento.dto';
 import { Agendamiento } from './entities/agendamiento.entity';
-import { MembresiaService } from 'src/membresia/membresia.service';
-import { PagoService } from 'src/pago/pago.service';
-import { DistribucionService } from 'src/distribucion/distribucion.service';
-import { diasEn, EstadoPago, Metodo } from '../enum/entities.enum';
-import { ValidacionesPagoService } from 'src/validaciones_pago/validaciones_pago.service';
 
 import { Membresia } from 'src/membresia/entities/membresia.entity';
 
@@ -152,7 +151,7 @@ export class AgendamientoService {
         membresia = membSave;
       }
 
-      // Llamado a la API del usuario para obtener informacion de la carrera y facultad
+      //#region CONSULTAR API DE USUARIOS PARA OBTENER ID DE CARRERA O FACULTAD
       const { carr_id, facu_id } = await this.findFacuOrCarr(createAgendamientoDto.usuario_id);
 
       const agprev = this.agendamientoRepository.create({
@@ -176,12 +175,11 @@ export class AgendamientoService {
         message: 'Agendamiento creado correctamente',
       };
     } catch (error) {
+      console.log(error);
       return {
         message: 'Error al crear el agendamiento',
         status: 'error',
       };
-      console.log(error);
-      throw new BadRequestException(error);
     }
   }
 
@@ -221,7 +219,7 @@ export class AgendamientoService {
   async findAllWithPendingValidation(
     take: number,
     all: boolean,
-  ): Promise<Agendamiento[]> {
+  ): Promise<any[]> {
     const pagos = all
       ? {
           validacion_pago: {
@@ -231,7 +229,7 @@ export class AgendamientoService {
         }
       : {};
 
-    return await this.agendamientoRepository.find({
+    const agendamientos = await this.agendamientoRepository.find({
       where: [
         {
           distribución: {
@@ -283,6 +281,33 @@ export class AgendamientoService {
       ],
       take,
     });
+
+    //#region CONSULTAR API DE USUARIOS
+    const formatterPagos = [];
+
+    agendamientos.map(async (agendamiento) => {
+      // EndPoint de la API para obtener el usuario por ID
+      const user = await fetch('http://localhost:3000/api/user/' + agendamiento.usuario_id) // GET
+      // const userPOST = await fetch('http://localhost:3000/api/user/', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({ cedula: pago.validacion_pago[0].usuario_id }),
+      // });
+
+      const userData = await user.json(); // { id_personal: 1546546, nombres: "NOMBRE DEL USUARIO", roles: "ESTUDIANTE", FACULTAD: "CIENCIAS .." }
+
+      return {
+        ...agendamiento,
+        user: {
+          nombres: userData.nombres,
+          roles: userData.roles,
+        }
+      }
+     });
+
+    return formatterPagos;
   }
 
   async findAllDate(fecha: string): Promise<Agendamiento[]> {
@@ -338,13 +363,8 @@ export class AgendamientoService {
     });
   }
 
-  async findAll(): Promise<Agendamiento[]> {
-    return await this.agendamientoRepository.find({
-      where: {
-        distribución: {
-          rol_id: In(['Estudiante', 'Funcionario', 'Docente']),
-        },
-      },
+  async findAll(): Promise<any[]> {
+    const agendamientos = await this.agendamientoRepository.find({
       select: {
         id: true,
         fecha: true,
@@ -353,8 +373,35 @@ export class AgendamientoService {
         hora_inicio: true,
         usuario_id: true,
       },
-      relations: ['persona', 'persona.roles'],
+      relations: ['distribucion'],
     });
+
+    //#region CONSULTAR API DE USUARIOS
+    const formatterPagos = [];
+
+    agendamientos.map(async (agendamiento) => {
+      // EndPoint de la API para obtener el usuario por ID
+      const user = await fetch('http://localhost:3000/api/user/' + agendamiento.usuario_id) // GET
+      // const userPOST = await fetch('http://localhost:3000/api/user/', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({ cedula: pago.validacion_pago[0].usuario_id }),
+      // });
+
+      const userData = await user.json(); // { id_personal: 1546546, nombres: "NOMBRE DEL USUARIO", roles: "ESTUDIANTE", FACULTAD: "CIENCIAS .." }
+
+      return {
+        ...agendamiento,
+        user: {
+          nombres: userData.nombres,
+          roles: userData.roles,
+        }
+      }
+     });
+
+    return formatterPagos;
   }
 
   async findOne(id: string): Promise<Agendamiento> {

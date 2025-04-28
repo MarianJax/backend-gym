@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreatePagoDto } from './dto/create-pago.dto';
 import { UpdatePagoDto } from './dto/update-pago.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
 import { Pago } from './entities/pago.entity';
 
 @Injectable()
@@ -20,8 +20,8 @@ export class PagoService {
     return this.PagoRepository.save(data);
   }
 
-  async findAll(): Promise<Pago[]> {
-    return await this.PagoRepository.find({
+  async findAll(): Promise<any[]> {
+    const pagos = await this.PagoRepository.find({
       order: { fecha_pago: 'ASC' },
       select: {
         id: true,
@@ -35,10 +35,35 @@ export class PagoService {
       },
       relations: [
         'validacion_pago',
-        'validacion_pago.users',
-        'validacion_pago.users.roles',
       ],
     });
+
+    //#region CONSULTAR API DE USUARIOS
+    const formatterPagos = [];
+
+    pagos.map(async (pago) => {
+      // EndPoint de la API para obtener el usuario por ID
+      const user = await fetch('http://localhost:3000/api/user/' + pago.validacion_pago[0].usuario_id) // GET
+      // const userPOST = await fetch('http://localhost:3000/api/user/', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({ cedula: pago.validacion_pago[0].usuario_id }),
+      // });
+
+      const userData = await user.json(); // { id_personal: 1546546, nombres: "NOMBRE DEL USUARIO", roles: "ESTUDIANTE", FACULTAD: "CIENCIAS .." }
+
+      return {
+        ...pago,
+        user: {
+          nombres: userData.nombres,
+          roles: userData.roles,
+        }
+      }
+     });
+
+    return formatterPagos;
   }
 
   async findOne(id: string): Promise<Pago> {
