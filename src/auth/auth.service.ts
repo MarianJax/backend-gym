@@ -30,7 +30,10 @@ export class AuthService {
             nombres: dat.value.nombres,
             correo: AuthDto.correo,
             roles_array: dat.value.tipo_usuario_array,
-            rol: dat.value.tipo_usuario
+            rol: dat.value.tipo_usuario,
+            datos_estudio:dat.value.datos_estudio,
+            iddepartamento:dat.value.iddepartamento,
+          
           },
         };
       } else {
