@@ -62,6 +62,9 @@ export class CreateAgendamientoForMembresia {
   @IsNotEmpty({ message: 'La fecha no puede estar vacío' })
   fecha: Date;
 
+  @IsNotEmpty({ message: 'La distribución es requerido' })
+  distribucion: string; 
+
   @IsNotEmpty({ message: 'El usuario es requerido' })
   usuario_id: string;
 

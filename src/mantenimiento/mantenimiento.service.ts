@@ -1,11 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Estado } from '../enum/entities.enum';
+import { MaquinaService } from '../maquina/maquina.service';
 import { CreateMantenimientoDto } from './dto/create-mantenimiento.dto';
 import { UpdateMantenimientoDto } from './dto/update-mantenimiento.dto';
-import { Mantenimiento, Estado as EstMant } from './entities/mantenimiento.entity';
-import { MaquinaService } from '../maquina/maquina.service';
-import { Estado } from '../enum/entities.enum';
+import { Estado as EstMant, Mantenimiento } from './entities/mantenimiento.entity';
 
 @Injectable()
 export class MantenimientoService {
@@ -47,6 +47,8 @@ export class MantenimientoService {
 
   async update(id: string, { maquina_id, ...updateMantenimientoDto }: UpdateMantenimientoDto): Promise<void> {
     const maquina = await this.maquinaService.findOne(maquina_id);
+    maquina.estado = updateMantenimientoDto.estado === EstMant.FINALIZADO ? Estado.DISPONIBLE : Estado.MANTENIMIENTO;
+      await this.maquinaService.update(maquina.id, maquina);
     await this.mantenimientoRepository.update(id, { ...updateMantenimientoDto, maquina });
   }
 

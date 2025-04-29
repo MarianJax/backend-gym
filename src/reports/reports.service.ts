@@ -30,19 +30,14 @@ export class ReportsService {
     };
   }  
 
-  async findForGraphics(facultad?: string, carrera?: string, tipoPago?: string) {
-    const reservasRol = await this.agendamientoService.findAllByRol(facultad, carrera, tipoPago)
+  async findForGraphics(facultad?: string, carrera?: string, departamento?: string, tipoPago?: string) {
+    const reservasRol = await this.agendamientoService.findAllByRol(facultad, departamento, carrera, tipoPago)
 
-    const reservasPorRolesYDias = await this.agendamientoService.findAllByRolAndDia(facultad, carrera, tipoPago)
+    const reservasPorRolesYDias = await this.agendamientoService.findAllByRolAndDia(facultad, carrera, departamento, tipoPago)
 
-    const reservasPorDias = await this.agendamientoService.findAllByDia(facultad, carrera, tipoPago)
+    const reservasPorDias = await this.agendamientoService.findAllByDia(facultad, carrera, departamento, tipoPago)
 
-    const reservasPorEstados = await this.agendamientoService.findAllByEstado(facultad, carrera, tipoPago)
-
-    console.log(reservasPorEstados, 'reservasPorEstados')
-    console.log(reservasPorRolesYDias, 'reservasPorRolesYDias');
-    console.log(reservasPorDias, 'reservasPorDias');
-    console.log(reservasRol, 'reservasRol');
+    const reservasPorEstados = await this.agendamientoService.findAllByEstado(facultad, carrera, departamento, tipoPago)
 
     return {
       reservasRol,

@@ -53,12 +53,7 @@ export class ValidacionesPagoService {
   }
 
   async update(id: string, updateValidacionesPagoDto: UpdateValidacionesPagoDto): Promise<void> {
-    const fecha_validacion = new Intl.DateTimeFormat('es-EC', {
-      timeZone: 'America/Guayaquil',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    }).format(new Date());
+    const fecha_validacion = new Date().toISOString();
 
     await this.validacionesPagoRepository.update(id, { ...updateValidacionesPagoDto, fecha_validacion });
   }

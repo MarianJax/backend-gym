@@ -11,8 +11,8 @@ export class ReportsController {
   }
 
   @Get('/graphics')
-  async findForGraphics(@Query('_facultad') facultad?: string, @Query('_carrera') carrera?: string, @Query('_tipoPago') tipoPago?: string) {
-    return this.reportsService.findForGraphics(facultad, carrera, tipoPago);
+  async findForGraphics(@Query('_facultad') facultad?: string, @Query('_carrera') carrera?: string, @Query('_departamento') departamento?: string, @Query('_tipoPago') tipoPago?: string) {
+    return this.reportsService.findForGraphics(facultad, carrera, departamento, tipoPago);
   }
 
 }

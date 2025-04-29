@@ -42,14 +42,19 @@ export class AgendamientoService {
     hora_fin: string;
     fecha: Date;
     cupo: number;
-  }): Promise<boolean> {
+    }): Promise<boolean> {
+      const startDate = new Date(fecha);
+      startDate.setHours(0, 0, 0, 0);
+      const endDate = new Date(fecha);
+      endDate.setHours(23, 59, 59, 999);
     const count = await this.agendamientoRepository.count({
       where: {
         hora_inicio: MoreThanOrEqual(hora_inicio),
         hora_fin: LessThanOrEqual(hora_fin),
-        fecha: fecha,
+        fecha: Between(startDate, endDate),
       },
     });
+    
     return count >= cupo;
   }
 
@@ -88,12 +93,13 @@ export class AgendamientoService {
       const agendamientoActual = await this.agendamientoRepository.findOne({
         where: {
           fecha: Between(startDate, endDate),
+          usuario_id: createAgendamientoDto.usuario_id,
         },
       });
 
       if (agendamientoActual) {
         throw new BadRequestException(
-          'Ya existe un agendamiento para la fecha seleccionada',
+          'Ya existe un agendamiento',
         );
       }
 
@@ -112,7 +118,7 @@ export class AgendamientoService {
 
       if (maximoAlcanzado) {
         throw new BadRequestException(
-          `Número máximo de reservas alcanzado para el rol seleccionado`,
+          `Número máximo de reservas alcanzado`,
         );
       }
 
@@ -180,7 +186,7 @@ export class AgendamientoService {
     } catch (error) {
       console.log(error);
       return {
-        message: 'Error al crear el agendamiento',
+        message: error,
         status: 'error',
       };
     }
@@ -300,11 +306,36 @@ export class AgendamientoService {
     hora_inicio,
     membresia,
     usuario_id,
+    distribucion: rol_id
   }: CreateAgendamientoForMembresia): Promise<Agendamiento> {
     const memb = await this.membresiaService.findOne(membresia);
     if (!memb) {
       throw new BadRequestException('Membresía no encontrada');
     }
+
+    const startDate = new Date(fecha);
+      startDate.setHours(0, 0, 0, 0);
+      const endDate = new Date(fecha);
+      endDate.setHours(23, 59, 59, 999);
+
+      const agendamientoActual = await this.agendamientoRepository.findOne({
+        where: {
+          fecha: Between(startDate, endDate),
+          usuario_id: usuario_id,
+        },
+      });
+
+      if (agendamientoActual) {
+        throw new BadRequestException(
+          'Ya existe un agendamiento',
+        );
+      }
+
+    const { facu_id, carr_id, dep_id } = await this.agendamientoRepository.findOne({ where: { membresias: { id: membresia } } })
+
+    const distribucion = await this.distribucionService.findOneByRolName(
+      rol_id,
+    );
 
     const agendamiento = this.agendamientoRepository.create({
       fecha,
@@ -312,6 +343,10 @@ export class AgendamientoService {
       hora_inicio,
       usuario_id,
       membresias: memb,
+      distribucion,
+      facu_id,
+      carr_id,
+      dep_id,
     });
     return await this.agendamientoRepository.save(agendamiento);
   }
@@ -334,7 +369,7 @@ export class AgendamientoService {
   }
 
   async findAll(): Promise<any[]> {
-    const agendamientos = await this.agendamientoRepository.find({
+    return await this.agendamientoRepository.find({
       select: {
         id: true,
         fecha: true,
@@ -342,38 +377,41 @@ export class AgendamientoService {
         hora_fin: true,
         hora_inicio: true,
         usuario_id: true,
+        distribucion: {
+          rol_id: true,
+        }
       },
       relations: ['distribucion'],
     });
 
-    //#region CONSULTAR API DE USUARIOS
-    const formatterPagos = [];
+    // //#region CONSULTAR API DE USUARIOS
+    // const formatterPagos = [];
 
-    agendamientos.map(async (agendamiento) => {
-      // EndPoint de la API para obtener el usuario por ID
-      const user = await fetch(
-        'http://localhost:3000/api/user/' + agendamiento.usuario_id,
-      ); // GET
-      // const userPOST = await fetch('http://localhost:3000/api/user/', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ cedula: pago.validacion_pago[0].usuario_id }),
-      // });
+    // agendamientos.map(async (agendamiento) => {
+    //   // EndPoint de la API para obtener el usuario por ID
+    //   const user = await fetch(
+    //     'http://localhost:3000/api/user/' + agendamiento.usuario_id,
+    //   ); // GET
+    //   // const userPOST = await fetch('http://localhost:3000/api/user/', {
+    //   //   method: 'POST',
+    //   //   headers: {
+    //   //     'Content-Type': 'application/json',
+    //   //   },
+    //   //   body: JSON.stringify({ cedula: pago.validacion_pago[0].usuario_id }),
+    //   // });
 
-      const userData = await user.json(); // { id_personal: 1546546, nombres: "NOMBRE DEL USUARIO", roles: "ESTUDIANTE", FACULTAD: "CIENCIAS .." }
+    //   const userData = await user.json(); // { id_personal: 1546546, nombres: "NOMBRE DEL USUARIO", roles: "ESTUDIANTE", FACULTAD: "CIENCIAS .." }
 
-      return {
-        ...agendamiento,
-        user: {
-          nombres: userData.nombres,
-          roles: userData.roles,
-        },
-      };
-    });
+    //   return {
+    //     ...agendamiento,
+    //     user: {
+    //       nombres: userData.nombres,
+    //       roles: userData.roles,
+    //     },
+    //   };
+    // });
 
-    return formatterPagos;
+    // return formatterPagos;
   }
 
   async findOne(id: string): Promise<Agendamiento> {
@@ -382,13 +420,11 @@ export class AgendamientoService {
 
   async update(
     id: string,
-    {distribucion: rol ,...updateAgendamientoDto}: UpdateAgendamientoDto,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    {distribucion, ...updateAgendamientoDto}: UpdateAgendamientoDto,
   ): Promise<void> {
-    const distribucion = await this.distribucionService.findOneByRolName(
-      rol,
-    );
 
-    await this.agendamientoRepository.update(id, {distribucion, ...updateAgendamientoDto});
+    await this.agendamientoRepository.update(id, updateAgendamientoDto);
   }
 
   async remove(id: string): Promise<void> {
@@ -425,48 +461,46 @@ export class AgendamientoService {
     return total.total;
   }
 
+  private readonly ROLES = ['ESTUDIANTE', 'FUNCIONARIO', 'DOCENTE']
+
   async findAllByRol(
     facultad?: string,
+    departamento?: string,
     carrera?: string,
     tipoPago?: string,
   ): Promise<{ rol: string; total: number }[]> {
     const queryBuilder = this.agendamientoRepository
       .createQueryBuilder('agendamiento')
-      .innerJoin('agendamiento.persona', 'persona')
-      .innerJoin('persona.roles', 'role')
-      .select('role.nombre', 'rol')
+      .innerJoin('agendamiento.distribucion', 'role')
+      .select('role.rol_id', 'rol')
       .addSelect('COUNT(*)', 'total')
-      .where('role.nombre IN (:...roles)', {
-        roles: ['Estudiante', 'Funcionario', 'Docente'],
+      .where('role.rol_id IN (:...roles)', {
+        roles: this.ROLES,
       })
-      .groupBy('role.nombre');
+      .groupBy('role.rol_id');
 
     // Condiciones opcionales
     if (facultad) {
       if (!carrera) {
-        queryBuilder
-          .addSelect('persona.carrera', 'car')
-          .addSelect('persona.facultad', 'fac')
-          .leftJoin('persona.carrera', 'carr')
-          .leftJoin('persona.facultad', 'facultad')
-          .addGroupBy('persona.carrera')
-          .addGroupBy('persona.facultad');
-
         queryBuilder.andWhere(
-          '((persona.facultad_id IS NOT NULL AND persona.facultad_id = :facultad) OR (persona.carrera_id IS NOT NULL AND carr.facultad_id = :facultad))',
+          'agendamiento.facu_id IS NOT NULL AND agendamiento.facu_id = :facultad',
           { facultad },
         );
       } else {
         queryBuilder
-          .innerJoin('persona.carrera', 'carrera')
           .andWhere(
-            '(persona.carrera_id IS NOT NULL AND carrera.id = :carrera)',
+            'agendamiento.carr_id IS NOT NULL AND agendamiento.carr_id = :carrera',
             {
-              facultad,
               carrera,
             },
           );
       }
+    }
+    if (departamento) {
+      queryBuilder.andWhere(
+        'agendamiento.dep_id IS NOT NULL AND agendamiento.dep_id = :departamento',
+        { departamento },
+      );
     }
     if (tipoPago) {
       queryBuilder.leftJoin('agendamiento.pagos', 'pagos');
@@ -488,35 +522,44 @@ export class AgendamientoService {
   async findAllByRolAndDia(
     facultad?: string,
     carrera?: string,
+    departamento?: string,
     tipoPago?: string,
   ): Promise<{ rol: string; dia: string; total: number }[]> {
     const queryBuilder = this.agendamientoRepository
       .createQueryBuilder('agendamiento')
-      .innerJoin('agendamiento.persona', 'persona')
-      .innerJoin('persona.roles', 'role')
-      .select('role.nombre', 'rol')
+      .innerJoin('agendamiento.distribucion', 'role')
+      .select('role.rol_id', 'rol')
       .addSelect("TO_CHAR(agendamiento.fecha, 'Day')", 'dia')
       .addSelect('COUNT(*)', 'total')
-      .where('role.nombre IN (:...roles)', {
-        roles: ['Estudiante', 'Funcionario', 'Docente'],
+      .where('role.rol_id IN (:...roles)', {
+        roles: this.ROLES,
       })
-      .groupBy('role.nombre')
+      .groupBy('role.rol_id')
       .addGroupBy("TO_CHAR(agendamiento.fecha, 'Day')")
       .orderBy('MIN(agendamiento.fecha)', 'ASC');
 
     // Condiciones opcionales
-    if (facultad && !carrera) {
-      queryBuilder
-        .leftJoin('persona.facultad', 'fac')
-        .leftJoin('persona.carrera', 'carr')
-        .andWhere(
-          '((persona.facultad_id IS NOT NULL AND persona.facultad_id = :facultad) OR (persona.carrera_id IS NOT NULL AND carr.facultad_id = :facultad))',
-          {
-            facultad,
-          },
+    if (facultad) {
+      if (!carrera) {
+        queryBuilder.andWhere(
+          'agendamiento.facu_id IS NOT NULL AND agendamiento.facu_id = :facultad',
+          { facultad },
         );
-    } else if (carrera) {
-      queryBuilder.andWhere('persona.carrera_id = :carrera', { carrera });
+      } else {
+        queryBuilder
+          .andWhere(
+            'agendamiento.carr_id IS NOT NULL AND agendamiento.carr_id = :carrera',
+            {
+              carrera,
+            },
+          );
+      }
+    }
+    if (departamento) {
+      queryBuilder.andWhere(
+        'agendamiento.dep_id IS NOT NULL AND agendamiento.dep_id = :departamento',
+        { departamento },
+      );
     }
     if (tipoPago) {
       queryBuilder.leftJoin('agendamiento.pagos', 'pagos');
@@ -540,11 +583,12 @@ export class AgendamientoService {
   async findAllByDia(
     facultad?: string,
     carrera?: string,
+    departamento?: string,
     tipoPago?: string,
   ): Promise<{ dia: string; total: number }[]> {
     const queryBuilder = this.agendamientoRepository
       .createQueryBuilder('agendamiento')
-      .innerJoin('agendamiento.persona', 'persona')
+      .innerJoin('agendamiento.distribucion', 'roles')
       .select("TRIM(TO_CHAR(agendamiento.fecha, 'Day'))", 'dia')
       .addSelect('COUNT(*)', 'total')
       .addSelect('EXTRACT(DOW FROM agendamiento.fecha)', 'orden');
@@ -552,20 +596,25 @@ export class AgendamientoService {
     // Condiciones opcionales
     if (facultad) {
       if (!carrera) {
-        queryBuilder
-          .leftJoin('persona.carrera', 'carr')
-          .leftJoin('persona.facultad', 'fac')
-          .leftJoin('carr.facultad', 'c_fac')
-          .andWhere(
-            '((persona.facultad_id IS NOT NULL AND fac.id = :facultad) OR (persona.carrera_id IS NOT NULL AND c_fac.id = :facultad))',
-            { facultad },
-          );
-      } else {
         queryBuilder.andWhere(
-          '(persona.carrera_id IS NOT NULL AND persona.carrera_id = :carrera)',
-          { facultad, carrera },
+          'agendamiento.facu_id IS NOT NULL AND agendamiento.facu_id = :facultad',
+          { facultad },
         );
+      } else {
+        queryBuilder
+          .andWhere(
+            'agendamiento.carr_id IS NOT NULL AND agendamiento.carr_id = :carrera',
+            {
+              carrera,
+            },
+          );
       }
+    }
+    if (departamento) {
+      queryBuilder.andWhere(
+        'agendamiento.dep_id IS NOT NULL AND agendamiento.dep_id = :departamento',
+        { departamento },
+      );
     }
     if (tipoPago) {
       queryBuilder.leftJoin('agendamiento.pagos', 'pagos');
@@ -593,6 +642,7 @@ export class AgendamientoService {
   async findAllByEstado(
     facultad?: string,
     carrera?: string,
+    departamento?: string,
     tipoPago?: string,
   ): Promise<{ asistio: string; total: number }[]> {
     const queryBuilder = this.agendamientoRepository
@@ -603,26 +653,30 @@ export class AgendamientoService {
           " WHEN agendamiento.asistio = true THEN 'Asistidos'" +
           " ELSE 'Inasistidos' END AS asistio",
         'COUNT(*) AS total',
-      ])
-      .innerJoin('agendamiento.persona', 'persona');
+      ]);
 
     // Condiciones opcionales
     if (facultad) {
-      queryBuilder
-        .leftJoin('persona.carrera', 'carr')
-        .leftJoin('persona.facultad', 'fac')
-        .leftJoin('carr.facultad', 'c_fac');
       if (!carrera) {
         queryBuilder.andWhere(
-          '((persona.facultad_id IS NOT NULL AND fac.id = :facultad) OR (persona.carrera_id IS NOT NULL AND c_fac.id = :facultad))',
+          'agendamiento.facu_id IS NOT NULL AND agendamiento.facu_id = :facultad',
           { facultad },
         );
       } else {
-        queryBuilder.andWhere(
-          '(persona.carrera_id IS NOT NULL AND persona.carrera_id = :carrera)',
-          { facultad, carrera },
-        );
+        queryBuilder
+          .andWhere(
+            'agendamiento.carr_id IS NOT NULL AND agendamiento.carr_id = :carrera',
+            {
+              carrera,
+            },
+          );
       }
+    }
+    if (departamento) {
+      queryBuilder.andWhere(
+        'agendamiento.dep_id IS NOT NULL AND agendamiento.dep_id = :departamento',
+        { departamento },
+      );
     }
     if (tipoPago) {
       queryBuilder.leftJoin('agendamiento.pagos', 'pagos');
