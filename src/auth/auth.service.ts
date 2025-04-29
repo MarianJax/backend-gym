@@ -1,12 +1,12 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Agent } from 'https';
 import {
   firstValueFrom,
   map
 } from 'rxjs';
-import { Agent } from 'https';
+import { CreateAuthDto } from './dto/create-auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -23,14 +23,15 @@ export class AuthService {
         clave: AuthDto.contrasena,
       });
       if (dat.state === 'success') {
+
         return {
           state: 'success',
           user: {
             id: dat.value.cedula,
             nombres: dat.value.nombres,
             correo: AuthDto.correo,
-            roles_array: dat.value.tipo_usuario_array,
-            rol: dat.value.tipo_usuario,
+            roles_array: this.switchRolForUser(dat.value.tipo_usuario_array) === 'ADNINISTRADOR GYM' && dat.value.tipo_usuario_array,
+            rol: this.switchRolForUser(dat.value.tipo_usuario_array),
             datos_estudio:dat.value.datos_estudio,
             iddepartamento:dat.value.iddepartamento,
           
@@ -57,6 +58,28 @@ export class AuthService {
         'Ocurrió un error al autenticar el usuario',
       );
     }
+  }
+
+  switchRolForUser(Array_Roles: string[]) {
+    if (Array_Roles.includes('ADMINISTRADOR GYM')) {
+      //return rolesEnum.TEACHER;
+      return 'ADNINISTRADOR GYM';
+    } else if (Array_Roles.includes('ENTRENADOR')) {
+      return 'ENTRENADOR';
+
+    } else if (Array_Roles.includes('5|DOCENTE') || Array_Roles.includes('51|DOCENTE TIPO 2')) {
+      //return rolesEnum.TEACHER;
+      return 'DOCENTE';
+
+    } else if (Array_Roles.includes('1|ESTUDIANTE') || Array_Roles.includes('55|ASPIRANTE')) {
+      //return rolesEnum.STUDENT;
+      return 'ESTUDIANTE';
+
+    } else {
+      //return rolesEnum.STAFF;
+      return 'FUNCIONARIO';
+    }   
+    
   }
 
   async authenticateUser(data: { usuario: string; clave: string }) {
