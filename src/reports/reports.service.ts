@@ -23,8 +23,8 @@ export class ReportsService {
       await this.pagoService.totalCosto(),
     ]);
     return {
-      users: parseFloat(users.toFixed(2)),
-      maquinas: parseFloat(maquinas.toFixed(2)),
+      users,
+      maquinas,
       mantenimientos: parseFloat(mantenimientos.toFixed(2)),
       pagos: parseFloat(pagos.toFixed(2))
     };

@@ -52,7 +52,7 @@ export class Agendamiento {
 
   @ManyToOne(() => Distribucion, (dist) => dist.agendamiento, { nullable: true })
   @JoinColumn({ name: 'distrubucion_id' })
-  distribución?: Distribucion;
+  distribucion?: Distribucion;
 
   @BeforeInsert()
   InitEstado() {

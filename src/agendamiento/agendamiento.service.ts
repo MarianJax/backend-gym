@@ -6,10 +6,9 @@ import { PagoService } from 'src/pago/pago.service';
 import { ValidacionesPagoService } from 'src/validaciones_pago/validaciones_pago.service';
 import {
   Between,
-  In,
   LessThanOrEqual,
   MoreThanOrEqual,
-  Repository,
+  Repository
 } from 'typeorm';
 import { diasEn, EstadoPago, Metodo } from '../enum/entities.enum';
 import {
@@ -81,9 +80,14 @@ export class AgendamientoService {
 
   async create(createAgendamientoDto: CreateAgendamientoDto): Promise<any> {
     try {
+      const startDate = new Date(createAgendamientoDto.fecha);
+      startDate.setHours(0, 0, 0, 0);
+      const endDate = new Date(createAgendamientoDto.fecha);
+      endDate.setHours(23, 59, 59, 999);
+
       const agendamientoActual = await this.agendamientoRepository.findOne({
         where: {
-          fecha: createAgendamientoDto.fecha,
+          fecha: Between(startDate, endDate),
         },
       });
 
@@ -151,11 +155,6 @@ export class AgendamientoService {
         membresia = membSave;
       }
 
-      //#region CONSULTAR API DE USUARIOS PARA OBTENER ID DE CARRERA O FACULTAD
-      const { carr_id, facu_id, dep_id } = await this.findFacuOrCarr(
-        createAgendamientoDto.usuario_id,
-      );
-
       const agprev = this.agendamientoRepository.create({
         membresias: membresia,
         pagos: !membresia ? pagos : null,
@@ -163,10 +162,11 @@ export class AgendamientoService {
         hora_inicio: createAgendamientoDto.hora_inicio as Date,
         hora_fin: createAgendamientoDto.hora_fin as Date,
         asistio: false,
+        distribucion: fetchRol,
         usuario_id: createAgendamientoDto.usuario_id,
-        facu_id: facu_id,
-        carr_id: carr_id,
-        dep_id: dep_id,
+        facu_id: createAgendamientoDto.facu_id,
+        carr_id: createAgendamientoDto.carr_id,
+        dep_id: createAgendamientoDto.dep_id,
       });
 
       await this.validacionesPagoService.save(evicendia_pago);
@@ -186,43 +186,6 @@ export class AgendamientoService {
     }
   }
 
-  //#region  LOGICA PARA OBTENER ID DE CARRERA O FACULTAD
-  async findFacuOrCarr(id_usuario: string) {
-    let facu_id = null;
-    let carr_id = null;
-    let dep_id = null;
-    // Fetch the user data from the API PARA METODO GET
-    const response = await fetch(`http://localhost:3000/usuario/${id_usuario}`);
-
-    /* FETCH PARA METODO POST
-  const response = await fetch(
-    `http://localhost:3000/usuario/${id_usuario}`
-  ,{
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ cedula: id_usuario }),
-  });*/
-
-    if (!response.ok) {
-      throw new BadRequestException('Error al obtener los datos del usuario');
-    }
-    const data = await response.json();
-    // Check if the user has a faculty or career
-    if (data.facultad_id) {
-      facu_id = data.facultad_id;
-    } else if (data.carrera_id) {
-      carr_id = data.carrera_id;
-    } else if (data.departamento_id) {
-      dep_id = data.departamento_id;
-    } else {
-      throw new BadRequestException('El usuario no tiene facultad o carrera');
-    }
-
-    return { facu_id, carr_id, dep_id };
-  }
-
   async findAllWithPendingValidation(
     take: number,
     all: boolean,
@@ -236,18 +199,12 @@ export class AgendamientoService {
         }
       : {};
 
-    const agendamientos = await this.agendamientoRepository.find({
+   return await this.agendamientoRepository.find({
       where: [
         {
-          distribución: {
-            rol_id: In(['Estudiante', 'Funcionario', 'Docente']),
-          },
           pagos,
         },
         {
-          distribución: {
-            rol_id: In(['Estudiante', 'Funcionario', 'Docente']),
-          },
           membresias: {
             pagos,
           },
@@ -256,6 +213,9 @@ export class AgendamientoService {
       select: {
         id: true,
         fecha: true,
+        distribucion: {
+          rol_id: true,
+        },
         usuario_id: true,
         membresias: {
           id: true,
@@ -279,7 +239,8 @@ export class AgendamientoService {
           },
         },
       },
-      relations: [
+     relations: [
+        'distribucion',
         'pagos',
         'membresias',
         'membresias.pagos',
@@ -289,34 +250,34 @@ export class AgendamientoService {
       take,
     });
 
-    //#region CONSULTAR API DE USUARIOS
-    const formatterPagos = [];
+    // //#region CONSULTAR API DE USUARIOS
+    // const formatterPagos = [];
 
-    agendamientos.map(async (agendamiento) => {
-      // EndPoint de la API para obtener el usuario por ID
-      const user = await fetch(
-        'http://localhost:3000/api/user/' + agendamiento.usuario_id,
-      ); // GET
-      // const userPOST = await fetch('http://localhost:3000/api/user/', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ cedula: pago.validacion_pago[0].usuario_id }),
-      // });
+    // agendamientos.map(async (agendamiento) => {
+    //   // EndPoint de la API para obtener el usuario por ID
+    //   const user = await fetch(
+    //     'http://localhost:3000/api/user/' + agendamiento.usuario_id,
+    //   ); // GET
+    //   // const userPOST = await fetch('http://localhost:3000/api/user/', {
+    //   //   method: 'POST',
+    //   //   headers: {
+    //   //     'Content-Type': 'application/json',
+    //   //   },
+    //   //   body: JSON.stringify({ cedula: pago.validacion_pago[0].usuario_id }),
+    //   // });
 
-      const userData = await user.json(); // { id_personal: 1546546, nombres: "NOMBRE DEL USUARIO", roles: "ESTUDIANTE", FACULTAD: "CIENCIAS .." }
+    //   const userData = await user.json(); // { id_personal: 1546546, nombres: "NOMBRE DEL USUARIO", roles: "ESTUDIANTE", FACULTAD: "CIENCIAS .." }
 
-      return {
-        ...agendamiento,
-        user: {
-          nombres: userData.nombres,
-          roles: userData.roles,
-        },
-      };
-    });
+    //   return {
+    //     ...agendamiento,
+    //     user: {
+    //       nombres: userData.nombres,
+    //       roles: userData.roles,
+    //     },
+    //   };
+    // });
 
-    return formatterPagos;
+    // return formatterPagos;
   }
 
   async findAllDate(fecha: string): Promise<Agendamiento[]> {
@@ -421,9 +382,13 @@ export class AgendamientoService {
 
   async update(
     id: string,
-    updateAgendamientoDto: UpdateAgendamientoDto,
+    {distribucion: rol ,...updateAgendamientoDto}: UpdateAgendamientoDto,
   ): Promise<void> {
-    await this.agendamientoRepository.update(id, updateAgendamientoDto);
+    const distribucion = await this.distribucionService.findOneByRolName(
+      rol,
+    );
+
+    await this.agendamientoRepository.update(id, {distribucion, ...updateAgendamientoDto});
   }
 
   async remove(id: string): Promise<void> {

@@ -43,6 +43,6 @@ export class Distribucion {
   @OneToMany(() => Horario, (horario) => horario.distribucion)
   horarios: Horario[];
 
-  @OneToMany(() => Agendamiento, (agend) => agend.distribución)
+  @OneToMany(() => Agendamiento, (agend) => agend.distribucion)
   agendamiento: Agendamiento[];
 }

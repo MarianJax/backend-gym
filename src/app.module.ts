@@ -16,6 +16,7 @@ import { RutinaModule } from './rutina/rutina.module';
 import { EjerciciosModule } from './ejercicios/ejercicios.module';
 import configServ from '../config/config-reg';
 import { ReportsModule } from './reports/reports.module';
+import { InstitucionModule } from './institucion/institucion.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { ReportsModule } from './reports/reports.module';
     RutinaModule,
     EjerciciosModule,
     ReportsModule,
+    InstitucionModule,
   ],
   controllers: [],
   providers: [],

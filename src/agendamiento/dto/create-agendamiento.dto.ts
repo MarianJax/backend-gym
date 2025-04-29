@@ -3,6 +3,7 @@ import {
   IsMilitaryTime,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
 } from 'class-validator';
 
 export class CreateAgendamientoDto {
@@ -38,7 +39,19 @@ export class CreateAgendamientoDto {
   evidencia_pago: number[];
 
   @IsNotEmpty({ message: 'La distribución es requerido' })
-  distribucion: string;
+  distribucion: string;  
+
+  @IsNotEmpty({ message: 'La facultad es requerido' })
+    @IsOptional()
+  facu_id: string;
+
+  @IsNotEmpty({ message: 'La carrera es requerido' })
+  @IsOptional()
+  carr_id: string;
+
+  @IsNotEmpty({ message: 'El departamento es requerido' })
+  @IsOptional()
+  dep_id: string;
 }
 
 export class CreateAgendamientoForMembresia {
