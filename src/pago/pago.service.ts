@@ -21,49 +21,69 @@ export class PagoService {
   }
 
   async findAll(): Promise<any[]> {
-    const pagos = await this.PagoRepository.find({
+    return await this.PagoRepository.find({
       order: { fecha_pago: 'ASC' },
       select: {
+      id: true,
+      metodo_pago: true,
+      monto: true,
+      fecha_pago: true,
+      validacion_pago: {
         id: true,
-        metodo_pago: true,
-        monto: true,
-        fecha_pago: true,
-        validacion_pago: {
-          id: true,
-          usuario_id: true,
+        usuario_id: true,
+      },
+      agendamiento: {
+        id: true,
+        distribucion: {
+        rol_id: true,
+        }
+      },
+      membresia: {
+        id: true,
+        agendamientos: {
+        id: true,
+          distribucion: {
+          rol_id: true,
+        },
         },
       },
+      },
       relations: [
-        'validacion_pago',
+      'validacion_pago',
+      'agendamiento',
+      'agendamiento.distribucion',
+      'membresia',
+      'membresia.agendamientos',
+      'membresia.agendamientos.distribucion',
       ],
-    });
+    });    
 
-    //#region CONSULTAR API DE USUARIOS
-    const formatterPagos = [];
+    // //#region CONSULTAR API DE USUARIOS
+    // const formatterPagos = [];
 
-    pagos.map(async (pago) => {
-      // EndPoint de la API para obtener el usuario por ID
-      const user = await fetch('http://localhost:3000/api/user/' + pago.validacion_pago[0].usuario_id) // GET
-      // const userPOST = await fetch('http://localhost:3000/api/user/', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ cedula: pago.validacion_pago[0].usuario_id }),
-      // });
+    // pagos.map(async (pago) => {
+    //   // EndPoint de la API para obtener el usuario por ID
+    //   const user = await fetch('http://localhost:3000/api/user/' + pago.validacion_pago[0].usuario_id) // GET
+    //   // const userPOST = await fetch('http://localhost:3000/api/user/', {
+    //   //   method: 'POST',
+    //   //   headers: {
+    //   //     'Content-Type': 'application/json',
+    //   //   },
+    //   //   body: JSON.stringify({ cedula: pago.validacion_pago[0].usuario_id }),
+    //   // });
 
-      const userData = await user.json(); // { id_personal: 1546546, nombres: "NOMBRE DEL USUARIO", roles: "ESTUDIANTE", FACULTAD: "CIENCIAS .." }
+    //   const userData = await user.json(); // { id_personal: 1546546, nombres: "NOMBRE DEL USUARIO", roles: "ESTUDIANTE", FACULTAD: "CIENCIAS .." }
 
-      return {
-        ...pago,
-        user: {
-          nombres: userData.nombres,
-          roles: userData.roles,
-        }
-      }
-     });
+    //   return {
+    //     ...pago,
+    //     user: {
+    //       nombres: userData.nombres,
+    //       roles: userData.roles,
+    //     }
+    //   }
+    //  });
 
-    return formatterPagos;
+    // return formatterPagos;
   }
 
   async findOne(id: string): Promise<Pago> {
