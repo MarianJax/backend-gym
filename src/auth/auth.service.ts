@@ -2,10 +2,7 @@ import { HttpService } from '@nestjs/axios';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Agent } from 'https';
-import {
-  firstValueFrom,
-  map
-} from 'rxjs';
+import { firstValueFrom, map } from 'rxjs';
 import { CreateAuthDto } from './dto/create-auth.dto';
 
 @Injectable()
@@ -23,18 +20,18 @@ export class AuthService {
         clave: AuthDto.contrasena,
       });
       if (dat.state === 'success') {
-
         return {
           state: 'success',
           user: {
             id: dat.value.cedula,
             nombres: dat.value.nombres,
             correo: AuthDto.correo,
-            roles_array: this.switchRolForUser(dat.value.tipo_usuario_array) === 'ADNINISTRADOR GYM' && dat.value.tipo_usuario_array,
+            roles_array:
+              this.switchRolForUser(dat.value.tipo_usuario_array) ===
+                'ADMINISTRADOR GYM' && this.getAllowedRoles(dat.value.tipo_usuario_array),
             rol: this.switchRolForUser(dat.value.tipo_usuario_array),
-            datos_estudio:dat.value.datos_estudio,
-            iddepartamento:dat.value.iddepartamento,
-          
+            datos_estudio: dat.value.datos_estudio,
+            iddepartamento: dat.value.iddepartamento,
           },
         };
       } else {
@@ -61,25 +58,43 @@ export class AuthService {
   }
 
   switchRolForUser(Array_Roles: string[]) {
-    if (Array_Roles.includes('ADMINISTRADOR GYM')) {
-      //return rolesEnum.TEACHER;
-      return 'ADNINISTRADOR GYM';
+    if (Array_Roles.includes('165|ADMINISTRADOR GYM')) {
+      return 'ADMINISTRADOR GYM';
     } else if (Array_Roles.includes('ENTRENADOR')) {
+      // ENTRENADOR
       return 'ENTRENADOR';
-
-    } else if (Array_Roles.includes('5|DOCENTE') || Array_Roles.includes('51|DOCENTE TIPO 2')) {
-      //return rolesEnum.TEACHER;
+    } else if (
+      Array_Roles.includes('5|DOCENTE') ||
+      Array_Roles.includes('51|DOCENTE TIPO 2')
+    ) {
       return 'DOCENTE';
-
-    } else if (Array_Roles.includes('1|ESTUDIANTE') || Array_Roles.includes('55|ASPIRANTE')) {
-      //return rolesEnum.STUDENT;
+    } else if (
+      Array_Roles.includes('1|ESTUDIANTE') ||
+      Array_Roles.includes('55|ASPIRANTE')
+    ) {
       return 'ESTUDIANTE';
-
     } else {
-      //return rolesEnum.STAFF;
       return 'FUNCIONARIO';
-    }   
-    
+    }
+  }
+
+  getAllowedRoles(roles: string[]): string[] {
+    const allowedRoles = [];
+    if (roles.includes('165|ADMINISTRADOR GYM')) {
+      allowedRoles.push('ADMINISTRADOR GYM');
+    }
+    if (roles.includes('ENTRENADOR')) { // ENTRENADOR
+      allowedRoles.push('ENTRENADOR');
+    }
+    if (roles.includes('5|DOCENTE') || roles.includes('51|DOCENTE TIPO 2')) {
+      allowedRoles.push('DOCENTE');
+    }
+    if (roles.includes('1|ESTUDIANTE') || roles.includes('55|ASPIRANTE')) {
+      allowedRoles.push('ESTUDIANTE');
+    } else {
+      allowedRoles.push('FUNCIONARIO');
+    }
+    return allowedRoles;
   }
 
   async authenticateUser(data: { usuario: string; clave: string }) {
@@ -89,7 +104,7 @@ export class AuthService {
 
     const httpsAgent = new Agent({
       rejectUnauthorized: false,
-      family: 4
+      family: 4,
     });
 
     try {
