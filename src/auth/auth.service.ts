@@ -60,7 +60,7 @@ export class AuthService {
   switchRolForUser(Array_Roles: string[]) {
     if (Array_Roles.includes('165|ADMINISTRADOR GYM')) {
       return 'ADMINISTRADOR GYM';
-    } else if (Array_Roles.includes('ENTRENADOR')) {
+    } else if (Array_Roles.includes('|ENTRENADOR')) {
       // ENTRENADOR
       return 'ENTRENADOR';
     } else if (
@@ -83,7 +83,7 @@ export class AuthService {
     if (roles.includes('165|ADMINISTRADOR GYM')) {
       allowedRoles.push('ADMINISTRADOR GYM');
     }
-    if (roles.includes('ENTRENADOR')) { // ENTRENADOR
+    if (roles.includes('|ENTRENADOR')) { // ENTRENADOR
       allowedRoles.push('ENTRENADOR');
     }
     if (roles.includes('5|DOCENTE') || roles.includes('51|DOCENTE TIPO 2')) {
