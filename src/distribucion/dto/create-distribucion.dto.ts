@@ -8,6 +8,10 @@ export class CreateDistribucionDto {
     @Min(0.25, { message: 'El pago diario debe ser mayor a 0.25' })
     @IsNotEmpty({ message: 'El pago diario es requerido' })
     pago_diario: number;
+    @Min(0.25, { message: 'El pago semanal debe ser mayor a 0.25' })
+    @IsNotEmpty({ message: 'El pago semanal es requerido' })
+    pago_semanal: number;
+    
 
     @Min(0.25, { message: 'El pago mensual debe ser mayor a 0.25' })
     @IsNotEmpty({ message: 'El pago mensual es requerido' })

@@ -23,6 +23,7 @@ export enum Estado {
 
 export enum Metodo {
     DIARIO = 'Diario', // tarjeta?
+    SEMANAL = 'Semanal', // tarjeta?
     MENSUAL = 'Mensual', // tranfrencia?
 }
 

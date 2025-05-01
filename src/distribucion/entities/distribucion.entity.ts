@@ -24,7 +24,13 @@ export class Distribucion {
     nullable: true,
   })
   pago_diario?: number;
-
+@Column({
+    name: 'pago_semanal', 
+    type: 'decimal',
+    precision: 10,    
+    scale: 2,
+    nullable: true,
+  })
   @Column({
     name: 'pago_mensual',
     type: 'decimal',
