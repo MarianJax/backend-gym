@@ -8,6 +8,7 @@ import {
   Between,
   LessThanOrEqual,
   MoreThanOrEqual,
+  Not,
   Repository
 } from 'typeorm';
 import { diasEn, EstadoPago, Metodo } from '../enum/entities.enum';
@@ -94,6 +95,18 @@ export class AgendamientoService {
         where: {
           fecha: Between(startDate, endDate),
           usuario_id: createAgendamientoDto.usuario_id,
+          membresias: {
+            pagos: {
+              validacion_pago: {
+                estado: Not(EstadoPago.RECHAZADO),
+              },
+            },
+          },
+          pagos: {
+            validacion_pago: {
+              estado: Not(EstadoPago.RECHAZADO),
+            },
+          },
         },
       });
 

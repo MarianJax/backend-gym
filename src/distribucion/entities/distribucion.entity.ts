@@ -30,7 +30,9 @@ export class Distribucion {
     precision: 10,    
     scale: 2,
     nullable: true,
-  })
+})
+  pago_semanal?: number;
+  
   @Column({
     name: 'pago_mensual',
     type: 'decimal',

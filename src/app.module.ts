@@ -12,8 +12,6 @@ import { AuthModule } from './auth/auth.module';
 import { HorarioEmpleadoModule } from './horario_empleado/horario_empleado.module';
 import { ValidacionesPagoModule } from './validaciones_pago/validaciones_pago.module';
 import { ConfigModule } from '@nestjs/config';
-import { RutinaModule } from './rutina/rutina.module';
-import { EjerciciosModule } from './ejercicios/ejercicios.module';
 import configServ from '../config/config-reg';
 import { ReportsModule } from './reports/reports.module';
 import { InstitucionModule } from './institucion/institucion.module';
@@ -34,7 +32,8 @@ import { InstitucionModule } from './institucion/institucion.module';
       database: 'gymutm',
       autoLoadEntities: true,
       synchronize: true,
-      logging: false,
+      logging: true,
+      // dropSchema: true,
       schema: 'esq_gimnasio',
     }),
     AgendamientoModule,
@@ -47,8 +46,6 @@ import { InstitucionModule } from './institucion/institucion.module';
     HorarioEmpleadoModule,
     AuthModule,
     ValidacionesPagoModule,
-    RutinaModule,
-    EjerciciosModule,
     ReportsModule,
     InstitucionModule,
   ],

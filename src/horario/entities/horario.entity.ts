@@ -1,5 +1,4 @@
 import { Distribucion } from 'src/distribucion/entities/distribucion.entity';
-import { DiaSemana, Jornada } from '../../enum/entities.enum';
 import {
   Column,
   Entity,
@@ -7,6 +6,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { DiaSemana, Jornada } from '../../enum/entities.enum';
 
 @Entity({ schema: 'esq_gimnasio', name: 'horarios' })
 export class Horario {
@@ -24,8 +24,9 @@ export class Horario {
     type: 'enum',
     enum: DiaSemana,
     name: 'dia_semana',
+    array: true,
   })
-  dia_semana: DiaSemana;
+  dia_semana: DiaSemana[];
 
   @Column({ name: 'hora_inicio', type: 'time' })
   hora_inicio: Date;

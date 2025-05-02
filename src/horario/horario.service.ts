@@ -1,11 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Raw, Repository } from 'typeorm';
+import { DistribucionService } from 'src/distribucion/distribucion.service';
+import { ILike, Repository } from 'typeorm';
+import { DiaSemana, Jornada } from '../enum/entities.enum';
 import { CreateHorarioDto } from './dto/create-horario.dto';
 import { UpdateHorarioDto } from './dto/update-horario.dto';
 import { Horario } from './entities/horario.entity';
-import { DistribucionService } from 'src/distribucion/distribucion.service';
-import { DiaSemana, Jornada } from '../enum/entities.enum';
 
 @Injectable()
 export class HorarioService {
@@ -57,14 +57,11 @@ export class HorarioService {
   }
 
   async findHorarioRolFecha(rol: string, dia: DiaSemana): Promise<Horario[]> {
-    return await this.HorarioRepository.find({
-      where: {
-        distribucion: {
-          rol_id: ILike(rol),
-        },
-        dia_semana: dia,
-      },
-    });
+    return await this.HorarioRepository.createQueryBuilder('horario')
+  .leftJoinAndSelect('horario.distribucion', 'distribucion')
+  .where('distribucion.rol_id ILIKE :rol', { rol })
+  .andWhere(':dia = ANY(horario.dia_semana)', { dia })
+  .getMany();
   }
 
   async findHorarioMembresia(fecha: Date, jornada?: Jornada) {

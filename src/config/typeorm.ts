@@ -1,4 +1,3 @@
-import { Ejercicio } from '../ejercicios/entities/ejercicio.entity';
 import { Agendamiento } from '../agendamiento/entities/agendamiento.entity';
 import { Horario } from '../horario/entities/horario.entity';
 import { HorarioEmpleado } from '../horario_empleado/entities/horario_empleado.entity';
@@ -7,7 +6,6 @@ import { Maquina } from '../maquina/entities/maquina.entity';
 import { Membresia } from '../membresia/entities/membresia.entity';
 import { Pago } from '../pago/entities/pago.entity';
 import { Distribucion } from '../distribucion/entities/distribucion.entity';
-import { Rutina } from '../rutina/entities/rutina.entity';
 import { ValidacionesPago } from '../validaciones_pago/entities/validaciones_pago.entity';
 import { DataSource } from 'typeorm';
 
@@ -29,9 +27,7 @@ const AppDataSource = new DataSource({
     Membresia,
     Pago,
     Distribucion,
-    Rutina,
-    ValidacionesPago,
-    Ejercicio,
+    ValidacionesPago
   ],
   migrations: ['./src/database/*-migrations.ts'],
   migrationsRun: true,

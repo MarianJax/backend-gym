@@ -73,6 +73,8 @@ export class AuthService {
       Array_Roles.includes('55|ASPIRANTE')
     ) {
       return 'ESTUDIANTE';
+    } else if (Array_Roles.includes('75|FUNCIONARIO')) {
+      return 'FUNCIONARIO';
     } else {
       return 'FUNCIONARIO';
     }

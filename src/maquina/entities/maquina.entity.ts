@@ -1,13 +1,11 @@
-import { Estado } from '../../enum/entities.enum';
-import { Ejercicio } from '../../ejercicios/entities/ejercicio.entity';
-import { Mantenimiento } from '../../mantenimiento/entities/mantenimiento.entity';
 import {
   Column,
   Entity,
-  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn
 } from 'typeorm';
+import { Estado } from '../../enum/entities.enum';
+import { Mantenimiento } from '../../mantenimiento/entities/mantenimiento.entity';
 
 @Entity({ schema: 'esq_gimnasio', name: 'maquinas' })
 export class Maquina {
@@ -28,9 +26,6 @@ export class Maquina {
 
   @Column({ name: 'descripcion', type: 'text' })
   descripcion: string;
-
-  @ManyToMany(() => Ejercicio, (ejercicio) => ejercicio.rutinas)
-  ejercicios: Ejercicio[];
 
   @OneToMany(() => Mantenimiento, (mantenimiento) => mantenimiento.maquina)
   mantenimiento: Mantenimiento[];

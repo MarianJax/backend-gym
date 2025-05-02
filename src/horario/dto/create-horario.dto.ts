@@ -6,8 +6,8 @@ export class CreateHorarioDto {
     @IsEnum(Jornada, { message: 'Jornada inválida.' })
     jornada: Jornada;
 
-    @IsEnum(DiaSemana, { message: 'Dia de semana inválido.' })
-    dia_semana: DiaSemana;
+    @IsEnum(DiaSemana, { message: 'Día de semana inválido.', each: true })
+    dia_semana: DiaSemana[];
 
     @IsMilitaryTime({ message: 'La hora de inicio debe ser una hora válida' })
     hora_inicio: string;
