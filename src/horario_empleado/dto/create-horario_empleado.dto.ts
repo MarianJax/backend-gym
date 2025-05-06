@@ -11,8 +11,8 @@ export class CreateHorarioEmpleadoDto {
     @IsMilitaryTime({ message: 'La franja de hora de inicio debe ser una hora válida' })
     franja_hora_inicio: string;
 
-    @IsEnum(DiaSemana, { message: 'Dia de semana inválido.' })
-    dia_semana: DiaSemana;
+    @IsEnum(DiaSemana, { message: 'Día de semana inválido.', each: true })
+    dia_semana: DiaSemana[];
 
     @IsNotEmpty({ message: 'La franja de hora de fin es requerida' })
     @IsMilitaryTime({ message: 'La franja de hora de fin debe ser una hora válida' })

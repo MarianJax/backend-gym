@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DistribucionService } from 'src/distribucion/distribucion.service';
+import { MembresiaService } from 'src/membresia/membresia.service';
 import { ILike, Repository } from 'typeorm';
 import { DiaSemana, Jornada } from '../enum/entities.enum';
 import { CreateHorarioDto } from './dto/create-horario.dto';
@@ -14,7 +15,8 @@ export class HorarioService {
     private readonly HorarioRepository: Repository<Horario>,
 
     private distribucionService: DistribucionService,
-  ) {}
+    private readonly membresiaService: MembresiaService,
+  ) { }
 
   async create(createHorarioDto: CreateHorarioDto): Promise<Horario> {
     try {
@@ -56,44 +58,44 @@ export class HorarioService {
     });
   }
 
-  async findHorarioRolFecha(rol: string, dia: DiaSemana): Promise<Horario[]> {
+  async findHorarioRolFecha(rol: string, dia: DiaSemana): Promise<Horario> {
     return await this.HorarioRepository.createQueryBuilder('horario')
-  .leftJoinAndSelect('horario.distribucion', 'distribucion')
-  .where('distribucion.rol_id ILIKE :rol', { rol })
-  .andWhere(':dia = ANY(horario.dia_semana)', { dia })
-  .getMany();
+      .leftJoinAndSelect('horario.distribucion', 'distribucion')
+      .where('distribucion.rol_id ILIKE :rol', { rol })
+      .andWhere(':dia = ANY(horario.dia_semana)', { dia })
+      .getOne();
   }
 
-  async findHorarioMembresia(fecha: Date, jornada?: Jornada) {
+  private normalizarDiaSemana(fecha: Date): DiaSemana {
+    const dia = new Intl.DateTimeFormat('es-ES', { weekday: 'long' }).format(fecha);
+    const sinTildes = dia.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    return (sinTildes.charAt(0).toUpperCase() + sinTildes.slice(1)) as DiaSemana;
+  }
+
+  async findHorarioMembresia(fecha: Date, usuario: string, jornada?: Jornada) {
     try {
-      let diaSemana = new Intl.DateTimeFormat('es-ES', {
-        weekday: 'long',
-      }).format(new Date(fecha));
+      const formatoFecha = new Date(fecha);
 
-      diaSemana = diaSemana.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-      const dia_semana = (diaSemana.charAt(0).toUpperCase() +
-        diaSemana.slice(1)) as DiaSemana;
+      const membresia = await this.membresiaService.findByPersonaIdAndDate(
+        usuario, formatoFecha);
 
-      const whereConditions: any = {
-        dia_semana,
-      };
-
-      console.log(jornada.length);
-
-      // Si jornada está definida, agrégala a las condiciones de búsqueda
-      if (jornada && jornada !== undefined) {
-        whereConditions.jornada = jornada;
+      if (!membresia) {
+        return [];
       }
 
-      console.log(whereConditions);
+      const dia = this.normalizarDiaSemana(formatoFecha);
+      const query = this.HorarioRepository.createQueryBuilder('horario')
+        .where(':dia = ANY(horario.dia_semana)', { dia });
 
-      const horarios = await this.HorarioRepository.find({
-        where: whereConditions,
-      });
+      if (jornada) {
+        query.andWhere('horario.jornada = :jornada', { jornada });
+      }
 
+      const horarios = await query.getMany();
       return horarios;
     } catch (error) {
       console.log(error);
+      throw error;
     }
   }
 

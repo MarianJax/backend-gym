@@ -25,7 +25,7 @@ export class HorarioEmpleadoService {
 
       return await this.HorarioEmpleadoRepository.save(horarioEntrenador);
     } catch (error) {
-      console.error('El horario no existe', error);
+      console.error(error);
       if (error.code === '22P02' && error.routine === 'string_to_uuid') {
         throw new BadRequestException('El entrenador no existe');
       }
