@@ -163,7 +163,7 @@ export class AgendamientoService {
       if (!pagos) {
         throw new BadRequestException('Error al guardar el pago');
       }
-      if (createAgendamientoDto.metodo_pago === Metodo.MENSUAL) {
+      if (createAgendamientoDto.metodo_pago === Metodo.MENSUAL || createAgendamientoDto.metodo_pago === Metodo.SEMANAL) {
         const membprev = await this.membresiaService.create({
           costo: createAgendamientoDto.monto,
           fecha_inicio: createAgendamientoDto.fecha,

@@ -1,6 +1,4 @@
 import { Distribucion } from 'src/distribucion/entities/distribucion.entity';
-import { Membresia } from '../../membresia/entities/membresia.entity';
-import { Pago } from '../../pago/entities/pago.entity';
 import {
   BeforeInsert,
   Column,
@@ -9,6 +7,8 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Membresia } from '../../membresia/entities/membresia.entity';
+import { Pago } from '../../pago/entities/pago.entity';
 
 @Entity({ schema: 'esq_gimnasio', name: 'agendamiento' })
 export class Agendamiento {
@@ -42,12 +42,13 @@ export class Agendamiento {
 
   @ManyToOne(() => Membresia, (membresia) => membresia.agendamientos, {
     nullable: true,
+    onDelete: 'CASCADE'
   })
   @JoinColumn({ name: 'membresia_id' })
   membresias?: Membresia;
 
-  @ManyToOne(() => Pago, (pago) => pago.agendamiento, { nullable: true })
-  @JoinColumn({ name: 'pago_id' })
+  @ManyToOne(() => Pago, (pago) => pago.agendamiento, { nullable: true, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'id_transferencia' })
   pagos?: Pago;
 
   @ManyToOne(() => Distribucion, (dist) => dist.agendamiento, { nullable: true })
