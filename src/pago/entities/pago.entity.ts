@@ -23,12 +23,12 @@ export class Pago {
   })
   metodo_pago: Metodo;
 
-  @OneToMany(() => Agendamiento, (agendamiento) => agendamiento.pagos)
+  @OneToMany(() => Agendamiento, (agendamiento) => agendamiento.pagos, { onDelete: 'CASCADE', cascade: true })
   agendamiento: Agendamiento[];
 
-  @OneToMany(() => Membresia, (membresia) => membresia.pagos)
+  @OneToMany(() => Membresia, (membresia) => membresia.pagos, { onDelete: 'CASCADE', cascade: true })
   membresia: Membresia[];
 
-  @OneToMany(() => ValidacionesPago, (agendamiento) => agendamiento.pagos)
+  @OneToMany(() => ValidacionesPago, (agendamiento) => agendamiento.pagos, { onDelete: 'CASCADE', cascade: true })
   validacion_pago: ValidacionesPago[];
 }

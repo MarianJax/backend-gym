@@ -2,13 +2,11 @@ import { EstadoPago } from '../../enum/entities.enum';
 import { Pago } from '../../pago/entities/pago.entity';
 
 import {
-  AfterUpdate,
-  BeforeUpdate,
   Column,
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryGeneratedColumn,
+  PrimaryGeneratedColumn
 } from 'typeorm';
 
 @Entity({ schema: 'esq_gimnasio', name: 'validaciones_pagos' })
@@ -32,11 +30,11 @@ export class ValidacionesPago {
 
   @Column({ name: 'tipo', type: 'varchar' })
   tipo: string;
-  
-    @Column({ name: 'usuario_id', type: 'varchar', length: 50 })
-    usuario_id: string;
 
-  @ManyToOne(() => Pago, (pago) => pago.validacion_pago)
-  @JoinColumn({ name: 'pago_id' })
+  @Column({ name: 'usuario_id', type: 'varchar', length: 50 })
+  usuario_id: string;
+
+  @ManyToOne(() => Pago, (pago) => pago.validacion_pago, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'id_transferencia' })
   pagos: Pago;
 }

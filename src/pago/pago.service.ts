@@ -1,17 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { EstadoPago } from 'src/enum/entities.enum';
 import { Repository } from 'typeorm';
 import { CreatePagoDto } from './dto/create-pago.dto';
 import { UpdatePagoDto } from './dto/update-pago.dto';
 import { Pago } from './entities/pago.entity';
-import { EstadoPago } from 'src/enum/entities.enum';
 
 @Injectable()
 export class PagoService {
   constructor(
     @InjectRepository(Pago)
     private readonly PagoRepository: Repository<Pago>,
-  ) {}
+  ) { }
 
   async create(createPagoDto: CreatePagoDto): Promise<Pago> {
     return await this.PagoRepository.create(createPagoDto);
@@ -69,8 +69,27 @@ export class PagoService {
     await this.PagoRepository.update(id, updatePagoDto);
   }
 
-  async remove(id: string): Promise<void> {
-    await this.PagoRepository.delete(id);
+  async remove(id: string): Promise<any> {
+    try {
+      const pago = await this.PagoRepository.findOne({
+        where: { id },
+        relations: ['agendamiento', 'membresia', 'validacion_pago'], // agrega todas las relaciones que deban eliminarse
+      });
+
+      console.log('pago', pago);
+
+      if (!pago) {
+        throw new NotFoundException('Pago no encontrado');
+      }
+
+      await this.PagoRepository.remove(pago);
+      return { status: true, message: 'Pago eliminado correctamente' };
+    } catch (error) {
+      console.error('Error al eliminar el pago:', error);
+      return { status: false, message: 'Error al eliminar el pago' };
+
+
+    }
   }
 
   async findAllPagosRolAndUser(): Promise<Pago[]> {
