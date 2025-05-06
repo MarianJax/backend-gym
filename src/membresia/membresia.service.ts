@@ -1,10 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import { LessThanOrEqual, MoreThanOrEqual, Not, Repository } from 'typeorm';
 import { CreateMembresiaDto } from './dto/create-membresia.dto';
 import { UpdateMembresiaDto } from './dto/update-membresia.dto';
 import { Membresia } from './entities/membresia.entity';
 import { PagoService } from 'src/pago/pago.service';
+import { EstadoPago } from 'src/enum/entities.enum';
 
 @Injectable()
 export class MembresiaService {
@@ -40,38 +41,38 @@ export class MembresiaService {
   }
 
   async findAll(): Promise<any[]> {
-    const membresias = await this.MembresiaRepository.find({
+    return await this.MembresiaRepository.find({
       order: {
         fecha_inicio: 'ASC',
       },
     });
 
-    //#region CONSULTAR API DE USUARIOS
-    const formatterPagos = [];
+    // //#region CONSULTAR API DE USUARIOS
+    // const formatterPagos = [];
 
-    membresias.map(async (membresia) => {
-      // EndPoint de la API para obtener el usuario por ID
-      const user = await fetch('http://localhost:3000/api/user/' + membresia.usuario_id) // GET
-      // const userPOST = await fetch('http://localhost:3000/api/user/', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ cedula: pago.validacion_pago[0].usuario_id }),
-      // });
+    // membresias.map(async (membresia) => {
+    //   // EndPoint de la API para obtener el usuario por ID
+    //   const user = await fetch('http://localhost:3000/api/user/' + membresia.usuario_id) // GET
+    //   // const userPOST = await fetch('http://localhost:3000/api/user/', {
+    //   //   method: 'POST',
+    //   //   headers: {
+    //   //     'Content-Type': 'application/json',
+    //   //   },
+    //   //   body: JSON.stringify({ cedula: pago.validacion_pago[0].usuario_id }),
+    //   // });
 
-      const userData = await user.json(); // { id_personal: 1546546, nombres: "NOMBRE DEL USUARIO", roles: "ESTUDIANTE", FACULTAD: "CIENCIAS .." }
+    //   const userData = await user.json(); // { id_personal: 1546546, nombres: "NOMBRE DEL USUARIO", roles: "ESTUDIANTE", FACULTAD: "CIENCIAS .." }
 
-      return {
-        ...membresia,
-        user: {
-          nombres: userData.nombres,
-          roles: userData.roles,
-        }
-      }
-     });
+    //   return {
+    //     ...membresia,
+    //     user: {
+    //       nombres: userData.nombres,
+    //       roles: userData.roles,
+    //     }
+    //   }
+    //  });
 
-    return formatterPagos;
+    // return formatterPagos;
   }
 
   async findOne(id: string): Promise<Membresia> {
@@ -116,6 +117,11 @@ export class MembresiaService {
           usuario_id: id ,
           fecha_fin: MoreThanOrEqual(fecha),
           fecha_inicio: LessThanOrEqual(fecha),
+          pagos: {
+            validacion_pago: {
+              estado: Not(EstadoPago.RECHAZADO),
+            }
+          }
         },
         select: {
           id: true,
