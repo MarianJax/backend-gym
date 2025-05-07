@@ -6,9 +6,9 @@ import { PagoService } from 'src/pago/pago.service';
 import { ValidacionesPagoService } from 'src/validaciones_pago/validaciones_pago.service';
 import {
   Between,
+  Brackets,
   LessThanOrEqual,
   MoreThanOrEqual,
-  Not,
   Repository
 } from 'typeorm';
 import { diasEn, EstadoPago, Metodo } from '../enum/entities.enum';
@@ -31,7 +31,7 @@ export class AgendamientoService {
     private pagoService: PagoService,
     private distribucionService: DistribucionService,
     private readonly validacionesPagoService: ValidacionesPagoService,
-  ) {}
+  ) { }
 
   async verificarMaximoReservas({
     hora_inicio,
@@ -43,11 +43,11 @@ export class AgendamientoService {
     hora_fin: string;
     fecha: Date;
     cupo: number;
-    }): Promise<boolean> {
-      const startDate = new Date(fecha);
-      startDate.setHours(0, 0, 0, 0);
-      const endDate = new Date(fecha);
-      endDate.setHours(23, 59, 59, 999);
+  }): Promise<boolean> {
+    const startDate = new Date(fecha);
+    startDate.setHours(0, 0, 0, 0);
+    const endDate = new Date(fecha);
+    endDate.setHours(23, 59, 59, 999);
     const count = await this.agendamientoRepository.count({
       where: {
         hora_inicio: MoreThanOrEqual(hora_inicio),
@@ -55,7 +55,7 @@ export class AgendamientoService {
         fecha: Between(startDate, endDate),
       },
     });
-    
+
     return count >= cupo;
   }
 
@@ -91,24 +91,23 @@ export class AgendamientoService {
       const endDate = new Date(createAgendamientoDto.fecha);
       endDate.setHours(23, 59, 59, 999);
 
-      const agendamientoActual = await this.agendamientoRepository.findOne({
-        where: {
-          fecha: Between(startDate, endDate),
-          usuario_id: createAgendamientoDto.usuario_id,
-          membresias: {
-            pagos: {
-              validacion_pago: {
-                estado: Not(EstadoPago.RECHAZADO),
-              },
-            },
-          },
-          pagos: {
-            validacion_pago: {
-              estado: Not(EstadoPago.RECHAZADO),
-            },
-          },
-        },
-      });
+      const agendamientoActual = await this.agendamientoRepository
+        .createQueryBuilder('agendamiento')
+        .leftJoin('agendamiento.membresias', 'membresia')
+        .leftJoin('membresia.pagos', 'pago_membresia')
+        .leftJoin('pago_membresia.validacion_pago', 'validacion_membresia')
+        .leftJoin('agendamiento.pagos', 'pago_agendamiento')
+        .leftJoin('pago_agendamiento.validacion_pago', 'validacion_pago')
+
+        .where('agendamiento.fecha BETWEEN :startDate AND :endDate', { startDate, endDate })
+        .andWhere('agendamiento.usuario_id = :usuarioId', { usuarioId: createAgendamientoDto.usuario_id })
+        .andWhere(
+          new Brackets(qb => {
+            qb.where('validacion_membresia.estado IS NOT NULL AND validacion_membresia.estado != :rechazado', { rechazado: EstadoPago.RECHAZADO })
+              .orWhere('validacion_pago.estado IS NOT NULL AND validacion_pago.estado != :rechazado', { rechazado: EstadoPago.RECHAZADO });
+          })
+        )
+        .getOne();
 
       if (agendamientoActual) {
         throw new BadRequestException(
@@ -211,14 +210,14 @@ export class AgendamientoService {
   ): Promise<any[]> {
     const pagos = all
       ? {
-          validacion_pago: {
-            fecha_validacion: null,
-            estado: EstadoPago.PENDIENTE,
-          },
-        }
+        validacion_pago: {
+          fecha_validacion: null,
+          estado: EstadoPago.PENDIENTE,
+        },
+      }
       : {};
 
-   return await this.agendamientoRepository.find({
+    return await this.agendamientoRepository.find({
       where: [
         {
           pagos,
@@ -258,7 +257,7 @@ export class AgendamientoService {
           },
         },
       },
-     relations: [
+      relations: [
         'distribucion',
         'pagos',
         'membresias',
@@ -327,22 +326,22 @@ export class AgendamientoService {
     }
 
     const startDate = new Date(fecha);
-      startDate.setHours(0, 0, 0, 0);
-      const endDate = new Date(fecha);
-      endDate.setHours(23, 59, 59, 999);
+    startDate.setHours(0, 0, 0, 0);
+    const endDate = new Date(fecha);
+    endDate.setHours(23, 59, 59, 999);
 
-      const agendamientoActual = await this.agendamientoRepository.findOne({
-        where: {
-          fecha: Between(startDate, endDate),
-          usuario_id: usuario_id,
-        },
-      });
+    const agendamientoActual = await this.agendamientoRepository.findOne({
+      where: {
+        fecha: Between(startDate, endDate),
+        usuario_id: usuario_id,
+      },
+    });
 
-      if (agendamientoActual) {
-        throw new BadRequestException(
-          'Ya existe un agendamiento',
-        );
-      }
+    if (agendamientoActual) {
+      throw new BadRequestException(
+        'Ya existe un agendamiento',
+      );
+    }
 
     const { facu_id, carr_id, dep_id } = await this.agendamientoRepository.findOne({ where: { membresias: { id: membresia } } })
 
@@ -434,7 +433,7 @@ export class AgendamientoService {
   async update(
     id: string,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    {distribucion, ...updateAgendamientoDto}: UpdateAgendamientoDto,
+    { distribucion, ...updateAgendamientoDto }: UpdateAgendamientoDto,
   ): Promise<void> {
 
     await this.agendamientoRepository.update(id, updateAgendamientoDto);
@@ -662,9 +661,9 @@ export class AgendamientoService {
       .createQueryBuilder('agendamiento')
       .select([
         'CASE ' +
-          "WHEN agendamiento.asistio IS NULL THEN 'Pendientes'" +
-          " WHEN agendamiento.asistio = true THEN 'Asistidos'" +
-          " ELSE 'Inasistidos' END AS asistio",
+        "WHEN agendamiento.asistio IS NULL THEN 'Pendientes'" +
+        " WHEN agendamiento.asistio = true THEN 'Asistidos'" +
+        " ELSE 'Inasistidos' END AS asistio",
         'COUNT(*) AS total',
       ]);
 
