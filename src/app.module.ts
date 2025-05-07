@@ -32,7 +32,7 @@ import { InstitucionModule } from './institucion/institucion.module';
       database: 'gymutm',
       autoLoadEntities: true,
       synchronize: true,
-      //logging: true,
+      logging: true,
       dropSchema: true,
       schema: 'esq_gimnasio',
     }),
