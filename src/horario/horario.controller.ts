@@ -24,9 +24,9 @@ export class HorarioController {
     return this.horarioService.findHorarioRol(rol);
   }
 
-  @Get('rol/:rol/:dia')
-  findHorarioRolDia(@Param('rol') rol: string, @Param('dia') dia: string) {
-    return this.horarioService.findHorarioRolFecha(rol, dia as DiaSemana);
+  @Get('rol/:rol/:dia/:fecha')
+  findHorarioRolDia(@Param('rol') rol: string, @Param('dia') dia: string, @Param('fecha') fecha: string) {
+    return this.horarioService.findHorarioRolFecha(rol, dia as DiaSemana, fecha);
   }
 
   @Get('membresia')

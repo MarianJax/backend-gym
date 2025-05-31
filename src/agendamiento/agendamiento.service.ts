@@ -380,6 +380,18 @@ export class AgendamientoService {
     });
   }
 
+  async findByDateAndHours(fecha: string): Promise<Agendamiento[]> {
+    return await this.agendamientoRepository.createQueryBuilder('agendamiento')
+      .select([
+        'agendamiento.hora_inicio',
+        'COUNT(*) AS total',
+      ])
+      .where('agendamiento.fecha = :fecha', { fecha })
+      .groupBy('agendamiento.hora_inicio')
+      .orderBy('agendamiento.hora_inicio', 'ASC')
+      .getRawMany();
+  }
+
   async findAll(): Promise<any[]> {
     return await this.agendamientoRepository.find({
       select: {

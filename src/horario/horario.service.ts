@@ -1,5 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AgendamientoService } from 'src/agendamiento/agendamiento.service';
+import { Agendamiento } from 'src/agendamiento/entities/agendamiento.entity';
 import { DistribucionService } from 'src/distribucion/distribucion.service';
 import { MembresiaService } from 'src/membresia/membresia.service';
 import { ILike, Repository } from 'typeorm';
@@ -8,11 +10,18 @@ import { CreateHorarioDto } from './dto/create-horario.dto';
 import { UpdateHorarioDto } from './dto/update-horario.dto';
 import { Horario } from './entities/horario.entity';
 
+
+type fetchHourAndDate = {
+  horarios: Horario[],
+  agendamientos: Agendamiento[]
+}
 @Injectable()
 export class HorarioService {
   constructor(
     @InjectRepository(Horario)
     private readonly HorarioRepository: Repository<Horario>,
+
+    private readonly AgendamientoService: AgendamientoService,
 
     private distribucionService: DistribucionService,
     private readonly membresiaService: MembresiaService,
@@ -58,12 +67,23 @@ export class HorarioService {
     });
   }
 
-  async findHorarioRolFecha(rol: string, dia: DiaSemana): Promise<Horario> {
-    return await this.HorarioRepository.createQueryBuilder('horario')
-      .leftJoinAndSelect('horario.distribucion', 'distribucion')
+  async findHorarioRolFecha(
+    rol: string,
+    dia: DiaSemana,
+    fecha: string
+  ): Promise<fetchHourAndDate> {
+    const agendamientos = await this.AgendamientoService.findByDateAndHours(fecha);
+    const horarios = await this.HorarioRepository.createQueryBuilder('horario')
+      .select(['horario.hora_inicio', 'horario.hora_fin', 'horario.jornada'])
+      .innerJoin('horario.distribucion', 'distribucion')
+      .addSelect(['distribucion.pago_diario', 'distribucion.pago_semanal', 'distribucion.pago_mensual', 'distribucion.tiempo', 'distribucion.cupo'])
       .where('distribucion.rol_id ILIKE :rol', { rol })
       .andWhere(':dia = ANY(horario.dia_semana)', { dia })
-      .getOne();
+      .getMany();
+
+    return {
+      horarios, agendamientos
+    }
   }
 
   private normalizarDiaSemana(fecha: Date): DiaSemana {
