@@ -28,7 +28,8 @@ export class AuthService {
             correo: AuthDto.correo,
             roles_array:
               this.switchRolForUser(dat.value.tipo_usuario_array) ===
-                'ADMINISTRADOR GYM' && this.getAllowedRoles(dat.value.tipo_usuario_array),
+                'ADMINISTRADOR GYM' &&
+              this.getAllowedRoles(dat.value.tipo_usuario_array),
             rol: this.switchRolForUser(dat.value.tipo_usuario_array),
             datos_estudio: dat.value.datos_estudio,
             iddepartamento: dat.value.iddepartamento,
@@ -85,7 +86,8 @@ export class AuthService {
     if (roles.includes('165|ADMINISTRADOR GYM')) {
       allowedRoles.push('ADMINISTRADOR GYM');
     }
-    if (roles.includes('166|ENTRENADOR')) { // ENTRENADOR
+    if (roles.includes('166|ENTRENADOR')) {
+      // ENTRENADOR
       allowedRoles.push('ENTRENADOR');
     }
     if (roles.includes('5|DOCENTE') || roles.includes('51|DOCENTE TIPO 2')) {

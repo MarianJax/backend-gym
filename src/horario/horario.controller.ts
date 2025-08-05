@@ -30,8 +30,8 @@ export class HorarioController {
   }
 
   @Get('membresia')
-  findHorarioMembresias(@Query('fecha') fecha: Date,@Query('usuario') usuario: string, @Query('jornada') jornada: string) {
-    return this.horarioService.findHorarioMembresia(fecha, usuario, jornada as Jornada);
+  findHorarioMembresias(@Query('fecha') fecha: Date,@Query('usuario') usuario: string,@Query('rol') rol:string,@Query('jornada') jornada: string) {
+    return this.horarioService.findHorarioMembresia(fecha, usuario, rol, jornada as Jornada);
 
   }
 

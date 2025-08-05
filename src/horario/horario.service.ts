@@ -92,7 +92,7 @@ export class HorarioService {
     return (sinTildes.charAt(0).toUpperCase() + sinTildes.slice(1)) as DiaSemana;
   }
 
-  async findHorarioMembresia(fecha: Date, usuario: string, jornada?: Jornada) {
+  async findHorarioMembresia(fecha: Date, usuario: string, rol: string, jornada?: Jornada) {
     try {
       const formatoFecha = new Date(fecha);
 
@@ -106,7 +106,8 @@ export class HorarioService {
       const dia = this.normalizarDiaSemana(formatoFecha);
       const query = this.HorarioRepository.createQueryBuilder('horario')
         .where(':dia = ANY(horario.dia_semana)', { dia });
-
+query.innerJoin('horario.distribucion', 'distribucion')
+      query.andWhere('distribucion.rol_id ILIKE :rol', { rol });
       if (jornada) {
         query.andWhere('horario.jornada = :jornada', { jornada });
       }

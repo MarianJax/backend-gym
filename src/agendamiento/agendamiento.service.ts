@@ -9,7 +9,7 @@ import {
   Brackets,
   LessThanOrEqual,
   MoreThanOrEqual,
-  Repository
+  Repository,
 } from 'typeorm';
 import { diasEn, EstadoPago, Metodo } from '../enum/entities.enum';
 import {
@@ -31,7 +31,7 @@ export class AgendamientoService {
     private pagoService: PagoService,
     private distribucionService: DistribucionService,
     private readonly validacionesPagoService: ValidacionesPagoService,
-  ) { }
+  ) {}
 
   async verificarMaximoReservas({
     hora_inicio,
@@ -99,20 +99,28 @@ export class AgendamientoService {
         .leftJoin('agendamiento.pagos', 'pago_agendamiento')
         .leftJoin('pago_agendamiento.validacion_pago', 'validacion_pago')
 
-        .where('agendamiento.fecha BETWEEN :startDate AND :endDate', { startDate, endDate })
-        .andWhere('agendamiento.usuario_id = :usuarioId', { usuarioId: createAgendamientoDto.usuario_id })
+        .where('agendamiento.fecha BETWEEN :startDate AND :endDate', {
+          startDate,
+          endDate,
+        })
+        .andWhere('agendamiento.usuario_id = :usuarioId', {
+          usuarioId: createAgendamientoDto.usuario_id,
+        })
         .andWhere(
-          new Brackets(qb => {
-            qb.where('validacion_membresia.estado IS NOT NULL AND validacion_membresia.estado != :rechazado', { rechazado: EstadoPago.RECHAZADO })
-              .orWhere('validacion_pago.estado IS NOT NULL AND validacion_pago.estado != :rechazado', { rechazado: EstadoPago.RECHAZADO });
-          })
+          new Brackets((qb) => {
+            qb.where(
+              'validacion_membresia.estado IS NOT NULL AND validacion_membresia.estado != :rechazado',
+              { rechazado: EstadoPago.RECHAZADO },
+            ).orWhere(
+              'validacion_pago.estado IS NOT NULL AND validacion_pago.estado != :rechazado',
+              { rechazado: EstadoPago.RECHAZADO },
+            );
+          }),
         )
         .getOne();
 
       if (agendamientoActual) {
-        throw new BadRequestException(
-          'Ya existe un agendamiento',
-        );
+        throw new BadRequestException('Ya existe un agendamiento');
       }
 
       let membresia: Membresia | null = null;
@@ -129,9 +137,7 @@ export class AgendamientoService {
       });
 
       if (maximoAlcanzado) {
-        throw new BadRequestException(
-          `Número máximo de reservas alcanzado`,
-        );
+        throw new BadRequestException(`Número máximo de reservas alcanzado`);
       }
 
       await this.verificarHorasPorRol({
@@ -162,7 +168,10 @@ export class AgendamientoService {
       if (!pagos) {
         throw new BadRequestException('Error al guardar el pago');
       }
-      if (createAgendamientoDto.metodo_pago === Metodo.MENSUAL || createAgendamientoDto.metodo_pago === Metodo.SEMANAL) {
+      if (
+        createAgendamientoDto.metodo_pago === Metodo.MENSUAL ||
+        createAgendamientoDto.metodo_pago === Metodo.SEMANAL
+      ) {
         const membprev = await this.membresiaService.create({
           costo: createAgendamientoDto.monto,
           fecha_inicio: createAgendamientoDto.fecha,
@@ -210,11 +219,11 @@ export class AgendamientoService {
   ): Promise<any[]> {
     const pagos = all
       ? {
-        validacion_pago: {
-          fecha_validacion: null,
-          estado: EstadoPago.PENDIENTE,
-        },
-      }
+          validacion_pago: {
+            fecha_validacion: null,
+            estado: EstadoPago.PENDIENTE,
+          },
+        }
       : {};
 
     return await this.agendamientoRepository.find({
@@ -318,7 +327,7 @@ export class AgendamientoService {
     hora_inicio,
     membresia,
     usuario_id,
-    distribucion: rol_id
+    distribucion: rol_id,
   }: CreateAgendamientoForMembresia): Promise<Agendamiento> {
     const memb = await this.membresiaService.findOne(membresia);
     if (!memb) {
@@ -338,16 +347,16 @@ export class AgendamientoService {
     });
 
     if (agendamientoActual) {
-      throw new BadRequestException(
-        'Ya existe un agendamiento',
-      );
+      throw new BadRequestException('Ya existe un agendamiento');
     }
 
-    const { facu_id, carr_id, dep_id } = await this.agendamientoRepository.findOne({ where: { membresias: { id: membresia } } })
+    const { facu_id, carr_id, dep_id } =
+      await this.agendamientoRepository.findOne({
+        where: { membresias: { id: membresia } },
+      });
 
-    const distribucion = await this.distribucionService.findOneByRolName(
-      rol_id,
-    );
+    const distribucion =
+      await this.distribucionService.findOneByRolName(rol_id);
 
     const agendamiento = this.agendamientoRepository.create({
       fecha,
@@ -381,12 +390,18 @@ export class AgendamientoService {
   }
 
   async findByDateAndHours(fecha: string): Promise<Agendamiento[]> {
-    return await this.agendamientoRepository.createQueryBuilder('agendamiento')
-      .select([
-        'agendamiento.hora_inicio',
-        'COUNT(*) AS total',
-      ])
-      .where('agendamiento.fecha = :fecha', { fecha })
+    const start = new Date(fecha);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 1);
+
+    return await this.agendamientoRepository
+      .createQueryBuilder('agendamiento')
+      .select(['agendamiento.hora_inicio', 'COUNT(*) AS total'])
+      .where('agendamiento.fecha BETWEEN :startDate AND :endDate', {
+        startDate: start.toISOString(),
+        endDate: end.toISOString(),
+      })
       .groupBy('agendamiento.hora_inicio')
       .orderBy('agendamiento.hora_inicio', 'ASC')
       .getRawMany();
@@ -403,7 +418,7 @@ export class AgendamientoService {
         usuario_id: true,
         distribucion: {
           rol_id: true,
-        }
+        },
       },
       relations: ['distribucion'],
     });
@@ -447,7 +462,6 @@ export class AgendamientoService {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     { distribucion, ...updateAgendamientoDto }: UpdateAgendamientoDto,
   ): Promise<void> {
-
     await this.agendamientoRepository.update(id, updateAgendamientoDto);
   }
 
@@ -485,7 +499,7 @@ export class AgendamientoService {
     return total.total;
   }
 
-  private readonly ROLES = ['ESTUDIANTE', 'FUNCIONARIO', 'DOCENTE']
+  private readonly ROLES = ['ESTUDIANTE', 'FUNCIONARIO', 'DOCENTE'];
 
   async findAllByRol(
     facultad?: string,
@@ -511,13 +525,12 @@ export class AgendamientoService {
           { facultad },
         );
       } else {
-        queryBuilder
-          .andWhere(
-            'agendamiento.carr_id IS NOT NULL AND agendamiento.carr_id = :carrera',
-            {
-              carrera,
-            },
-          );
+        queryBuilder.andWhere(
+          'agendamiento.carr_id IS NOT NULL AND agendamiento.carr_id = :carrera',
+          {
+            carrera,
+          },
+        );
       }
     }
     if (departamento) {
@@ -570,13 +583,12 @@ export class AgendamientoService {
           { facultad },
         );
       } else {
-        queryBuilder
-          .andWhere(
-            'agendamiento.carr_id IS NOT NULL AND agendamiento.carr_id = :carrera',
-            {
-              carrera,
-            },
-          );
+        queryBuilder.andWhere(
+          'agendamiento.carr_id IS NOT NULL AND agendamiento.carr_id = :carrera',
+          {
+            carrera,
+          },
+        );
       }
     }
     if (departamento) {
@@ -625,13 +637,12 @@ export class AgendamientoService {
           { facultad },
         );
       } else {
-        queryBuilder
-          .andWhere(
-            'agendamiento.carr_id IS NOT NULL AND agendamiento.carr_id = :carrera',
-            {
-              carrera,
-            },
-          );
+        queryBuilder.andWhere(
+          'agendamiento.carr_id IS NOT NULL AND agendamiento.carr_id = :carrera',
+          {
+            carrera,
+          },
+        );
       }
     }
     if (departamento) {
@@ -673,9 +684,9 @@ export class AgendamientoService {
       .createQueryBuilder('agendamiento')
       .select([
         'CASE ' +
-        "WHEN agendamiento.asistio IS NULL THEN 'Pendientes'" +
-        " WHEN agendamiento.asistio = true THEN 'Asistidos'" +
-        " ELSE 'Inasistidos' END AS asistio",
+          "WHEN agendamiento.asistio IS NULL THEN 'Pendientes'" +
+          " WHEN agendamiento.asistio = true THEN 'Asistidos'" +
+          " ELSE 'Inasistidos' END AS asistio",
         'COUNT(*) AS total',
       ]);
 
@@ -687,13 +698,12 @@ export class AgendamientoService {
           { facultad },
         );
       } else {
-        queryBuilder
-          .andWhere(
-            'agendamiento.carr_id IS NOT NULL AND agendamiento.carr_id = :carrera',
-            {
-              carrera,
-            },
-          );
+        queryBuilder.andWhere(
+          'agendamiento.carr_id IS NOT NULL AND agendamiento.carr_id = :carrera',
+          {
+            carrera,
+          },
+        );
       }
     }
     if (departamento) {

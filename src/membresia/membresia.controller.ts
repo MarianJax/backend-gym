@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { MembresiaService } from './membresia.service';
 import { CreateMembresiaDto } from './dto/create-membresia.dto';
 import { UpdateMembresiaDto } from './dto/update-membresia.dto';
@@ -28,7 +37,10 @@ export class MembresiaController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMembresiaDto: UpdateMembresiaDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateMembresiaDto: UpdateMembresiaDto,
+  ) {
     return this.membresiaService.update(id, updateMembresiaDto);
   }
 
@@ -36,6 +48,4 @@ export class MembresiaController {
   remove(@Param('id') id: string) {
     return this.membresiaService.remove(id);
   }
-
-
 }
