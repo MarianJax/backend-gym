@@ -395,9 +395,10 @@ export class AgendamientoService {
     const end = new Date(start);
     end.setDate(start.getDate() + 1);
 
-    return await this.agendamientoRepository
+    const agendamiento_membresia = await this.agendamientoRepository
       .createQueryBuilder('agendamiento')
       .select(['agendamiento.hora_inicio', 'COUNT(*) AS total'])
+      .leftJoin('agendamiento.membresias','membresias')
       .where('agendamiento.fecha BETWEEN :startDate AND :endDate', {
         startDate: start.toISOString(),
         endDate: end.toISOString(),
@@ -405,6 +406,26 @@ export class AgendamientoService {
       .groupBy('agendamiento.hora_inicio')
       .orderBy('agendamiento.hora_inicio', 'ASC')
       .getRawMany();
+
+      const agendamiento_pago = await this.agendamientoRepository
+      .createQueryBuilder('agendamiento')
+      .select(['agendamiento.hora_inicio', 'COUNT(*) AS total'])
+      .leftJoin('agendamiento.pagos','pagos')
+      .where('agendamiento.fecha BETWEEN :startDate AND :endDate', {
+        startDate: start.toISOString(),
+        endDate: end.toISOString(),
+      })
+      .groupBy('agendamiento.hora_inicio')
+      .orderBy('agendamiento.hora_inicio', 'ASC')
+      .getRawMany();
+
+      return [
+        ...agendamiento_membresia,
+        ...agendamiento_pago,
+      ]
+
+
+
   }
 
   async findAll(): Promise<any[]> {
