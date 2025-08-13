@@ -37,8 +37,8 @@ export class AgendamientoController {
   }
 
   @Get()
-  findAll() {
-    return this.agendamientoService.findAll();
+  findAll(@Query('_fecha') fecha: string) {
+    return this.agendamientoService.findAll(fecha);
   }
 
   @Get('/usuario/:id')

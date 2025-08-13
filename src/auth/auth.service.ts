@@ -62,7 +62,6 @@ export class AuthService {
     if (Array_Roles.includes('165|ADMINISTRADOR GYM')) {
       return 'ADMINISTRADOR GYM';
     } else if (Array_Roles.includes('166|ENTRENADOR')) {
-      // ENTRENADOR
       return 'ENTRENADOR';
     } else if (
       Array_Roles.includes('5|DOCENTE') ||
@@ -87,7 +86,7 @@ export class AuthService {
       allowedRoles.push('ADMINISTRADOR GYM');
     }
     if (roles.includes('166|ENTRENADOR')) {
-      // ENTRENADOR
+  
       allowedRoles.push('ENTRENADOR');
     }
     if (roles.includes('5|DOCENTE') || roles.includes('51|DOCENTE TIPO 2')) {

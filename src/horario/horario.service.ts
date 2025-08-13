@@ -13,7 +13,7 @@ import { Horario } from './entities/horario.entity';
 
 type fetchHourAndDate = {
   horarios: Horario[],
-  agendamientos: Agendamiento[]
+  agendamientos: { hora_inicio: string, total: number }[]
 }
 @Injectable()
 export class HorarioService {

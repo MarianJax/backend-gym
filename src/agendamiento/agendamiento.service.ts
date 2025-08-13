@@ -20,6 +20,7 @@ import { UpdateAgendamientoDto } from './dto/update-agendamiento.dto';
 import { Agendamiento } from './entities/agendamiento.entity';
 
 import { Membresia } from 'src/membresia/entities/membresia.entity';
+import { start } from 'repl';
 
 @Injectable()
 export class AgendamientoService {
@@ -389,32 +390,35 @@ export class AgendamientoService {
     });
   }
 
-  async findByDateAndHours(fecha: string): Promise<Agendamiento[]> {
+  async findByDateAndHours(fecha: string): Promise<{ hora_inicio: string, total:number }[]> {
     const start = new Date(fecha);
     start.setHours(0, 0, 0, 0);
-    const end = new Date(start);
-    end.setDate(start.getDate() + 1);
+    const end = new Date(fecha);
+    end.setHours(23, 59, 59, 999);
 
     const agendamiento_membresia = await this.agendamientoRepository
       .createQueryBuilder('agendamiento')
-      .select(['agendamiento.hora_inicio', 'COUNT(*) AS total'])
+      .select(['agendamiento.hora_inicio','agendamiento.id', 'COUNT(*) AS total'])      
+      .addSelect("TO_CHAR(agendamiento.fecha, 'Day')", 'dia')
       .leftJoin('agendamiento.membresias', 'membresias')
       .innerJoin('membresias.pagos', 'pagos')
       .innerJoin('pagos.validacion_pago', 'validaciones_pagos')
       .where('agendamiento.fecha BETWEEN :startDate AND :endDate', {
-        startDate: start.toISOString(),
-        endDate: end.toISOString(),
+        startDate: start.toDateString(),
+        endDate: end.toDateString(),
       })
       .andWhere('validaciones_pagos.estado != :estado', {
         estado: EstadoPago.RECHAZADO,
       })
       .groupBy('agendamiento.hora_inicio')
+      .groupBy('agendamiento.id')
       .orderBy('agendamiento.hora_inicio', 'ASC')
       .getRawMany();
 
     const agendamiento_pago = await this.agendamientoRepository
       .createQueryBuilder('agendamiento')
-      .select(['agendamiento.hora_inicio', 'COUNT(*) AS total'])
+      .select(['agendamiento.hora_inicio','agendamiento.id', 'COUNT(*) AS total'])     
+      .addSelect("TO_CHAR(agendamiento.fecha, 'Day')", 'dia')
       .leftJoin('agendamiento.pagos', 'pagos')
       .innerJoin('pagos.validacion_pago', 'validaciones_pagos')
       .where('agendamiento.fecha BETWEEN :startDate AND :endDate', {
@@ -425,14 +429,64 @@ export class AgendamientoService {
         estado: EstadoPago.RECHAZADO,
       })
       .groupBy('agendamiento.hora_inicio')
+      .groupBy('agendamiento.id')
       .orderBy('agendamiento.hora_inicio', 'ASC')
       .getRawMany();
 
-    return [...agendamiento_membresia, ...agendamiento_pago];
+      const data = new Map();
+
+    [...agendamiento_membresia, ...agendamiento_pago].forEach((ag)=>{
+
+      if (!data.has(ag.agendamiento_id)) {
+        if (data.has(ag.agendamiento_hora_inicio)  ) {
+          const existing = data.get(ag.agendamiento_hora_inicio);
+          data.set(ag.agendamiento_hora_inicio, {
+            hora_inicio: ag.agendamiento_hora_inicio,
+            total: existing.total + Number(ag.total),
+          });
+        } else {
+          data.set(ag.agendamiento_hora_inicio, {
+            hora_inicio: ag.agendamiento_hora_inicio,
+            total: Number(ag.total),
+          });
+        }
+      }
+
+      return Array.from(data.values());
+      
+    });
+
+    return data.size ? Array.from(data.values()) : [];
   }
 
-  async findAll(): Promise<any[]> {
-    return await this.agendamientoRepository.find({
+  async findAll(fecha?: string): Promise<any[]> {
+    if (fecha) {
+      const startDate = new Date(fecha);
+      const endDate = new Date(fecha);
+      endDate.setHours(23,59,59,999);
+      endDate.setDate(endDate.getDate() + 1);
+      console.log('Fecha proporcionada:', fecha, startDate, endDate);
+
+      return await this.agendamientoRepository.find({
+        where: {
+          fecha: Between(startDate, endDate),
+        },
+        select: {
+          id: true,
+          fecha: true,
+          asistio: true,
+          hora_fin: true,
+          hora_inicio: true,
+          usuario_id: true,
+          distribucion: {
+            rol_id: true,
+          },
+        },
+        relations: ['distribucion'],
+      });
+    }
+
+    const dat = await this.agendamientoRepository.find({
       select: {
         id: true,
         fecha: true,
@@ -446,6 +500,9 @@ export class AgendamientoService {
       },
       relations: ['distribucion'],
     });
+    console.log(dat);
+
+    return dat;
 
     // //#region CONSULTAR API DE USUARIOS
     // const formatterPagos = [];
