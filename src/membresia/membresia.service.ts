@@ -125,6 +125,8 @@ export class MembresiaService {
         },
         select: {
           id: true,
+          fecha_fin: true,
+          fecha_inicio: true,
           pagos: {
             id: true,
             validacion_pago: {

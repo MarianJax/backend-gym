@@ -398,34 +398,37 @@ export class AgendamientoService {
     const agendamiento_membresia = await this.agendamientoRepository
       .createQueryBuilder('agendamiento')
       .select(['agendamiento.hora_inicio', 'COUNT(*) AS total'])
-      .leftJoin('agendamiento.membresias','membresias')
+      .leftJoin('agendamiento.membresias', 'membresias')
+      .innerJoin('membresias.pagos', 'pagos')
+      .innerJoin('pagos.validacion_pago', 'validaciones_pagos')
       .where('agendamiento.fecha BETWEEN :startDate AND :endDate', {
         startDate: start.toISOString(),
         endDate: end.toISOString(),
+      })
+      .andWhere('validaciones_pagos.estado != :estado', {
+        estado: EstadoPago.RECHAZADO,
       })
       .groupBy('agendamiento.hora_inicio')
       .orderBy('agendamiento.hora_inicio', 'ASC')
       .getRawMany();
 
-      const agendamiento_pago = await this.agendamientoRepository
+    const agendamiento_pago = await this.agendamientoRepository
       .createQueryBuilder('agendamiento')
       .select(['agendamiento.hora_inicio', 'COUNT(*) AS total'])
-      .leftJoin('agendamiento.pagos','pagos')
+      .leftJoin('agendamiento.pagos', 'pagos')
+      .innerJoin('pagos.validacion_pago', 'validaciones_pagos')
       .where('agendamiento.fecha BETWEEN :startDate AND :endDate', {
         startDate: start.toISOString(),
         endDate: end.toISOString(),
+      })
+      .andWhere('validaciones_pagos.estado != :estado', {
+        estado: EstadoPago.RECHAZADO,
       })
       .groupBy('agendamiento.hora_inicio')
       .orderBy('agendamiento.hora_inicio', 'ASC')
       .getRawMany();
 
-      return [
-        ...agendamiento_membresia,
-        ...agendamiento_pago,
-      ]
-
-
-
+    return [...agendamiento_membresia, ...agendamiento_pago];
   }
 
   async findAll(): Promise<any[]> {
