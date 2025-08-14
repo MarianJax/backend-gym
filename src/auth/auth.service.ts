@@ -20,6 +20,7 @@ export class AuthService {
         clave: AuthDto.contrasena,
       });
       if (dat.state === 'success') {
+        console.log(dat.value)
         return {
           state: 'success',
           user: {
@@ -94,7 +95,8 @@ export class AuthService {
     }
     if (roles.includes('1|ESTUDIANTE') || roles.includes('55|ASPIRANTE')) {
       allowedRoles.push('ESTUDIANTE');
-    } else {
+    } 
+    if (roles.includes('75|FUNCIONARIO')) {
       allowedRoles.push('FUNCIONARIO');
     }
     return allowedRoles;
