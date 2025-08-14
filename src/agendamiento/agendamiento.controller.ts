@@ -6,15 +6,18 @@ import {
   Param,
   Patch,
   Post,
-  Query
+  Query,
 } from '@nestjs/common';
 import { AgendamientoService } from './agendamiento.service';
-import { CreateAgendamientoDto, CreateAgendamientoForMembresia } from './dto/create-agendamiento.dto';
+import {
+  CreateAgendamientoDto,
+  CreateAgendamientoForMembresia,
+} from './dto/create-agendamiento.dto';
 import { UpdateAgendamientoDto } from './dto/update-agendamiento.dto';
 
 @Controller('agendamiento')
 export class AgendamientoController {
-  constructor(private readonly agendamientoService: AgendamientoService) { }
+  constructor(private readonly agendamientoService: AgendamientoService) {}
 
   @Post()
   create(@Body() createAgendamientoDto: CreateAgendamientoDto) {
@@ -27,7 +30,10 @@ export class AgendamientoController {
   }
 
   @Get('with-pending-validation')
-  findAllWithPendingValidation(@Query('_limit') limit: number, @Query('_all') all: boolean) {
+  findAllWithPendingValidation(
+    @Query('_limit') limit: number,
+    @Query('_all') all: boolean,
+  ) {
     return this.agendamientoService.findAllWithPendingValidation(limit, all);
   }
 
@@ -42,8 +48,12 @@ export class AgendamientoController {
   }
 
   @Get('/usuario/:id')
-  findByUsuarioId(@Param('id') id: string, @Query('_fecha') fecha: string) {
-    return this.agendamientoService.findByUsuarioId(id, fecha);
+  findByUsuarioId(
+    @Param('id') id: string,
+    @Query('_fecha') fecha: string,
+    @Query('_rol') rol: string,
+  ) {
+    return this.agendamientoService.findByUsuarioId(id, fecha, rol);
   }
 
   @Get(':id')
