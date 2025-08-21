@@ -430,6 +430,9 @@ export class AgendamientoService {
     const end = new Date(fecha);
     end.setHours(23, 59, 59, 999);
 
+    const dt = await this.findAll();
+    console.log('Fecha proporcionada:', fecha, start, end, dt);
+
     const agendamiento_membresia = await this.agendamientoRepository
       .createQueryBuilder('agendamiento')
       .select([
@@ -442,8 +445,8 @@ export class AgendamientoService {
       .innerJoin('membresias.pagos', 'pagos')
       .innerJoin('pagos.validacion_pago', 'validaciones_pagos')
       .where('agendamiento.fecha BETWEEN :startDate AND :endDate', {
-        startDate: start.toDateString(),
-        endDate: end.toDateString(),
+        startDate: start,
+        endDate: end,
       })
       .andWhere('validaciones_pagos.estado != :estado', {
         estado: EstadoPago.RECHAZADO,
@@ -476,7 +479,7 @@ export class AgendamientoService {
       .getRawMany();
 
     const data = new Map();
-
+    
     [...agendamiento_membresia, ...agendamiento_pago].forEach((ag) => {
       if (!data.has(ag.agendamiento_id)) {
         if (data.has(ag.agendamiento_hora_inicio)) {
