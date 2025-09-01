@@ -116,7 +116,7 @@ export class MembresiaService {
         where: {
           usuario_id: id ,
           fecha_fin: MoreThanOrEqual(fecha),
-          fecha_inicio: LessThanOrEqual(fecha),
+          //fecha_inicio: LessThanOrEqual(fecha),
           pagos: {
             validacion_pago: {
               estado: Not(EstadoPago.RECHAZADO),
